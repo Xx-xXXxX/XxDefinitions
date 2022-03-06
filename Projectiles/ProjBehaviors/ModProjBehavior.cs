@@ -18,7 +18,11 @@ namespace XxDefinitions.Projectiles.ProjBehaviors
 	{
 		public RealModProjType modProj;
 		public Projectile projectile => modProj.projectile;
+		/// <summary>
+		/// 初始化
+		/// </summary>
 		public ModProjBehavior(RealModProjType modProj) { this.modProj = modProj; }
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		#region IBehavior
 		public virtual void Update() { }
 		public virtual bool CanPause() { return true; }

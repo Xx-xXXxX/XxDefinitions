@@ -7,6 +7,10 @@ using Terraria;
 using Terraria.ModLoader;
 namespace XxDefinitions.NPCs.NPCBehaviors
 {
+	/// <summary>
+	/// 原版的离地Tilehigh飞行的ai
+	/// </summary>
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 	public class NPCBehavior_Hover:ModNPCBehavior<ModNPC>
 	{
 		public override string BehaviorName => "NPC_Hover";

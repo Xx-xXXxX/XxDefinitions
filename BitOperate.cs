@@ -132,12 +132,26 @@ namespace XxDefinitions
 
 #pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
 	}
-
+	/// <summary>
+	/// 将int按位分离操作
+	/// </summary>
 	public class BitSeparator
 	{
+		/// <summary>
+		/// 按位分离长度
+		/// </summary>
 		public readonly int[] SeparateDistance;
+		/// <summary>
+		/// 按位分离位置
+		/// </summary>
 		public readonly int[] SeparateIndex;
+		/// <summary>
+		/// 被分离的值
+		/// </summary>
 		public readonly RefByFunc<int> SeparatedNumber;
+		/// <summary>
+		/// 初始化，自动生成SeparateIndex
+		/// </summary>
 		public BitSeparator(RefByFunc<int> SeparatedNumber, int[] SeparateDistance) {
 			this.SeparatedNumber = SeparatedNumber;
 			this.SeparateDistance = SeparateDistance;
@@ -149,26 +163,51 @@ namespace XxDefinitions
 				n += SeparateDistance[i];
 			}
 		}
+		/// <summary>
+		/// 初始化
+		/// </summary>
 		public BitSeparator(RefByFunc<int> SeparatedNumber, int[] SeparateDistance,int[] SeparateIndex)
 		{
 			this.SeparatedNumber = SeparatedNumber;
 			this.SeparateDistance = SeparateDistance;
 			this.SeparateIndex = SeparateIndex;
 		}
+		/// <summary>
+		/// 获取分离的值
+		/// </summary>
 		public int Get(int index) {
 			return BitOperate.GetBits(SeparatedNumber.Value,SeparateIndex[index], SeparateDistance[index]);
 		}
+		/// <summary>
+		/// 设置分离的值
+		/// </summary>
 		public int Set(int index, int value) {
 			return SeparatedNumber.Value=BitOperate.SetBits(SeparatedNumber.Value, value, SeparateIndex[index], SeparateDistance[index]);
 		}
+		/// <summary>
+		/// 
+		/// </summary>
 		public int this[int index] {
 			get => Get(index);
 			set => Set(index, value);
 		}
 	}
-	public class BitSeparatorFactory {
+	/// <summary>
+	/// 按位分离的工厂
+	/// </summary>
+	public class BitSeparatorFactory
+	{
+		/// <summary>
+		/// 按位分离长度
+		/// </summary>
 		public readonly int[] SeparateDistance;
+		/// <summary>
+		/// 按位分离位置
+		/// </summary>
 		public readonly int[] SeparateIndex;
+		/// <summary>
+		/// 初始化，自动生成SeparateIndex
+		/// </summary>
 		public BitSeparatorFactory(int[] SeparateDistance)
 		{
 			this.SeparateDistance = SeparateDistance;
@@ -180,6 +219,9 @@ namespace XxDefinitions
 				n += SeparateDistance[i];
 			}
 		}
+		/// <summary>
+		/// 创建BitSeparator
+		/// </summary>
 		public BitSeparator Build(RefByFunc<int> I) {
 			return new BitSeparator(I, SeparateDistance, SeparateIndex);
 		}
