@@ -14,10 +14,14 @@ using XxDefinitions.NPCs.NPCBehaviors;
 
 namespace XxDefinitions.Projectiles.ProjBehaviors
 {
+	/// <summary>
+	/// ModProjectile应用行为自动机的基类
+	/// </summary>
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 	public abstract class ModProjBehaviorAutomata:ModProjectile
 	{
 		public Behavior.BehaviorSet<IModProjBehavior> BehaviorSet = new Behavior.BehaviorSet<IModProjBehavior>();
-		public IModProjBehavior BehaviorNow => BehaviorSet.BehaviorNow;
+		public IModProjBehavior BehaviorMain => BehaviorSet.BehaviorMain;
 		public override void ReceiveExtraAI(BinaryReader reader)
 		{
 			BehaviorSet.NetUpdateReceive(reader);
@@ -28,12 +32,7 @@ namespace XxDefinitions.Projectiles.ProjBehaviors
 		}
 		public override void AI()
 		{
-			BehaviorNow.Update();
-			foreach (var ID in BehaviorSet)
-			{
-				if(ID!=BehaviorSet.BehaviorNowID)
-					BehaviorSet[ID].Update();
-			}
+			BehaviorSet.Update();
 		}
 		#region Hooks
 		public override bool? CanHitNPC(NPC target)

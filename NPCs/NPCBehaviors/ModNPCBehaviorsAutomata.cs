@@ -15,10 +15,14 @@ using Terraria.Localization;
 
 namespace XxDefinitions.NPCs.NPCBehaviors
 {
+	/// <summary>
+	/// ModNPC应用行为自动机的基类
+	/// </summary>
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 	public abstract class ModNPCBehaviorsAutomata : ModNPC
 	{
 		public Behavior.BehaviorSet<IModNPCBehavior> BehaviorSet =new Behavior.BehaviorSet<IModNPCBehavior>();
-		public IModNPCBehavior BehaviorNow => BehaviorSet.BehaviorNow;
+		public IModNPCBehavior BehaviorMain => BehaviorSet.BehaviorMain;
 		public override void ReceiveExtraAI(BinaryReader reader)
 		{
 			BehaviorSet.NetUpdateReceive(reader);
@@ -29,8 +33,9 @@ namespace XxDefinitions.NPCs.NPCBehaviors
 		}
 		public override void AI()
 		{
-			BehaviorNow.Update();
+			BehaviorSet.Update();
 		}
+
 		#region Hooks
 		public override void FindFrame(int frameHeight)
 		{

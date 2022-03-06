@@ -108,6 +108,7 @@ namespace XxDefinitions
 			return R;
 		}
 
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		public static string ToBitString(int data)
 		{
 			return ToBitString(IToBytes(data));
@@ -128,7 +129,10 @@ namespace XxDefinitions
 		{
 			return BitConverter.GetBytes(d);
 		}
+
+#pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
 	}
+
 	public class BitSeparator
 	{
 		public readonly int[] SeparateDistance;

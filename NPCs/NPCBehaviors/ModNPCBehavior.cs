@@ -9,18 +9,35 @@ using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.Localization;
-
+using XxDefinitions.Behavior;
 namespace XxDefinitions.NPCs.NPCBehaviors
 {
+	/// <summary>
+	/// ModNPC的行为的接口
+	/// </summary>
 	public interface IModNPCBehavior : Behavior.IBehavior, IModNPCBehaviorHooks { }
+	/// <summary>
+	/// ModNPC的行为的基类
+	/// </summary>
 	public abstract class ModNPCBehavior<RealModNPC> : IModNPCBehavior
 		where RealModNPC:ModNPC
 	{
+		/// <summary>
+		/// 被操作的modNPC
+		/// </summary>
 		public RealModNPC modNPC;
+		/// <summary>
+		/// 被操作的npc
+		/// </summary>
 		public NPC npc => modNPC.npc;
 		//public ItemTreeIndex<string> index;
+		/// <summary>
+		/// 初始化
+		/// </summary>
 		public ModNPCBehavior(RealModNPC modNPC) { this.modNPC = modNPC;}
 		//public ModNPCBehavior(RealModNPC modNPC, ItemTreeIndex<string> index) { this.modNPC = modNPC; this.index = index; }
+
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		#region IBehavior
 		public virtual void Update() { }
 		public virtual bool CanPause() { return true; }
@@ -34,43 +51,13 @@ namespace XxDefinitions.NPCs.NPCBehaviors
 		public virtual object Call(params object[] vs) { return null; }
 		public virtual string BehaviorName => "ModNPCBehavior";
 		public bool pausing=true;
-		/// <summary>
-		/// 尝试暂停
-		/// </summary>
-		/// <returns>true代表操纵成功，!item.CanPause()与pausing都返回false</returns>
-		public bool TryPause()
-		{
-			if (pausing) return false;
-			if (CanPause())
-			{
-				Pause();
-				pausing = true;
-				return true;
-			}
-			else return false;
-		}
-		/// <summary>
-		/// 尝试继续
-		/// </summary>
-		/// <returns>true代表操纵成功，!item.CanContinue()与!pausing都返回false</returns>
-		public bool TryContinue()
-		{
-			if (!pausing) return false;
-			if (CanContinue())
-			{
-				Continue();
-				pausing = false;
-				return true;
-			}
-			else return false;
-		}
 		public bool Pausing
 		{
 			get => pausing;
 			set
 			{
-				if (value) TryPause();
-				else TryContinue();
+				if (value) this.TryPause();
+				else this.TryContinue();
 			}
 		}
 		#endregion

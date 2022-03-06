@@ -143,6 +143,7 @@ namespace XxDefinitions
 	}
 
 
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 	/// <summary><code><![CDATA[
 	/// 用short表示玩家或NPC,或无
 	/// 值data
@@ -153,13 +154,7 @@ namespace XxDefinitions
 	/// </summary>
 	public struct UnifiedTarget2
 	{
-		/// <summary>
-		/// 目标的值
-		/// </summary>
 		public short data;
-		/// <summary>
-		/// 目标是否为npc
-		/// </summary>
 		public bool IsNPC
 		{
 			get => data > 0;

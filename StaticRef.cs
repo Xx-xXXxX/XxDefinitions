@@ -132,6 +132,7 @@ namespace XxDefinitions
 	//}
 
 
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 	[Obsolete("未完成")]
 	public static class UnloadDo
 	{
