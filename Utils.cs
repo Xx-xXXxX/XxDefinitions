@@ -85,7 +85,10 @@ namespace XxDefinitions
 			if (n > r) n = r;
 			return n;
 		}
-		public static int LimitCircular(int n, int l, int r) {
+		/// <summary>
+		/// 返回n在[l,r)中循环的结果
+		/// </summary>
+		public static int LimitLoop(int n, int l, int r) {
 			int d = r - l;
 			while (n < l) n += d;
 			while (n >= r) n -= d;
