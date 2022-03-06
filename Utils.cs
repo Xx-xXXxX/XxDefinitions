@@ -18,19 +18,25 @@ namespace XxDefinitions
 {
 	public static class Utils
 	{
+		/// <summary>
+		/// 启用Effect(Immediate)
+		/// </summary>
 		public static void SpriteBatchUsingEffect(SpriteBatch spriteBatch) {
 			spriteBatch.End();
 			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, SamplerState.AnisotropicClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 		}
+		/// <summary>
+		/// 结束启用Effect(Deferred)
+		/// </summary>
 		public static void SpriteBatchEndUsingEffect(SpriteBatch spriteBatch)
 		{
 			spriteBatch.End();
 			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.AnisotropicClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 		}
-	/// <summary>
-	/// 获取符合正态分布的随机数
-	/// </summary>
-	public static double NextGaussian(this Terraria.Utilities.UnifiedRandom rand)
+		/// <summary>
+		/// 获取符合正态分布的随机数
+		/// </summary>
+		public static double NextGaussian(this Terraria.Utilities.UnifiedRandom rand)
 		{
 			double u = -2 * Math.Log(rand.NextDouble());
 			double v = 2 * Math.PI * rand.NextDouble();
@@ -40,34 +46,55 @@ namespace XxDefinitions
 		/// 获取符合正态分布的随机数
 		/// </summary>
 		public static double NextGaussian(this Terraria.Utilities.UnifiedRandom rand, double mu, double sigma) => rand.NextGaussian() * sigma + mu;
+		/// <summary>
+		/// 在其他边不变的情况下设置左边界
+		/// </summary>
 		public static Rectangle SetLeft(this Rectangle rect, int L) {
 			rect.Width += L- rect.X;
 			rect.X = L;
 			return rect;
 		}
+		/// <summary>
+		/// 在其他边不变的情况下设置右边界
+		/// </summary>
 		public static Rectangle SetRight(this Rectangle rect, int R) {
 			rect.Width = R  - rect.X;return rect;
 		}
+		/// <summary>
+		/// 在其他边不变的情况下设置上边界
+		/// </summary>
 		public static Rectangle SetTop(this Rectangle rect, int T) {
 			rect.Height += T - rect.Y;
 			rect.Y = T;
 			return rect;
 		}
+		/// <summary>
+		/// 在其他边不变的情况下设置下边界
+		/// </summary>
 		public static Rectangle SetBottom(this Rectangle rect, int B) {
 			rect.Height = B - rect.X;return rect;
 		}
+		/// <summary>
+		/// 设置左上角
+		/// </summary>
 		public static Rectangle SetLT(this Rectangle rect, Point point)
 		{
 			rect.SetLeft(point.X);
 			rect.SetTop(point.Y);
 			return rect;
 		}
+		/// <summary>
+		/// 设置右下角
+		/// </summary>
 		public static Rectangle SetRB(this Rectangle rect, Point point)
 		{
 			rect.SetRight(point.X);
 			rect.SetBottom(point.Y);
 			return rect;
 		}
+		/// <summary>
+		/// 移动rect
+		/// </summary>
 		public static Rectangle MoveBy(this Rectangle rect, Point point)
 		{
 			rect.X -= point.X;
@@ -75,10 +102,25 @@ namespace XxDefinitions
 			return rect;
 		}
 		//public static Point operator +(Point A,Point B)
+		/// <summary>
+		/// 判断npc是否活动
+		/// </summary>
 		public static bool NPCCanUse(NPC npc) => npc.active;
+		/// <summary>
+		/// 判断player是否活动
+		/// </summary>
 		public static bool PlayerCanUse(Player player) => player.active && !player.dead && !player.ghost;
-		public static bool NPCCanFind(NPC npc) => npc.active && npc.CanBeChasedBy();
-		public static bool PlayerCanFind(Player player) => player.active && !player.dead && !player.ghost;
+		/// <summary>
+		/// 判断npc是否可以追踪
+		/// </summary>
+		public static bool NPCCanFind(NPC npc) => NPCCanUse(npc) && npc.CanBeChasedBy();
+		/// <summary>
+		/// 判断玩家是否可以追踪
+		/// </summary>
+		public static bool PlayerCanFind(Player player) => PlayerCanUse(player);
+		/// <summary>
+		/// 将n限制在[l,r]
+		/// </summary>
 		public static int Limit(int n, int l, int r)
 		{
 			if (n < l) n = l;
@@ -94,6 +136,26 @@ namespace XxDefinitions
 			while (n >= r) n -= d;
 			return n;
 		}
+		/// <summary>
+		/// 返回n在[l,r)中循环的结果
+		/// </summary>
+		public static double LimitLoop(double n, double l, double r)
+		{
+			double d = r - l;
+			while (n < l) n += d;
+			while (n >= r) n -= d;
+			return n;
+		}
+		/// <summary>
+		/// 返回n在[l,r)中循环的结果
+		/// </summary>
+		public static float LimitLoop(float n, float l, float r)
+		{
+			float d = r - l;
+			while (n < l) n += d;
+			while (n >= r) n -= d;
+			return n;
+		}
 		/*
 		public static void LoadT() {
 			Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Terraria.ModLoader.Default." + file + ".png");
@@ -103,6 +165,9 @@ namespace XxDefinitions
 			}
 			return Texture2D.FromStream(Main.instance.GraphicsDevice, stream);
 		}*/
+		/// <summary>
+		/// 用于计算的方法
+		/// </summary>
 		public static class CalculateUtils {
 			/// <summary>
 			/// 获取一个随n缓慢减小的值,从1到0
@@ -141,7 +206,7 @@ namespace XxDefinitions
 			/// </summary>
 			public static double FastlyIncreaseToInf(double n) => Math.Tan(n * Math.PI / 2);
 			/// <summary>
-			/// 获取在Box中 到Point最近的点，可用于判断碰撞
+			/// 获取 在Box中 到Point最近的点，可用于判断碰撞
 			/// </summary>
 			public static Vector2 GetNearestPoint(Rectangle Box, Vector2 Point)
 			{
@@ -152,6 +217,13 @@ namespace XxDefinitions
 				if (NearestPoint.Y > Box.Bottom) NearestPoint.Y = Box.Bottom;
 				return NearestPoint;
 			}
+			/// <summary>
+			/// 判断点是否在圆内
+			/// </summary>
+			/// <param name="Pos">圆心</param>
+			/// <param name="R">半径</param>
+			/// <param name="Point">目标点</param>
+			/// <returns></returns>
 			public static bool CheckPointInCiecle(Vector2 Pos, float R, Vector2 Point)=> (Point - Pos).LengthSquared() <= R * R;
 			/// <summary>
 			/// 判断Box与 已Pos为圆心，已R为半径的圆 是否碰撞
@@ -160,9 +232,18 @@ namespace XxDefinitions
 				Vector2 P = Utils.CalculateUtils.GetNearestPoint(Box, Pos);
 				return CheckPointInCiecle(Pos, R, P);
 			}
+			/// <summary>
+			/// 计算二维向量叉乘的长
+			/// </summary>
 			public static float CrossProduct(Vector2 v1, Vector2 v2) => v1.X * v2.Y - v1.Y * v2.X;
-			public static float? PredictWithVel(Vector2 OffsetPos, Vector2 TargetVel, float Speed) {
-				float D = CrossProduct(OffsetPos, TargetVel) / (Speed * OffsetPos.Length());
+			/// <summary>
+			/// 根据相对位置，相对速度，固定发射速度进行预判
+			/// </summary>
+			/// <param name="OffsetPos">相对位置</param>
+			/// <param name="OffsetVel">相对速度</param>
+			/// <param name="Speed">固定发射速度</param>
+			public static float? PredictWithVel(Vector2 OffsetPos, Vector2 OffsetVel, float Speed) {
+				float D = CrossProduct(OffsetPos, OffsetVel) / (Speed * OffsetPos.Length());
 				if (D > 1 || D < -1) return null;
 				else return (float)Math.Asin(D) + OffsetPos.ToRotation();
 			}
@@ -172,12 +253,12 @@ namespace XxDefinitions
 			/// 以npc与Pos的距离为价值
 			/// <code>(npc.Center - Pos).Length() - npc.Size.Length()</code>
 			/// </summary>
-			public static float NPCFindValue(NPC npc, Vector2 Pos) => (npc.Center - Pos).Length() - npc.Size.Length();
+			public static float NPCFindValue(NPC npc, Vector2 Pos) => (npc.Center - Pos).Length() - npc.Size.Length()/2;
 			/// <summary>
 			/// 以player与Pos的距离为价值
 			/// <code>(player.Center - Pos).Length() - player.Size.Length()</code>
 			/// </summary>
-			public static float PlayerFindValue(Player player, Vector2 Pos) => (player.Center - Pos).Length() - player.Size.Length();
+			public static float PlayerFindValue(Player player, Vector2 Pos) => (player.Center - Pos).Length() - player.Size.Length()/2;
 			/// <summary>
 			/// 根据价值搜索目标，找到价值最低的目标
 			/// </summary>
@@ -225,7 +306,14 @@ namespace XxDefinitions
 				}
 				return T;
 			}
-			public static int WeightingChoose(int I, params int[] values) {
+			/// <summary>
+			/// 加权选择
+			/// 返回-1表示超过
+			/// </summary>
+			/// <param name="I"></param>
+			/// <param name="values"></param>
+			/// <returns></returns>
+			public static int WeightedChoose(int I, params int[] values) {
 				for (int i = 0; i < values.Length; ++i) {
 					if (I < values[i]) return i;
 					I -= values[i];
@@ -234,15 +322,52 @@ namespace XxDefinitions
 			}
 			//public static int WeightingChoose(int I, params int[] values) => WeightingChoose(I, values);
 		}
+		/// <summary>
+		/// 生成方法
+		/// </summary>
 		public static class SummonUtils {
+			/// <summary>
+			/// 生成作为弹幕的爆炸
+			/// </summary>
+			/// <param name="Position">爆炸位置</param>
+			/// <param name="radius">爆炸半径</param>
+			/// <param name="friendlyDamage">对hostile的npc的伤害</param>
+			/// <param name="hostileDamage">对player和友好npc的伤害</param>
+			/// <param name="color_">爆炸颜色</param>
+			/// <param name="Owner">弹幕的所有者</param>
+			/// <param name="npcProj">弹幕是否为npc的弹幕，注意npc的弹幕的所有者为Main.myplayer</param>
+			/// <returns>爆炸弹幕的id</returns>
 			public static int SummonProjExplosion(Vector2 Position, float radius, int friendlyDamage, int hostileDamage, Color? color_, int Owner, bool npcProj) => Projectiles.ProjExplosion.SummonProjExplosion(Position, radius, friendlyDamage, hostileDamage, color_, Owner, npcProj);
+			/// <summary>
+			/// 生成作为弹幕，陷阱的爆炸
+			/// </summary>
+			/// <param name="Position">爆炸位置</param>
+			/// <param name="radius">爆炸半径</param>
+			/// <param name="friendlyDamage">对hostile的npc的伤害</param>
+			/// <param name="hostileDamage">对player和友好npc的伤害</param>
+			/// <param name="color_">爆炸颜色</param>
+			/// <returns>爆炸弹幕的id</returns>
 			public static int SummonProjExplosionTrap(Vector2 Position, float radius, int friendlyDamage, int hostileDamage, Color? color_) => Projectiles.ProjExplosion.SummonProjExplosionTrap(Position, radius, friendlyDamage, hostileDamage, color_);
+			
 			static SummonUtils() {
 				ModTranslation DRS = XxDefinitions.Instance.CreateTranslation("KilledBySummonDustExplosion");
 				DRS.SetDefault("be kill with an explosion");
 				DRS.AddTranslation(GameCulture.Chinese, "被炸死了");
 				XxDefinitions.Instance.AddTranslation(DRS);
 			}
+			/// <summary>
+			/// 对半径中的对象造成伤害，并产生粒子
+			/// </summary>
+			/// <param name="Position">爆炸位置</param>
+			/// <param name="radius">爆炸半径</param>
+			/// <param name="friendlyDamage">对hostile的npc的伤害</param>
+			/// <param name="hostileDamage">对player和友好npc的伤害</param>
+			/// <param name="DustType">粒子类型</param>
+			/// <param name="DustCircleNumber">粒子在爆炸圆中的数量</param>
+			/// <param name="DustSpreadNumber">粒子在中心扩散的数量</param>
+			/// <param name="DustSpeed">扩散的粒子的速度</param>
+			/// <param name="DustDo">对每个生成的粒子的操作</param>
+			/// <param name="MakeDeathReason">杀死玩家的原因，默认为 player.name + " " + Language.GetTextValue("Mods.XxDefinitions.KilledBySummonDustExplosion") </param>
 			public static void SummonDustExplosion(Vector2 Position, float radius, int friendlyDamage, int hostileDamage, int DustType,int DustCircleNumber, int DustSpreadNumber,float DustSpeed,Action<Dust> DustDo=null,Func<Player, Terraria.DataStructures.PlayerDeathReason> MakeDeathReason=null) {
 				for (int i = 0; i < DustSpreadNumber; i++)
 				{
