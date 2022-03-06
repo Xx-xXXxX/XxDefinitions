@@ -1,0 +1,8 @@
+displayName = XxDefinitions
+author = Xx xXXxX
+version = 0.1.0.1
+hideResources = false
+hideCode = false
+includeSource = true
+includePDB = true
+buildIgnore = UnionBehavior\*

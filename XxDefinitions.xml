@@ -1,0 +1,272 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>XxDefinitions</name>
+    </assembly>
+    <members>
+        <member name="M:XxDefinitions.BitOperate.MakeBit1s(System.Int32)">
+            <summary>
+            Make 1 Bits
+            example:MakeBit1s(4)==0xf(1111)
+            </summary>
+            <param name="s">Length of 1</param>
+            <returns></returns>
+        </member>
+        <member name="M:XxDefinitions.BitOperate.GetBits(System.Int32,System.Int32,System.Int32)">
+             <summary>
+             Sub bits at l to l+s
+             <code>example:GetBits(101101110,2,3)
+            _101101110
+            _    [ ]
+            _    011(return)</code>
+             </summary>
+             <param name="d"></param>
+             <param name="l"></param>
+             <param name="s"></param>
+             <returns></returns>
+        </member>
+        <member name="M:XxDefinitions.BitOperate.ClearBits(System.Int32,System.Int32,System.Int32)">
+             <summary>
+             <code>Set bits in [l,l+s] by 0
+             example:ClearBits(101101110,2,3)
+            _101101110
+            _    [ ]
+            _101100010(return)</code>
+             </summary>
+             <param name="d"></param>
+             <param name="l"></param>
+             <param name="s"></param>
+             <returns></returns>
+        </member>
+        <member name="M:XxDefinitions.BitOperate.ClearOutsideBits(System.Int32,System.Int32,System.Int32)">
+             <summary>
+             <code>Set bits outside [l,l+s] by 0
+             example:ClearBits(101101110,2,3)
+            _101101110
+            _    [ ]
+            _000001100(return)</code>
+             </summary>
+             <param name="d"></param>
+             <param name="l"></param>
+             <param name="s"></param>
+             <returns></returns>
+        </member>
+        <member name="M:XxDefinitions.BitOperate.SetBits(System.Int32,System.Int32,System.Int32,System.Int32)">
+             <summary>
+             <para>Set bits in [l,l+s] with v</para>
+             <code>example:SetBits(101101110,1110,2,3)
+            _101001110
+            _    [ ]
+            _   1110
+            _101011010(return)</code>
+             </summary>
+             <param name="d"></param>
+             <param name="v"></param>
+             <param name="l"></param>
+             <param name="s"></param>
+             <returns></returns>
+        </member>
+        <member name="M:XxDefinitions.BitOperate.ToBitString(System.Byte[])">
+            <summary>
+            Make string by bits
+            Note that left is low
+            example:ToBitString(IToBytes(0xf))
+            0xf(int)
+            11110000000000000000000000000000
+            </summary>
+            <param name="data"></param>
+            <returns></returns>
+        </member>
+        <member name="M:XxDefinitions.ItemTree`2.GetIndex(System.Int32)">
+            <summary><![CDATA[
+            Get index from fathers.
+            depth<0 means get from root.
+            depth=0 returns null Index(new ItemTreeIndex<IndexType>())]]>
+            </summary>
+            <param name="depth"></param>
+            <returns></returns>
+        </member>
+        <member name="M:XxDefinitions.ItemTree`2.EnumAt(XxDefinitions.ItemTreeIndex{`0})">
+            <summary>
+            Enum At IndicesAt
+            The returned item.Key including IndicesAt
+            which Enum this.Get(IndicesAt) don't have
+            </summary>
+            <param name="IndicesAt"></param>
+            <returns></returns>
+        </member>
+        <member name="M:XxDefinitions.INetPacketTree.GetPacket">
+            <summary>
+            获取到该节点的Packet
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:XxDefinitions.INetPacketTree.Handle(System.IO.BinaryReader,System.Int32)">
+            <summary>
+            到该节点时执行的函数
+            </summary>
+            <param name="reader">Packet</param>
+            <param name="whoAmI">发出Packet的玩家</param>
+        </member>
+        <member name="T:XxDefinitions.INetPacketTreeChild`1">
+            <summary>
+            作为Packet操作的后续结点接口
+            </summary>
+            <typeparam name="FatherType"></typeparam>
+        </member>
+        <member name="P:XxDefinitions.INetPacketTreeChild`1.Father">
+            <summary>
+            该节点的父亲
+            </summary>
+        </member>
+        <member name="P:XxDefinitions.INetPacketTreeChild`1.childKey">
+            <summary>
+            自己在父亲中的Key
+            </summary>
+        </member>
+        <member name="T:XxDefinitions.NetPacketTreeFather`1">
+            <summary>
+            作为Packet操作的前驱结点类，支持任意标识ChildType
+            设置SetBinary，GetBinary来设置从ChildType输入输出Binary的方法
+            用AddChild加入子节点，会自动设置Binary来传给对应的Child
+            </summary>
+        </member>
+        <member name="F:XxDefinitions.NetPacketTreeFather`1.SetBinary">
+            <summary>
+            SetBinary用于从data输入Binary
+            </summary>
+        </member>
+        <member name="F:XxDefinitions.NetPacketTreeFather`1.GetBinary">
+            <summary>
+            SetBinary用于从Binary得到data
+            </summary>
+        </member>
+        <member name="F:XxDefinitions.NetPacketTreeFather`1.NetPacketTreeChilds">
+            <summary>
+            存储子节点的表
+            </summary>
+        </member>
+        <member name="M:XxDefinitions.NetPacketTreeFather`1.GetPacketChild(`0)">
+            <summary>
+            获取用于子节点的Packet
+            </summary>
+            <param name="childKey">子节点的Key</param>
+            <returns></returns>
+        </member>
+        <member name="M:XxDefinitions.NetPacketTreeFather`1.Handle(System.IO.BinaryReader,System.Int32)">
+            <summary>
+            传输Packet到对应Key的Child
+            </summary>
+            <param name="reader"></param>
+            <param name="whoAmI"></param>
+        </member>
+        <member name="M:XxDefinitions.NetPacketTreeFather`1.AddChild(XxDefinitions.INetPacketTreeChild{`0},`0)">
+            <summary>
+            新增Child
+            </summary>
+            <param name="Child">子节点</param>
+            <param name="childKey">子节点的Key</param>
+        </member>
+        <member name="T:XxDefinitions.NetPacketTreeMain`1">
+            <summary>
+            进行Packet操作的根节点
+            </summary>
+            <typeparam name="ChildType"></typeparam>
+        </member>
+        <member name="F:XxDefinitions.NetPacketTreeMain`1.mod">
+            <summary>
+            该mod
+            </summary>
+        </member>
+        <member name="M:XxDefinitions.NetPacketTreeMain`1.#ctor(Terraria.ModLoader.Mod,XxDefinitions.NetPacketTreeFather{`0}.DSetBinary,XxDefinitions.NetPacketTreeFather{`0}.DGetBinary)">
+            <summary>
+            初始化
+            </summary>
+            <param name="mod">该mod</param>
+            <param name="SetBinary">SetBinary方法</param>
+            <param name="GetBinary">GetBinary方法</param>
+        </member>
+        <member name="T:XxDefinitions.NetPacketTreeNode`2">
+            <summary>
+            进行Packet操作的分支结点
+            </summary>
+            <typeparam name="FatherType"></typeparam>
+            <typeparam name="ChildType"></typeparam>
+        </member>
+        <member name="M:XxDefinitions.NetPacketTreeNode`2.#ctor(XxDefinitions.NetPacketTreeFather{`0},`0,XxDefinitions.NetPacketTreeFather{`1}.DSetBinary,XxDefinitions.NetPacketTreeFather{`1}.DGetBinary)">
+            <summary>
+            初始化
+            </summary>
+            <param name="Father">父亲</param>
+            <param name="childKey">该节点的Key</param>
+            <param name="SetBinary">SetBinary方法</param>
+            <param name="GetBinary">GetBinary方法</param>
+        </member>
+        <member name="T:XxDefinitions.NetPacketTreeLeaf`1">
+            <summary>
+            进行Packet操作的叶子结点，进行操作
+            </summary>
+            <typeparam name="FatherType"></typeparam>
+        </member>
+        <member name="F:XxDefinitions.NetPacketTreeLeaf`1.HandleFunction">
+            <summary>
+            进行操作的函数
+            </summary>
+        </member>
+        <member name="M:XxDefinitions.NetPacketTreeLeaf`1.#ctor(XxDefinitions.NetPacketTreeLeaf{`0}.DHandleFunction,XxDefinitions.NetPacketTreeFather{`0},`0,System.Action{Terraria.ModLoader.ModPacket})">
+            <summary>
+            初始化
+            </summary>
+            <param name="HandleFunction">进行操作的函数</param>
+            <param name="childKey"></param>
+        </member>
+        <member name="M:XxDefinitions.NetPacketTreeLeaf`1.AutoDo(System.Int32,System.Int32)">
+            <summary>
+            用AutoDoFunc自动完成并发送
+            </summary>
+        </member>
+        <member name="F:XxDefinitions.NetPacketTreeLeaf`1.AutoDoFunc">
+            <summary>
+            用于自动完成ModPacket的函数
+            </summary>
+        </member>
+        <member name="M:XxDefinitions.Utils.NextGaussian(Terraria.Utilities.UnifiedRandom)">
+            <summary>
+            获取符合正态分布的随机数
+            </summary>
+        </member>
+        <member name="M:XxDefinitions.Utils.NextGaussian(Terraria.Utilities.UnifiedRandom,System.Double,System.Double)">
+            <summary>
+            获取符合正态分布的随机数
+            </summary>
+        </member>
+        <member name="M:XxDefinitions.Utils.CalculateUtils.SlowlyIncreaseLim0To1(System.Double)">
+            <summary>
+            缓慢增长的函数<code>Log(n + 1) / Log(Sqrt(n) + 1)</code>
+            获取一个随n缓慢增长的值,从0到1
+            </summary>
+        </member>
+        <member name="M:XxDefinitions.Utils.CalculateUtils.SlowlyIncreaseLim(System.Double,System.Double,System.Double)">
+            <summary>
+            用SlowlyIncreaseLim0To1获取一个随n缓慢增长的值,从l到r
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:XxDefinitions.Utils.CalculateUtils.SlowlyIncreaseRaw(System.Double,System.Double)" -->
+        <member name="M:XxDefinitions.Utils.CalculateUtils.SlowlyIncrease(System.Double,System.Double)">
+            <summary>
+            获取一个缓慢增长的值，n为参数，SpeedParameter绝定该函数增长的速度。SpeedParameter越大，增长越慢。比log(n+1)大
+            <code>Exp(Pow(Ln(n+1), 1/SlowlyIncreaseLim(SpeedParameter,1,E)));</code>
+            </summary>
+        </member>
+        <member name="M:XxDefinitions.Utils.CalculateUtils.GetNearestPoint(Microsoft.Xna.Framework.Rectangle,Microsoft.Xna.Framework.Vector2)">
+            <summary>
+            获取在Box中 到Point最近的点，可用于判断碰撞
+            </summary>
+        </member>
+        <member name="M:XxDefinitions.Utils.CalculateUtils.CheckAABBvCircleColliding(Microsoft.Xna.Framework.Rectangle,Microsoft.Xna.Framework.Vector2,System.Single)">
+            <summary>
+            判断Box与 已Pos为圆心，已R为半径的圆 是否碰撞
+            </summary>
+        </member>
+    </members>
+</doc>
