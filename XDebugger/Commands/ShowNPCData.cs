@@ -9,7 +9,9 @@ using Terraria.ID;
 using Terraria.ModLoader;
 namespace XxDefinitions.XDebugger.Commands
 {
-	public class ShowNPCData:ModCommand
+
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
+	public class ShowNPCData : ModCommand
 	{
 		public override CommandType Type
 			=> CommandType.World;

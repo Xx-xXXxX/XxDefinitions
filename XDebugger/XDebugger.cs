@@ -13,27 +13,37 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace XxDefinitions.XDebugger
 {
-	public class XDebugger
+	/// <summary>
+	/// 用于调试
+	/// </summary>
+	public static class XDebugger
 	{
 		private static bool Loaded = false;
 		private static bool debugMode = false;
+		/// <summary>
+		/// 关闭调试
+		/// </summary>
 		public static void CloseDebugMode() {
 			debugMode = false;
 			Unload();
 		}
+		/// <summary>
+		/// 开关调试
+		/// 只要有DebugMode=true 都会开启
+		/// </summary>
 		public static bool DebugMode {
 			get => debugMode;
 			set { debugMode = debugMode || value; Load(); }
 		}
-		public static void Update() { 
+		internal static void Update() { 
 			
 		}
-		public static void PostSetupContent() {
+		internal static void PostSetupContent() {
 			//Utils.AddGetNPCDebugDataFunc(ModContent.NPCType<Test.NPCs.E3____Hover>(), (Func<NPC, string>)Test.NPCs.E3____Hover.XDebuggerDebugF);
 		}
 		internal static UI.CustomDraw customDraw;
 		internal static UserInterface customDrawInterface;
-		public static void Load() {
+		internal static void Load() {
 			if (Loaded) return;
 			Loaded = true;
 				customDraw = new UI.CustomDraw();
@@ -42,21 +52,21 @@ namespace XxDefinitions.XDebugger
 				customDrawInterface.SetState(customDraw);
 			UI.CustomDraw.DrawerList = new List<CustomDraw.IDrawer>();
 		}
-		public static void Unload() {
+		internal static void Unload() {
 			if (!Loaded) return;
 			Loaded = false;
 			customDraw = null;
 			customDrawInterface = null;
 			UI.CustomDraw.DrawerList = null;
 		}
-		public static void UpdateUI(GameTime gameTime)
+		internal static void UpdateUI(GameTime gameTime)
 		{
 			if (UI.CustomDraw.Visible)
 			{
 				customDrawInterface?.Update(gameTime);
 			}
 		}
-		public static void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
+		internal static void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
 		{
 			int InventoryTextIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Inventory"));
 			if (InventoryTextIndex != -1)

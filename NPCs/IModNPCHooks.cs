@@ -12,6 +12,7 @@ using Terraria;
 using Terraria.ModLoader;
 namespace XxDefinitions.NPCs
 {
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 	public interface IModNPCBehaviorHooks
 	{
 		void BossHeadRotation(ref float rotation);

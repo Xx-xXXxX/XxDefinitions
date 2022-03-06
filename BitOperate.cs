@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace XxDefinitions
 {
+	/// <summary>
+	/// 位操作
+	/// </summary>
 	public static class BitOperate
 	{
 		/// <summary>

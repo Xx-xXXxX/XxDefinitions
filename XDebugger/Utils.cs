@@ -12,9 +12,19 @@ using XxDefinitions.XDebugger.UI;
 using IL.Extensions;
 namespace XxDefinitions.XDebugger
 {
+	/// <summary>
+	/// 方法
+	/// </summary>
 	public static class Utils
 	{
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
+		/// <summary>
+		/// 用于绘画的方法
+		/// </summary>
 		public static class DrawUtils {
+			/// <summary>
+			/// 线
+			/// </summary>
 			public static Texture2D Line => ModContent.GetTexture("XxDefinitions/XDebugger/Line");
 			public static void DrawLine(SpriteBatch spriteBatch, Vector2 From, float Distance, float Rotation, Color color, float LineWidth = 1)
 			{
@@ -76,6 +86,14 @@ namespace XxDefinitions.XDebugger
 				DrawEllipse(spriteBatch, rect.Center.ToVector2(), rect.Width / 2f, rect.Height / 2f, Accuracy, LineWidth, color);
 			}
 		}
+		/// <summary>
+		/// 可用随时调用的添加绘画的方法
+		/// 比如<code>
+		/// public override void AI(){
+		///		.AddDrawVector(npc.velocity,npc.Center);
+		/// }
+		/// </code>
+		/// </summary>
 		public static class AddDraw
 		{
 			public static void AddDrawString(string shownString, Vector2 pos)
@@ -161,6 +179,11 @@ namespace XxDefinitions.XDebugger
 				AddDrawLineBy(Pos + Vec, new Vector2(L, 0).RotatedBy(-Math.PI * 3 / 4 + Vec.ToRotation()), RealColor, 1, DrawTime);
 			}
 		}
+#pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
+
+		/// <summary>
+		/// 加入对对应npc的DebugData
+		/// </summary>
 		public static void AddGetNPCDebugDataFunc(int type, Func<NPC, string> func)
 		{
 			if (NPCStringData.GetNPCDebugDataFuncs.ContainsKey(type))

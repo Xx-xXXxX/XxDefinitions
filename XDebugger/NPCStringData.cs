@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 using Terraria;
 namespace XxDefinitions.XDebugger
 {
+	/// <summary>
+	/// 未测试
+	/// </summary>
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 	public static class NPCStringData
 	{
 		public static string GetNPCDebugDataDef(NPC npc) {
@@ -60,4 +64,5 @@ namespace XxDefinitions.XDebugger
 				NPCStringData.GetNPCDebugDataFuncs.Add(type, func);
 		}
 	}
+#pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
 }

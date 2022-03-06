@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace XxDefinitions.Behavior
 {
+	#region
 	/*
 	public class BehaviorControler<ExType>: IBehavior
 		where ExType: IBehavior
@@ -60,6 +61,7 @@ namespace XxDefinitions.Behavior
 		public void NetUpdateSend(BinaryWriter writer) => item.NetUpdateSend(writer);
 		public void NetUpdateReceive(BinaryReader reader) => item.NetUpdateReceive(reader);
 	}*/
+	#endregion
 	/// <summary>
 	/// 行为，用于自动机
 	/// </summary>
@@ -117,6 +119,11 @@ namespace XxDefinitions.Behavior
 		/// </summary>
 		string BehaviorName { get; }
 	}
+	/// <summary>
+	/// 行为的基类
+	/// </summary>
+
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 	public class Behavior : IBehavior
 	{
 		public bool pause = true;
@@ -134,7 +141,10 @@ namespace XxDefinitions.Behavior
 		public virtual void Update() { }
 	}
 	public static class BehaviorUtils {
-
+		/// <summary>
+		/// 尝试暂停
+		/// </summary>
+		/// <returns>如果执行了Pause返回true</returns>
 		public static bool TryPause(this IBehavior behavior)
 		{
 			if (behavior.Pausing) return false;
@@ -146,6 +156,10 @@ namespace XxDefinitions.Behavior
 			}
 			else return false;
 		}
+		/// <summary>
+		/// 尝试继续
+		/// </summary>
+		/// <returns>如果执行了Continue返回true</returns>
 		public static bool TryContinue(this IBehavior behavior)
 		{
 			if (!behavior.Pausing) return false;

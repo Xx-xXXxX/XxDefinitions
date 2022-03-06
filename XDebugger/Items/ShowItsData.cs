@@ -13,6 +13,7 @@ using XxDefinitions.XDebugger.Buffs;
 
 namespace XxDefinitions.XDebugger.Items
 {
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 	public class ShowItsData : ModItem
 	{
 		public override void SetStaticDefaults()
@@ -80,4 +81,5 @@ namespace XxDefinitions.XDebugger.Items
 			return position;
 		}
 	}
+#pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
 }
