@@ -55,9 +55,8 @@ namespace XxDefinitions
 		/// </summary>
 		public NPC GetNPC()
 		{
-			int id = NPCID;
-			if (id == -1) return null;
-			return Main.npc[id];
+			if (!IsNPC) return null;
+			return Main.npc[NPCID];
 		}
 		/// <summary>
 		/// 所表示的NPC
@@ -71,9 +70,8 @@ namespace XxDefinitions
 		/// </summary>
 		public Player GetPlayer()
 		{
-			int id = PlayerID;
-			if (id == -1) return null;
-			return Main.player[id];
+			if (!IsPlayer) return null;
+			return Main.player[PlayerID];
 		}
 		/// <summary>
 		/// 所表示的player

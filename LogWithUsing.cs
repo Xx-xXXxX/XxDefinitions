@@ -10,9 +10,13 @@ using log4net.Core;
 
 namespace XxDefinitions
 {
+	/// <summary>
+	/// 带有开关的Log，在!Using时不会记录
+	/// </summary>
 	public class LogWithUsing : ILog
 	{
 		private ILog log;
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		public bool Using = false;
 
 		public bool IsDebugEnabled => log.IsDebugEnabled;
@@ -241,5 +245,7 @@ namespace XxDefinitions
 			if (Using)
 				log.FatalFormat(provider, format, args);
 		}
+
+#pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
 	}
 }

@@ -12,6 +12,9 @@ using Terraria.ModLoader;
 
 namespace XxDefinitions
 {
+	/// <summary>
+	/// NetPacketTree的借口
+	/// </summary>
 	public interface INetPacketTree
 	{
 		/// <summary>
@@ -48,11 +51,17 @@ namespace XxDefinitions
 	/// 用AddChild加入子节点，会自动设置Binary来传给对应的Child
 	/// </summary>
 	public abstract class NetPacketTreeFather<ChildType> : INetPacketTree {
+		/// <summary>
+		/// WriteBinary的委派
+		/// </summary>
 		public delegate void DWriteBinary(BinaryWriter writer, ChildType data);
 		/// <summary>
 		/// 用于从data输入Binary
 		/// </summary>
 		public DWriteBinary WriteBinary;
+		/// <summary>
+		/// ReadBinary的委派
+		/// </summary>
 		public delegate ChildType DReadBinary(BinaryReader reader);
 		/// <summary>
 		/// 用于从Binary得到data
@@ -84,6 +93,9 @@ namespace XxDefinitions
 			WriteBinary(mp, childKey);
 			return mp;
 		}
+		/// <summary>
+		/// 获取到该节点的Packet
+		/// </summary>
 		public abstract ModPacket GetPacket();
 		/// <summary>
 		/// 传输Packet到对应Key的Child
@@ -107,10 +119,16 @@ namespace XxDefinitions
 			Child.childKey = childKey;
 			Child.Father = this;
 		}
+		/// <summary>
+		/// 删除字节点
+		/// </summary>
 		public void RemoveChild( ChildType childKey)
 		{
 			NetPacketTreeChilds.Remove(childKey);
 		}
+		/// <summary>
+		/// 设置WriteBinary和ReadBinary
+		/// </summary>
 		public NetPacketTreeFather(DWriteBinary WriteBinary, DReadBinary ReadBinary) {
 			this.WriteBinary = WriteBinary;
 			this.ReadBinary = ReadBinary;
@@ -125,6 +143,9 @@ namespace XxDefinitions
 		/// 该mod
 		/// </summary>
 		public Mod mod;
+		/// <summary>
+		///  mod.GetPacket()
+		/// </summary>
 		public override ModPacket GetPacket() { return mod.GetPacket(); }
 		/// <summary>
 		/// 初始化
@@ -136,6 +157,9 @@ namespace XxDefinitions
 			this.mod = mod;
 			XxDefinitions.Logv1.Debug($"NetPacketTreeMain {this.GetType().FullName} ctor");
 		}
+		/// <summary>
+		/// ~NetPacketTreeMain
+		/// </summary>
 		~NetPacketTreeMain() {
 			XxDefinitions.Logv1.Debug($"NetPacketTreeMain {this.GetType().FullName} ~");
 		}
@@ -146,13 +170,19 @@ namespace XxDefinitions
 	/// <typeparam name="FatherType"></typeparam>
 	/// <typeparam name="ChildType"></typeparam>
 	public class NetPacketTreeNode<FatherType, ChildType> : NetPacketTreeFather<ChildType>, INetPacketTreeChild<FatherType> {
-		public FatherType _childKey;
+		internal FatherType _childKey;
+		/// <summary>
+		/// 作为子节点在父节点中的Key
+		/// </summary>
 		public FatherType childKey
 		{
 			get { return _childKey; }
 			set { _childKey = value; }
 		}
-		public WeakReference<NetPacketTreeFather<FatherType>> _Father;
+		internal WeakReference<NetPacketTreeFather<FatherType>> _Father;
+		/// <summary>
+		/// 作为子节点的父节点
+		/// </summary>
 		public NetPacketTreeFather<FatherType> Father
 		{
 			get {
@@ -162,6 +192,9 @@ namespace XxDefinitions
 			}
 			set { _Father.SetTarget(value); }
 		}
+		/// <summary>
+		/// 从父亲获取到此节点的Packet;
+		/// </summary>
 		public override ModPacket GetPacket()
 		{
 			return Father.GetPacketChild(childKey);
@@ -180,6 +213,9 @@ namespace XxDefinitions
 			this.childKey = childKey;
 			XxDefinitions.Logv1.Debug($"NetPacketTreeNode {this.GetType().FullName} ctor");
 		}
+		/// <summary>
+		/// ~NetPacketTreeNode
+		/// </summary>
 		~NetPacketTreeNode()
 		{
 			if (Father != null)
@@ -192,13 +228,19 @@ namespace XxDefinitions
 	/// </summary>
 	/// <typeparam name="FatherType"></typeparam>
 	public class NetPacketTreeLeaf<FatherType> : INetPacketTreeChild<FatherType> {
-		public FatherType _childKey;
+		internal FatherType _childKey;
+		/// <summary>
+		/// 作为子节点在父节点中的Key
+		/// </summary>
 		public FatherType childKey
 		{
 			get { return _childKey; }
 			set { _childKey = value; }
 		}
-		public WeakReference<NetPacketTreeFather<FatherType>> _Father;
+		internal WeakReference<NetPacketTreeFather<FatherType>> _Father;
+		/// <summary>
+		/// 作为子节点的父节点
+		/// </summary>
 		public NetPacketTreeFather<FatherType> Father
 		{
 			get
@@ -209,14 +251,23 @@ namespace XxDefinitions
 			}
 			set { _Father.SetTarget(value); }
 		}
+		/// <summary>
+		/// HandleFunction的委派
+		/// </summary>
 		public delegate void DHandleFunction(BinaryReader reader, int whoAmI);
 		/// <summary>
 		/// 进行操作的函数
 		/// </summary>
 		public DHandleFunction HandleFunction;
+		/// <summary>
+		/// 使用委派
+		/// </summary>
 		public void Handle(BinaryReader reader, int whoAmI) {
 			HandleFunction(reader, whoAmI);
 		}
+		/// <summary>
+		/// 从父节点获取Packet
+		/// </summary>
 		public ModPacket GetPacket() {
 			return Father.GetPacketChild(childKey);
 		}
@@ -224,7 +275,9 @@ namespace XxDefinitions
 		/// 初始化
 		/// </summary>
 		/// <param name="HandleFunction">进行操作的函数</param>
-		/// <param name="childKey"></param>
+		/// <param name="Father">父节点</param>
+		/// <param name="childKey">在父节点中的Key</param>
+		/// <param name="AutoDoFunc">自动操作函数</param>
 		public NetPacketTreeLeaf(DHandleFunction HandleFunction, NetPacketTreeFather<FatherType> Father, FatherType childKey, Action<ModPacket> AutoDoFunc=null)
 		{
 			_Father = new WeakReference<NetPacketTreeFather<FatherType>>(Father);
@@ -234,6 +287,9 @@ namespace XxDefinitions
 			this.AutoDoFunc = AutoDoFunc;
 			XxDefinitions.Logv1.Debug($"NetPacketTreeNode {this.GetType().FullName} ctor");
 		}
+		/// <summary>
+		///~NetPacketTreeLeaf
+		/// </summary>
 		~NetPacketTreeLeaf(){
 			if(Father!=null)
 				Father.NetPacketTreeChilds.Remove(childKey);
@@ -253,10 +309,15 @@ namespace XxDefinitions
 		/// </summary>
 		public Action<ModPacket> AutoDoFunc;
 	}
+	/// <summary>
+	/// 可用于NetPacketTree的流操作函数
+	/// </summary>
 	public static class BinaryIOFunc {
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		public static void WriteBinaryInt(BinaryWriter writer, int data) { writer.Write(data); }
 		public static int ReadBinaryInt(BinaryReader reader) { return reader.ReadInt32(); }
 		public static void WriteBinaryString(BinaryWriter writer, string data) { writer.Write(data); }
 		public static string ReadBinaryString(BinaryReader reader) { return reader.ReadString(); }
+#pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
 	}
 }
