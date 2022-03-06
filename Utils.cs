@@ -16,6 +16,9 @@ using static System.Net.WebRequestMethods;
 
 namespace XxDefinitions
 {
+	/// <summary>
+	/// 方法
+	/// </summary>
 	public static class Utils
 	{
 		/// <summary>
@@ -308,11 +311,10 @@ namespace XxDefinitions
 			}
 			/// <summary>
 			/// 加权选择
-			/// 返回-1表示超过
 			/// </summary>
-			/// <param name="I"></param>
-			/// <param name="values"></param>
-			/// <returns></returns>
+			/// <returns>
+			/// 返回选中的第几项
+			/// 返回-1表示I超过权的和</returns>
 			public static int WeightedChoose(int I, params int[] values) {
 				for (int i = 0; i < values.Length; ++i) {
 					if (I < values[i]) return i;
