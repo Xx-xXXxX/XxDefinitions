@@ -148,11 +148,11 @@ namespace XxDefinitions
 		/// <summary>
 		/// 被分离的值
 		/// </summary>
-		public readonly RefByFunc<int> SeparatedNumber;
+		public readonly IGetSetValue<int> SeparatedNumber;
 		/// <summary>
 		/// 初始化，自动生成SeparateIndex
 		/// </summary>
-		public BitSeparator(RefByFunc<int> SeparatedNumber, int[] SeparateDistance) {
+		public BitSeparator(IGetSetValue<int> SeparatedNumber, int[] SeparateDistance) {
 			this.SeparatedNumber = SeparatedNumber;
 			this.SeparateDistance = SeparateDistance;
 			int n = 0;
@@ -166,7 +166,7 @@ namespace XxDefinitions
 		/// <summary>
 		/// 初始化
 		/// </summary>
-		public BitSeparator(RefByFunc<int> SeparatedNumber, int[] SeparateDistance,int[] SeparateIndex)
+		public BitSeparator(IGetSetValue<int> SeparatedNumber, int[] SeparateDistance,int[] SeparateIndex)
 		{
 			this.SeparatedNumber = SeparatedNumber;
 			this.SeparateDistance = SeparateDistance;
@@ -222,7 +222,7 @@ namespace XxDefinitions
 		/// <summary>
 		/// 创建BitSeparator
 		/// </summary>
-		public BitSeparator Build(RefByFunc<int> I) {
+		public BitSeparator Build(IGetSetValue<int> I) {
 			return new BitSeparator(I, SeparateDistance, SeparateIndex);
 		}
 	}
