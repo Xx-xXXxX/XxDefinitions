@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "XxDefinitions": {
+      "commandName": "Executable"
+    },
+    "Terraria": {
+      "commandName": "Executable",
+      "executablePath": "$(tMLPath)",
+      "workingDirectory": "$(TerrariaSteamPath)"
+    }
+  }
+}

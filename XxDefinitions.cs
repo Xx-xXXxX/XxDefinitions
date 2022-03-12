@@ -44,7 +44,9 @@ namespace XxDefinitions
         }
         public override void Load()
         {
-
+            StaticRefHolder.Load();
+            Logv1.Using = true;
+            Logv1.Debug(mc.Value.name);
         }
         public override void Unload()
         {
@@ -53,6 +55,7 @@ namespace XxDefinitions
             //UnloadDo.Unload();
             WaitForRelease();
             XDebugger.XDebugger.CloseDebugMode();
+            StaticRefHolder.Unload();
         }
         public void WaitForRelease() {
             XxDefinitions.Logv1.Debug("WaitForRelease pre GC.Collect()");
@@ -98,7 +101,7 @@ namespace XxDefinitions
         //}
         //      public static StaticRef<XLWA> Log;
         private static LogWithUsing logv1;
-        public static bool Uselogv1 = false;
+        public static bool Uselogv1 = true;
         public static LogWithUsing Logv1{
             get { 
                 if(logv1==null)logv1 = new LogWithUsing("XxDefinitions", Uselogv1);
@@ -107,5 +110,6 @@ namespace XxDefinitions
             }
             set => logv1 = value;
         }
+        public static StaticRefWithFunc<MemoryCheck> mc = new StaticRefWithFunc<MemoryCheck>(()=>new MemoryCheck());
     }
 }
