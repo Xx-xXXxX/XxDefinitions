@@ -20,7 +20,7 @@ namespace XxDefinitions.Behavior
 		/// <summary>
 		/// 装行为的容器
 		/// </summary>
-		public readonly ItemTreeWithID<string, RealBehaviorType> BehaviorsList = new ItemTreeWithID<string, RealBehaviorType>();
+		public readonly ListWithID_Index<string, RealBehaviorType> BehaviorsList = new ListWithID_Index<string, RealBehaviorType>();
 		/// <summary>
 		/// 用id获取行为
 		/// </summary>
@@ -94,7 +94,7 @@ namespace XxDefinitions.Behavior
 		/// 注册行为
 		/// </summary>
 		public int RegisterBehavior(RealBehaviorType behavior, IndexList<string> index) {
-			int NewID = BehaviorsList.Count;
+			int NewID = BehaviorsList.NextID;
 			BehaviorsList.Add(behavior);
 			return NewID;
 		}

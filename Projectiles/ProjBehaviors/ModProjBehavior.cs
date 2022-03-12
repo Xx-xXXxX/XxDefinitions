@@ -12,11 +12,24 @@ using Terraria;
 using Terraria.ModLoader;
 namespace XxDefinitions.Projectiles.ProjBehaviors
 {
+	/// <summary>
+	/// ModProj的行为的接口
+	/// </summary>
 	public interface IModProjBehavior : Behavior.IBehavior, IModProjHooks { }
+	/// <summary>
+	/// ModProj的行为的基类
+	/// </summary>
+	/// <typeparam name="RealModProjType"></typeparam>
 	public abstract class ModProjBehavior<RealModProjType>: IModProjBehavior
 		where RealModProjType:ModProjectile
 	{
+		/// <summary>
+		/// 被操作的modProj
+		/// </summary>
 		public RealModProjType modProj;
+		/// <summary>
+		/// 被操作的projectile
+		/// </summary>
 		public Projectile projectile => modProj.projectile;
 		/// <summary>
 		/// 初始化

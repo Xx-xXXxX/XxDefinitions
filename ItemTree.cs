@@ -9,26 +9,55 @@ using System.Threading.Tasks;
 
 namespace XxDefinitions
 {
+	/// <summary>
+	/// 提供以树结构来管理元素的方法
+	/// </summary>
+	/// <typeparam name="IndexType"></typeparam>
+	/// <typeparam name="ItemType"></typeparam>
 	[DebuggerDisplay("ElementCount = {ElementCount()}")]
 	public class ItemTree<IndexType, ItemType> : IEnumerable<KeyValuePair<IndexList<IndexType>, ItemType>>
 	{
+		/// <summary>
+		/// 该节点元素
+		/// </summary>
 		public ItemType item;
+		/// <summary>
+		/// 父亲
+		/// </summary>
 		public ItemTree<IndexType, ItemType> Father = null;
+		/// <summary>
+		/// 在父亲中的索引
+		/// </summary>
 		public IndexType indexFromFather;
 		SortedList<IndexType, ItemTree<IndexType, ItemType>> keyValues = new SortedList<IndexType, ItemTree<IndexType, ItemType>>();
+		/// <summary>
+		/// 创建含有item的ItemTree
+		/// </summary>
 		public ItemTree(ItemType _item)
 		{
 			item = _item;
 		}
+		/// <summary>
+		/// 克隆
+		/// </summary>
 		public ItemTree(ItemTree<IndexType, ItemType> n)
 		{
 			AddClone(n);
 		}
+		/// <summary>
+		/// 创建空ItemTree
+		/// </summary>
 		public ItemTree() { }
+		/// <summary>
+		/// 该节点的孩子数量
+		/// </summary>
 		public int NodeCount
 		{
 			get => keyValues.Count;
 		}
+		/// <summary>
+		/// 该节点以下所有元素数量
+		/// </summary>
 		public int ElementCount()
 		{
 			int n = 0;
@@ -39,9 +68,15 @@ namespace XxDefinitions
 			}
 			return n;
 		}
+		/// <summary>
+		/// 包含该索引指向的ItemTree
+		/// </summary>
 		public bool Contains(IndexType index) {
 			return keyValues.ContainsKey(index);
 		}
+		/// <summary>
+		/// 包含该索引指向的ItemTree
+		/// </summary>
 		public bool Contains(IndexList<IndexType> index) {
 			//return Contains_(new IndexList<IndexType>(index));
 			var N = this;
@@ -59,27 +94,39 @@ namespace XxDefinitions
 				return  keyValues[index.First].Contains(index);
 			}
 		}
+		/// <summary>
+		/// 克隆整个groupTree加入自己
+		/// </summary>
+		/// <param name="groupTree"></param>
 		public void AddClone(ItemTree<IndexType, ItemType> groupTree)
 		{
-			if (groupTree.item != null) item = groupTree.item;
+			if (!groupTree.item.Equals(default(ItemType))) item = groupTree.item;
 			foreach (var n in groupTree.keyValues)
 			{
 				if (!Contains(n.Key)) keyValues.Add(n.Key, new ItemTree<IndexType, ItemType>());
 				keyValues[n.Key].AddClone(n.Value);
 			}
 		}
+		/// <summary>
+		/// 加入groupTree于index处
+		/// </summary>
 		public void Add(IndexType index, ItemTree<IndexType, ItemType> groupTree)
 		{
 			keyValues.Add(index, groupTree);
 			groupTree.Father = this;
 			groupTree.indexFromFather = index;
 		}
+		/// <summary>
+		/// 加入new ItemTree(item)于index处
+		/// </summary>
 		public void Add(IndexType index, ItemType item)
 		{
 			//keyValues.Add(index, new ItemTree<IndexType, ItemType>(item));
 			//keyValues[index].Father = this;
 			Add(index, new ItemTree<IndexType, ItemType>(item));
-		}
+		}/// <summary>
+		 /// 加入groupTree于index处
+		 /// </summary>
 		public void Add(IndexList<IndexType> index, ItemTree<IndexType, ItemType> groupTree)
 		{
 			if (index.Count == 0)
@@ -103,35 +150,130 @@ namespace XxDefinitions
 				N.Add(index.Last, groupTree);
 			}
 		}
+		/// <summary>
+		/// 加入new ItemTree(item)于index处
+		/// </summary>
 		public void Add(IndexList<IndexType> index, ItemType item)
 		{
 			Add(index, new ItemTree<IndexType, ItemType>(item));
 		}
+		/// <summary>
+		/// 移除于index处的孩子并清理
+		/// </summary>
 		public void Remove(IndexType index)
 		{
 			keyValues[index].Father = null;
 			keyValues.Remove(index);
+			RemoveNulls();
 		}
+		/// <summary>
+		/// 移除于index处的孩子并清理
+		/// </summary>
+		public void Remove(IndexList<IndexType> index)
+		{
+			//Remove_(new IndexList<IndexType>(index));
+			var N = this;
+			IndexType L = index.Last;
+			index.RemoveBack();
+			foreach (var i in index)
+			{
+				if (!N.Contains(i)) throw new ArgumentException($"{index} 不存在");
+				N = N[i];
+			}
+			//N.item = default(ItemType);
+			N.Remove(L);
+		}
+		/// <summary>
+		/// 移除于index处的元素并清理
+		/// </summary>
+		public void RemoveItem(IndexList<IndexType> index) {
+			//Remove_(new IndexList<IndexType>(index));
+			var N = this;
+			foreach (var i in index) {
+				if (!N.Contains(i)) throw new ArgumentException($"{index} 不存在");
+				N = N[i];
+			}
+			N.item = default(ItemType);
+			N.RemoveNulls();
+		}
+		private void Remove_(IndexList<IndexType> index) {
+			if (index.Count == 0) {
+				item = default(ItemType);
+				return;
+			}
+			IndexType i = index.First;
+			index.RemoveFront();
+			keyValues[i].Remove_(index);
+		}
+		/// <summary>
+		/// 该节点为空，可以清理
+		/// </summary>
+		public bool IsNull() {
+			if (item.Equals(default(ItemType)) && keyValues.Count == 0) return true;
+			return false;
+		}
+		/// <summary>
+		/// 清理孩子
+		/// </summary>
+		public void RemoveNullSuns() {
+			if (!item.Equals(default(ItemType))) return;
+			LinkedList<IndexType> Nulls = new LinkedList<IndexType>();
+			foreach (var i in keyValues) {
+				i.Value.RemoveNullSuns();
+				if (i.Value.IsNull()) {
+					Nulls.AddLast(i.Key);
+				}
+			}
+			foreach (var i in Nulls) {
+				Remove(i);
+			}
+		}
+		/// <summary>
+		/// 清理孩子并向上递归
+		/// </summary>
+		public void RemoveNulls() {
+			RemoveNullSuns();
+			if (IsNull()) {
+				if (Father != null) {
+					Father.RemoveNulls();
+				}
+			}
+		}
+		/// <summary>
+		/// 获取位于index的ItemTree
+		/// </summary>
 		public ItemTree<IndexType, ItemType> this[IndexType index] {
-			get=> keyValues [index]; 
+			get=> keyValues [index];
 		}
+		/// <summary>
+		/// 获取位于index的ItemTree
+		/// </summary>
 		public ItemTree<IndexType, ItemType> Get(IndexType index)
 		{
 			return keyValues[index];
 		}
+		/// <summary>
+		/// 获取位于index的ItemTree
+		/// </summary>
 		public ItemTree<IndexType, ItemType> Get(IndexList<IndexType> index)
 		{
 			ItemTree<IndexType, ItemType> N = this;
 			foreach (var i in index) { N = N[i]; }
 			return N;
 		}
+		/// <summary>
+		/// 获取位于index的ItemTree
+		/// </summary>
 		public ItemTree<IndexType, ItemType> this[IndexList<IndexType> index]
 		{
 			get => Get(index);
 		}
+		/// <summary>
+		/// 枚举所有元素
+		/// </summary>
 		public IEnumerator<KeyValuePair<IndexList<IndexType>, ItemType>> GetEnumerator()
 		{
-			if (item != null)
+			if (!item.Equals(default(ItemType)))
 				yield return new KeyValuePair<IndexList<IndexType>, ItemType>(new IndexList<IndexType>(), item);
 			if (NodeCount > 0)
 			{
@@ -147,7 +289,7 @@ namespace XxDefinitions
 		}
 		IEnumerator IEnumerable.GetEnumerator()
 		{
-			if (item != null)
+			if (!item.Equals(default(ItemType)))
 				yield return new KeyValuePair<IndexList<IndexType>, ItemType>(new IndexList<IndexType>(), item);
 			if (NodeCount > 0)
 			{
@@ -194,13 +336,17 @@ namespace XxDefinitions
 		/// <param name="IndicesAt"></param>
 		/// <returns></returns>
 		public ItemTreeEnumer EnumAt(IndexList<IndexType> IndicesAt) { return new ItemTreeEnumer(Get(IndicesAt), IndicesAt); }
+		/// <summary>
+		/// 从某个节点出发枚举在另一个节点的全部元素（在节点的枚举的索引加上一部分）
+		/// </summary>
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		public class ItemTreeEnumer : IEnumerable<KeyValuePair<IndexList<IndexType>, ItemType>>
 		{
 			public ItemTree<IndexType, ItemType> itemTree;
 			public IndexList<IndexType> IndicesFrom;
 			public IEnumerator<KeyValuePair<IndexList<IndexType>, ItemType>> GetEnumerator()
 			{
-				if (itemTree.item != null)
+				if (!itemTree.item.Equals(default(ItemType)))
 					yield return new KeyValuePair<IndexList<IndexType>, ItemType>(IndicesFrom, itemTree.item);
 				if (itemTree.NodeCount > 0)
 				{
@@ -216,7 +362,7 @@ namespace XxDefinitions
 			}
 			IEnumerator IEnumerable.GetEnumerator()
 			{
-				if (itemTree.item != null)
+				if (!itemTree.item.Equals(default(ItemType)))
 					yield return new KeyValuePair<IndexList<IndexType>, ItemType>(IndicesFrom, itemTree.item);
 				if (itemTree.NodeCount > 0)
 				{
@@ -235,10 +381,19 @@ namespace XxDefinitions
 				this.IndicesFrom = IndicesFrom;
 			}
 		}
+
+#pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
 	}
+	/// <summary>
+	/// 通过链表管理一串索引
+	/// </summary>
+	/// <typeparam name="IndexType">索引类型</typeparam>
 	[DebuggerDisplay("{ToString()}")]
 	public class IndexList<IndexType> : IEnumerable<IndexType>,IComparable<IndexList<IndexType>>
 	{
+		/// <summary>
+		/// 列出全部节点
+		/// </summary>
 		public override string ToString()
 		{
 			if (Indices == null) return "Indices == null";
@@ -260,28 +415,50 @@ namespace XxDefinitions
 			else N = ".";
 			return N;
 		}
+		/// <summary>
+		/// 索引列表
+		/// </summary>
 		LinkedList<IndexType> Indices = new LinkedList<IndexType>();
+		/// <summary>
+		/// 第一个索引
+		/// </summary>
 		public IndexType First
 		{
 			get => Indices.First.Value;
 			set => Indices.First.Value = value;
 		}
+		/// <summary>
+		/// 最后一个索引
+		/// </summary>
 		public IndexType Last
 		{
 			get => Indices.Last.Value;
 			set => Indices.Last.Value = value;
 		}
+		/// <summary>
+		/// 创建一个只含有一个index的IndexList
+		/// </summary>
+		/// <param name="index"></param>
 		public IndexList(IndexType index)
 		{
 			Indices.AddLast(index);
 		}
+		/// <summary>
+		/// 创建一个空IndexList
+		/// </summary>
 		public IndexList()
 		{
 		}
+		/// <summary>
+		/// 克隆IndexList
+		/// </summary>
 		public IndexList(IndexList<IndexType> n)
 		{
 			AddFront(n);
 		}
+		/// <summary>
+		/// 创建含有ns的IndexList
+		/// </summary>
 		public IndexList(params IndexType[] ns) {
 			//ItemTreeIndex<IndexType>  new 
 			//Indices=ns.ToList();
@@ -289,23 +466,38 @@ namespace XxDefinitions
 				Indices.AddLast(I);
 			}
 		}
+		/// <summary>
+		/// 克隆IndexList
+		/// </summary>
 		public IndexList(ICollection<IndexType> L) {
 			foreach (var i in L) {
 				Indices.AddLast(i);
 			}
 		}
+		/// <summary>
+		/// 在最后加入
+		/// </summary>
 		public void AddLast(IndexType index)
 		{
 			Indices.AddLast(index);
 		}
+		/// <summary>
+		/// 在开头加入
+		/// </summary>
 		public void AddFirst(IndexType index)
 		{
 			Indices.AddFirst(index);
 		}
+		/// <summary>
+		/// 元素数量
+		/// </summary>
 		public int Count
 		{
 			get => Indices.Count;
 		}
+		/// <summary>
+		/// 从开头进行匹配
+		/// </summary>
 		public bool MatchFront(IndexList<IndexType> index)
 		{
 			if (index.Count > Count) return false;
@@ -319,6 +511,9 @@ namespace XxDefinitions
 			}
 			return true;
 		}
+		/// <summary>
+		/// 从末尾开始向前匹配
+		/// </summary>
 		public bool MatchBack(IndexList<IndexType> index)
 		{
 			if (index.Count > Count) return false;
@@ -333,14 +528,23 @@ namespace XxDefinitions
 			//Indices.F
 			return true;
 		}
+		/// <summary>
+		/// 找到第一个与index相同的LinkedListNode
+		/// </summary>
 		public LinkedListNode<IndexType> FindFirst(IndexType index)
 		{
 			return Indices.Find(index);
 		}
+		/// <summary>
+		/// 从后往前找到第一个与index相同的LinkedListNode
+		/// </summary>
 		public LinkedListNode<IndexType> FindLast(IndexType index)
 		{
 			return Indices.FindLast(index);
 		}
+		/// <summary>
+		/// 移除开头的n个元素
+		/// </summary>
 		public void RemoveFront(int n = 1)
 		{
 			for (int i = 0; i < n; i++)
@@ -348,6 +552,9 @@ namespace XxDefinitions
 				Indices.RemoveFirst();
 			}
 		}
+		/// <summary>
+		/// 移除末尾的n个元素
+		/// </summary>
 		public void RemoveBack(int n = 1)
 		{
 			for (int i = 0; i < n; i++)
@@ -355,6 +562,9 @@ namespace XxDefinitions
 				Indices.RemoveLast();
 			}
 		}
+		/// <summary>
+		/// 在开头加入index
+		/// </summary>
 		public void AddBack(IndexList<IndexType> index)
 		{
 			foreach (IndexType v in index)
@@ -363,6 +573,9 @@ namespace XxDefinitions
 			}
 			//Indices.AddFirst(index.Indices);
 		}
+		/// <summary>
+		/// 在末尾加入index
+		/// </summary>
 		public void AddFront(IndexList<IndexType> index)
 		{
 			var Il = index.Indices.Last;
@@ -372,6 +585,9 @@ namespace XxDefinitions
 				Il = Il.Previous;
 			}
 		}
+		/// <summary>
+		/// 枚举
+		/// </summary>
 		public IEnumerator<IndexType> GetEnumerator()
 		{
 			return Indices.GetEnumerator();
@@ -380,33 +596,50 @@ namespace XxDefinitions
 		{
 			return Indices.GetEnumerator();
 		}
+		/// <summary>
+		/// 合并
+		/// </summary>
 		public static IndexList<IndexType> operator +(IndexList<IndexType> a, IndexList<IndexType> b)
 		{
 			var n = new IndexList<IndexType>(a);
 			n.AddBack(b);
 			return n;
 		}
+		/// <summary>
+		/// 合并
+		/// </summary>
 		public static IndexList<IndexType> operator +(IndexList<IndexType> a, IndexType b)
 		{
 			var n = new IndexList<IndexType>(a);
 			n.AddLast(b);
 			return n;
 		}
+		/// <summary>
+		/// 合并
+		/// </summary>
 		public static IndexList<IndexType> operator +(IndexType b, IndexList<IndexType> a)
 		{
 			var n = new IndexList<IndexType>(a);
 			n.AddFirst(b);
 			return n;
 		}
+		/// <summary>
+		/// 判断相同
+		/// </summary>
 		public override bool Equals(object item)
 		{
 			return MatchFront((IndexList<IndexType>)item);
 		}
+		/// <summary>
+		/// Indices.GetHashCode();
+		/// </summary>
 		public override int GetHashCode()
 		{
 			return Indices.GetHashCode();
 		}
-
+		/// <summary><![CDATA[
+		/// 通过Comparer<IndexType>.Default.Compare比较]]>
+		/// </summary>
 		public int CompareTo(IndexList<IndexType> index)
 			
 		{
@@ -423,11 +656,17 @@ namespace XxDefinitions
 			}
 			return Comparer<int>.Default.Compare(this.Count-i,index.Count-i);
 		}
+		/// <summary>
+		/// 判断相同
+		/// </summary>
 
 		public static bool operator ==(IndexList<IndexType> a, IndexList<IndexType> b)
 		{
 			return a.MatchFront(b);
 		}
+		/// <summary>
+		/// 判断相同
+		/// </summary>
 		public static bool operator !=(IndexList<IndexType> a, IndexList<IndexType> b)
 		{
 			return !a.MatchFront(b);
