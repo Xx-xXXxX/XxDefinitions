@@ -11,6 +11,25 @@ namespace XxDefinitions
 	/// </summary>
 	public interface IRandom
 	{
-
+		/// <summary>
+		/// 获取随机值
+		/// </summary>
+		int Sample();
 	}
+	/// <summary>
+	/// 通过委派函数实现接口
+	/// </summary>
+	public class IRandomByDelegate:IRandom
+	{
+		readonly Func<int> sample;
+		/// <summary>
+		/// 获取随机值
+		/// </summary>
+		public int Sample() => sample();
+		/// <summary>
+		/// 通过委派函数实现接口
+		/// </summary>
+		public IRandomByDelegate(Func<int> f) { sample = f; }
+	}
+
 }
