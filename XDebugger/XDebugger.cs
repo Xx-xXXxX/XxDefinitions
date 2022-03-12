@@ -83,6 +83,9 @@ namespace XxDefinitions.XDebugger
 				);
 			}
 		}
+		/// <summary>
+		/// 弱引用操作
+		/// </summary>
 		public static object Call(params object[] args)
 		{
 			string CTypeS = (string)args[0];
@@ -95,10 +98,8 @@ namespace XxDefinitions.XDebugger
 					else
 						NPCStringData.GetNPCDebugDataFuncs.Add((int)args[1], (Func<NPC, string>)args[2]);
 					return true;
-					break;
 				case "GetNPCDebugDataFuncDef":
 					return (Func<NPC, string>)NPCStringData.GetNPCDebugDataDef;
-					break;
 
 				case "AddShowNPCDebugFunc":
 					//npctype,func
@@ -107,13 +108,10 @@ namespace XxDefinitions.XDebugger
 					else
 						NPCStringData.ShowNPCDebugFuncs.Add((int)args[1], (Action<NPC>)args[2]);
 					return true;
-					break;
 				case "GetShowNPCDebugFuncDef":
 					return (Action<NPC>)NPCStringData.ShowNPCDebugDef;
-					break;
 				case "GetAddDrawFunc":
 					return (Action<Action<SpriteBatch>>)Utils.AddDraw.AddDrawFunc;
-					break;
 			}
 			return null;
 		}

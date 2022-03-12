@@ -97,7 +97,13 @@ namespace XxDefinitions.XDebugger.UI
 	/// </summary>
 	public class CunsomDrawer : Drawer<CunsomDrawer>
 	{
+		/// <summary>
+		/// 绘画函数委派
+		/// </summary>
 		public delegate void DDrawF(SpriteBatch spriteBatch, CunsomDrawer d);
+		/// <summary>
+		/// 操作函数委派
+		/// </summary>
 		public delegate void DAI(CunsomDrawer d);
 		/// <summary>
 		/// 绘画函数

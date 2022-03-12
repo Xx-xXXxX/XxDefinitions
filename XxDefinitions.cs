@@ -9,8 +9,9 @@ using On.Terraria;
 
 namespace XxDefinitions
 {
-    public class XxDefinitions : Mod
-    {
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
+	public class XxDefinitions : Mod
+	{
         private static XxDefinitions instance;
         public static XxDefinitions Instance => instance;
         public XxDefinitions()
@@ -89,7 +90,6 @@ namespace XxDefinitions
                     }
                     else
                         return null;
-                    break;
             }
             return null;
         }
