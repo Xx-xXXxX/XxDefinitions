@@ -195,8 +195,7 @@ namespace XxDefinitions
 			{
 				throw new ArgumentOutOfRangeException("minValue", "minValue must be less than maxValue");
 			}
-			float num = maxValue - minValue;
-			return random.NextFloat() * num + minValue;
+			return random.NextFloat() * (maxValue - minValue) + minValue;
 		}
 		public static float NextFloatDirection(this IRandom r)
 		{
@@ -218,8 +217,8 @@ namespace XxDefinitions
 		/// <summary>
 		/// 获取在Range内的向量
 		/// </summary>
-		public static Vector2 NextVectorXY(this IRandom random, Rectangle Range) {
-			return new Vector2(random.Next(Range.Left,Range.Right+1), random.Next(Range.Top, Range.Bottom + 1));
+		public static Vector2 NextVectorInRect(this IRandom random, Rectangle Range) {
+			return new Vector2(random.NextFloat(Range.Left,Range.Right), random.Next(Range.Top, Range.Bottom));
 		}
 		/// <summary>
 		/// 获取XY在[min,max)的向量
