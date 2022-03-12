@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -135,8 +136,21 @@ namespace XxDefinitions
 	/// <summary>
 	/// 将int按位分离操作
 	/// </summary>
+	[DebuggerDisplay("[ToString()]")]
 	public class BitSeparator
 	{
+		/// <summary>
+		/// 显示所有分离结果值
+		/// </summary>
+		/// <returns></returns>
+		public override string ToString()
+		{
+			string I = Get(0).ToString();
+			for (int i = 1; i < SeparateIndex.Length; ++i) {
+				I += $",{Get(i)}";
+			}
+			return I;
+		}
 		/// <summary>
 		/// 按位分离长度
 		/// </summary>
@@ -224,6 +238,152 @@ namespace XxDefinitions
 		/// </summary>
 		public BitSeparator Build(IGetSetValue<int> I) {
 			return new BitSeparator(I, SeparateDistance, SeparateIndex);
+		}
+		/// <summary>
+		/// 获取分离的值
+		/// </summary>
+		public int Get(IGetSetValue<int> SeparatedNumber, int index)
+		{
+			return BitOperate.GetBits(SeparatedNumber.Value, SeparateIndex[index], SeparateDistance[index]);
+		}
+		/// <summary>
+		/// 设置分离的值
+		/// </summary>
+		public int Set(IGetSetValue<int> SeparatedNumber,int index, int value)
+		{
+			return SeparatedNumber.Value = BitOperate.SetBits(SeparatedNumber.Value, value, SeparateIndex[index], SeparateDistance[index]);
+		}
+	}
+
+	/// <summary>
+	/// 将int按位分离操作
+	/// </summary>
+	[DebuggerDisplay("[ToString()]")]
+	public class IntSeparator
+	{
+		/// <summary>
+		/// 显示所有分离结果值
+		/// </summary>
+		/// <returns></returns>
+		public override string ToString()
+		{
+			string I = Get(0).ToString();
+			for (int i = 1; i < SeparateIndex.Length; ++i)
+			{
+				I += $",{Get(i)}";
+			}
+			return I;
+		}
+		/// <summary>
+		/// 按位分离长度
+		/// </summary>
+		public readonly int[] SeparateDistance;
+		/// <summary>
+		/// 按位分离位置
+		/// </summary>
+		public readonly int[] SeparateIndex;
+		/// <summary>
+		/// 被分离的值
+		/// </summary>
+		public readonly IGetSetValue<int> SeparatedNumber;
+		/// <summary>
+		/// 初始化，自动生成SeparateIndex
+		/// </summary>
+		public IntSeparator(IGetSetValue<int> SeparatedNumber, int[] SeparateDistance)
+		{
+			this.SeparatedNumber = SeparatedNumber;
+			this.SeparateDistance = SeparateDistance;
+			int n = 1;
+			SeparateIndex = new int[SeparateDistance.Length];
+			for (int i = 0; i < SeparateDistance.Length; ++i)
+			{
+				SeparateIndex[i] = n;
+				n *= SeparateDistance[i];
+			}
+		}
+		/// <summary>
+		/// 初始化
+		/// </summary>
+		public IntSeparator(IGetSetValue<int> SeparatedNumber, int[] SeparateDistance, int[] SeparateIndex)
+		{
+			this.SeparatedNumber = SeparatedNumber;
+			this.SeparateDistance = SeparateDistance;
+			this.SeparateIndex = SeparateIndex;
+		}
+		/// <summary>
+		/// 获取分离的值
+		/// </summary>
+		public int Get(int index)
+		{
+			return (SeparatedNumber.Value/SeparateIndex[index])%SeparateDistance[index];
+		}
+		/// <summary>
+		/// 设置分离的值
+		/// </summary>
+		public int Set(int index, int value)
+		{
+			SeparatedNumber.Value -= (SeparatedNumber.Value / SeparateIndex[index]) % SeparateDistance[index];
+			SeparatedNumber.Value += value* SeparateIndex[index];
+			return SeparatedNumber.Value;
+		}
+		/// <summary>
+		/// 
+		/// </summary>
+		public int this[int index]
+		{
+			get => Get(index);
+			set => Set(index, value);
+		}
+	}
+	/// <summary>
+	/// 按位分离的工厂
+	/// </summary>
+	public class IntSeparatorFactory
+	{
+		/// <summary>
+		/// 按位分离长度
+		/// </summary>
+		public readonly int[] SeparateDistance;
+		/// <summary>
+		/// 按位分离位置
+		/// </summary>
+		public readonly int[] SeparateIndex;
+		/// <summary>
+		/// 初始化，自动生成SeparateIndex
+		/// </summary>
+		public IntSeparatorFactory(int[] SeparateDistance)
+		{
+			this.SeparateDistance = SeparateDistance;
+			int n = 1;
+			SeparateIndex = new int[SeparateDistance.Length];
+			for (int i = 0; i < SeparateDistance.Length; ++i)
+			{
+				SeparateIndex[i] = n;
+				n *= SeparateDistance[i];
+			}
+		}
+		/// <summary>
+		/// 创建BitSeparator
+		/// </summary>
+		public BitSeparator Build(IGetSetValue<int> I)
+		{
+			return new BitSeparator(I, SeparateDistance, SeparateIndex);
+		}
+		/// <summary>
+		/// 获取分离的值
+		/// </summary>
+		public int Get(IGetSetValue<int> SeparatedNumber, int index)
+		{
+			return (SeparatedNumber.Value / SeparateIndex[index]) % SeparateDistance[index];
+		}
+		/// <summary>
+		/// 设置分离的值
+		/// </summary>
+		public int Set(IGetSetValue<int> SeparatedNumber, int index, int value)
+		{
+			SeparatedNumber.Value -= (SeparatedNumber.Value / SeparateIndex[index]) % SeparateDistance[index];
+			SeparatedNumber.Value += value * SeparateIndex[index];
+			return SeparatedNumber.Value;
 		}
 	}
 }
