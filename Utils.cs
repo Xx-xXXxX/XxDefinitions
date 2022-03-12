@@ -376,12 +376,12 @@ namespace XxDefinitions
 					Dust dust = Dust.NewDustPerfect(Position, DustType, Main.rand.NextVector2Circular(DustSpeed, DustSpeed));
 					DustDo?.Invoke(dust);
 				}
-				for (int i = 0; i < DustSpreadNumber; i++) {
+				for (int i = 0; i < DustCircleNumber; i++) {
 					Vector2 NewPos = Position + Main.rand.NextVector2Circular(radius, radius);
 					Dust dust = Dust.NewDustPerfect(NewPos, DustType, Vector2.Zero);
 					DustDo?.Invoke(dust);
 				}
-				if (friendlyDamage > 0 && hostileDamage > 0)
+				if (friendlyDamage > 0 || hostileDamage > 0)
 				{
 					foreach (var i in Main.npc)
 					{

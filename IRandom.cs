@@ -44,6 +44,10 @@ namespace XxDefinitions
 		/// 通过委派实现随机数接口
 		/// </summary>
 		public IRandomByDelegate(Func<int> sampleFunc) { intSample = sampleFunc; sample = this.SampleFromIntSample; }
+		/// <summary>
+		/// 通过委派实现随机数接口
+		/// </summary>
+		public IRandomByDelegate(Func<double> sampleFunc, Func<int> sampleFunc2) { sample = sampleFunc; intSample = sampleFunc2; }
 	}
 	/// <summary>
 	/// 用一个ulong完成随机数
@@ -141,7 +145,7 @@ namespace XxDefinitions
 		/// 将Terraria.Utilities.UnifiedRandom转为IRandom
 		/// </summary>
 		public static IRandomByDelegate ToIRandom(this Terraria.Utilities.UnifiedRandom random) {
-			return new IRandomByDelegate( random.NextDouble);
+			return new IRandomByDelegate( random.NextDouble,random.Next);
 		}
 		public static int IntSampleFromSample(this IRandom random) => (int)(random.Sample() * int.MaxValue);
 		public static double SampleFromIntSample(this IRandom random) => random.IntSample() * 4.6566128752457969E-10;
