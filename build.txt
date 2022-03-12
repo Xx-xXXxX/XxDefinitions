@@ -6,3 +6,4 @@ hideCode = false
 includeSource = true
 includePDB = true
 buildIgnore = UnionBehavior\*
+homepage = https://github.com/Xx-xXXxX/XxDefinitions
