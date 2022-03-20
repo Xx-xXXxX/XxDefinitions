@@ -81,8 +81,8 @@ namespace XxDefinitions.XDebugger
 		internal static IList<GlobalNPC> globalNPCs;
 		static ShowNPCDebugInfo() {
 			Type type = typeof(Terraria.ModLoader.NPCLoader);
-			var fieldinfo= type.GetField("globalNPCs");
-			globalNPCs=(IList<GlobalNPC>)fieldinfo.GetValue(null);
+			var fieldinfo= type.GetField("globalNPCs",System.Reflection.BindingFlags.Static|System.Reflection.BindingFlags.NonPublic);
+			globalNPCs =(IList<GlobalNPC>)fieldinfo.GetValue(null);
 		}
 		public int DrawTimeLeft = 0;
 		public override void PostAI(NPC npc)
