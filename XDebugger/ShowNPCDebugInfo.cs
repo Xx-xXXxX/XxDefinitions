@@ -16,6 +16,9 @@ using Terraria.ModLoader;
 namespace XxDefinitions.XDebugger
 {
 	//[XDebuggerInfo()]
+	/// <summary><![CDATA[
+	/// 用于显示NPCDebugInfo，调用ModNPC[XDebuggerRequires] Action<List<string>>与GlobalNPC[XDebuggerRequires] Action<NPC,List<string>>]]>
+	/// </summary>
 	public class ShowNPCDebugInfo:GlobalNPC
 	{
 		//List< XDebuggerInfo> XInfos;
@@ -54,13 +57,56 @@ namespace XxDefinitions.XDebugger
 		public override void SetDefaults(NPC npc)
 		{
 			//Type t = npc.GetType();
-			System.Reflection.MemberInfo memberInfo = this.GetType();
-			List<XDebuggerRequires> xDebuggerInfos= new List<XDebuggerRequires>((XDebuggerRequires[])memberInfo.GetCustomAttributes(typeof(XDebuggerRequires), true));
-			if (xDebuggerInfos.Count > 0) {
-				foreach (var i in xDebuggerInfos) { 
-					
+			System.Reflection.MemberInfo memberInfo = npc.modNPC.GetType();
+			List<ModNPCInfoString> xDebuggerModNPCInfos= new List<ModNPCInfoString>((ModNPCInfoString[])memberInfo.GetCustomAttributes(typeof(ModNPCInfoString), true));
+			if (xDebuggerModNPCInfos.Count > 0) {
+				foreach (var i in xDebuggerModNPCInfos) {
+					Action<List<string>> action = i.GetInfoStringMethod(npc);
+					if (action != null) actions.Add( (n, l) => { action.Invoke(l); });
 				}
 			}
+			List<GlobalNPCInfoString> xDebuggerGlobalNPCInfos;
+			foreach (var j in globalNPCs) {
+				xDebuggerGlobalNPCInfos = new List<GlobalNPCInfoString>((GlobalNPCInfoString[])j.Instance(npc).GetType().GetCustomAttributes(typeof(GlobalNPCInfoString), true));
+				if (xDebuggerGlobalNPCInfos.Count > 0)
+				{
+					foreach (var i in xDebuggerGlobalNPCInfos)
+					{
+						Action<NPC,List<string>> action = i.GetInfoStringMethod(j);
+						if (action != null) actions.Add(action);
+					}
+				}
+			}
+		}
+		internal static IList<GlobalNPC> globalNPCs;
+		static ShowNPCDebugInfo() {
+			Type type = typeof(Terraria.ModLoader.NPCLoader);
+			var fieldinfo= type.GetField("globalNPCs");
+			globalNPCs=(IList<GlobalNPC>)fieldinfo.GetValue(null);
+		}
+		public int DrawTimeLeft = 0;
+		public override void PostAI(NPC npc)
+		{
+			if (DrawTimeLeft > 0) DrawTimeLeft -= 1;
+		}
+		public override void PostDraw(NPC npc, SpriteBatch spriteBatch, Color drawColor)
+		{
+			if (DrawTimeLeft <= 0) return;
+			Vector2 Pos = npc.position + new Vector2(npc.width, npc.height / 2) - Main.screenPosition;
+			List<string> tooltips = new List<string>();
+			foreach (var i in actions)
+			{
+				i(npc, tooltips);
+			}
+
+			string info = "";
+			foreach (var i in tooltips)
+			{
+				info += i;
+			}
+			int lines = info.Count((c) => c == '\n');
+			Pos -= new Vector2(lines * 12 / 2);
+			Terraria.Utils.DrawBorderString(spriteBatch, info, Pos, Color.White);
 		}
 	}
 }

@@ -27,20 +27,23 @@ namespace XxDefinitions.XDebugger
 			/// <summary>
 			/// 线
 			/// </summary>
-			public static Texture2D Line => ModContent.GetTexture("XxDefinitions/XDebugger/Line");
+			//public static Texture2D Line => ModContent.GetTexture("XxDefinitions/XDebugger/Line");
 			public static void DrawLine(SpriteBatch spriteBatch, Vector2 From, float Distance, float Rotation, Color color, float LineWidth = 1)
 			{
 				//From -= Main.screenPosition;
-				spriteBatch.Draw(Line, From, null, color, Rotation, new Vector2(0, 3), new Vector2(Distance / 64f, LineWidth / 8f), SpriteEffects.None, 0f);
+				//spriteBatch.Draw(Line, From, null, color, Rotation, new Vector2(0, 3), new Vector2(Distance / 64f, LineWidth / 8f), SpriteEffects.None, 0f);
+				DrawLineTo(spriteBatch, From, From + new Vector2(Distance).RotatedBy(Rotation), color, LineWidth);
 			}
 			public static void DrawLineBy(SpriteBatch spriteBatch, Vector2 From, Vector2 By, Color color, float LineWidth = 1)
 			{
-				DrawLine(spriteBatch, From, By.Length(), By.ToRotation(), color, LineWidth);
+				//DrawLine(spriteBatch, From, By.Length(), By.ToRotation(), color, LineWidth);
+				DrawLineTo(spriteBatch, From, From+By, color,  LineWidth);
 			}
 			public static void DrawLineTo(SpriteBatch spriteBatch, Vector2 From, Vector2 To, Color color, float LineWidth = 1)
 			{
-				Vector2 By = To - From;
-				DrawLine(spriteBatch, From, By.Length(), By.ToRotation(), color, LineWidth);
+				//Vector2 By = To - From;
+				//DrawLine(spriteBatch, From, By.Length(), By.ToRotation(), color, LineWidth);
+				Terraria.Utils.DrawLine(spriteBatch,From,To,color,color,LineWidth);
 			}
 			public static void DrawRect(SpriteBatch spriteBatch, Rectangle Rect, Color? color = null)
 			{
@@ -186,7 +189,6 @@ namespace XxDefinitions.XDebugger
 				AddDrawLineBy(Pos + Vec, new Vector2(L, 0).RotatedBy(-Math.PI * 3 / 4 + Vec.ToRotation()), RealColor, 1, DrawTime);
 			}
 		}
-#pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
 
 		/// <summary>
 		/// 加入对对应npc的DebugData
@@ -213,7 +215,8 @@ namespace XxDefinitions.XDebugger
 	{
 		public void AddDrawString(string shownString, Vector2 pos)
 		{
-			UI.CustomDraw.DrawerList.Add(new UI.DrawString(shownString, pos));
+			if (Using)
+				UI.CustomDraw.DrawerList.Add(new UI.DrawString(shownString, pos));
 		}
 		public void AddDrawString(string shownString, Vector2 pos, int time)
 		{

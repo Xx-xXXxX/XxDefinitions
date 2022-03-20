@@ -116,7 +116,6 @@ namespace XxDefinitions.XDebugger
 			}
 			return null;
 		}
-
 		//static List<XDebugger> xDebuggers=new List<XDebugger>();
 		internal static StaticRefWithFunc<Dictionary<string,XDebugger>> xDebuggers = new StaticRefWithFunc<Dictionary<string, XDebugger>>(()=> new Dictionary<string, XDebugger>());
 		/// <summary>
