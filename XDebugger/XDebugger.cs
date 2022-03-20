@@ -16,7 +16,7 @@ namespace XxDefinitions.XDebugger
 	/// <summary>
 	/// 用于调试
 	/// </summary>
-	public static class XDebugger
+	public partial class XDebugger
 	{
 		private static bool Loaded = false;
 		private static bool debugMode = false;
@@ -82,6 +82,7 @@ namespace XxDefinitions.XDebugger
 		   InterfaceScaleType.UI)
 				);
 			}
+			
 		}
 		/// <summary>
 		/// 弱引用操作
@@ -115,5 +116,76 @@ namespace XxDefinitions.XDebugger
 			}
 			return null;
 		}
+
+		//static List<XDebugger> xDebuggers=new List<XDebugger>();
+		internal static StaticRefWithFunc<Dictionary<string,XDebugger>> xDebuggers = new StaticRefWithFunc<Dictionary<string, XDebugger>>(()=> new Dictionary<string, XDebugger>());
+		/// <summary>
+		/// 是否使用，如果为false，所有与之相关的操作都将无效
+		/// </summary>
+		public bool Using=false;
+		/// <summary>
+		/// 名字
+		/// </summary>
+		public string FullName;
+		/// <summary>
+		/// 为mod生成XDebugger
+		/// 其全名为 mod.Name+"."+ Name
+		/// </summary>
+		public XDebugger(Mod mod,string Name, bool Using = false) {
+			this.FullName = mod.Name+"."+ Name;
+			this.Using = Using;
+			xDebuggers.Value.Add(Name,this);
+			if (TryGetXDebugger.items.Value.TryGetValue(FullName, out TryGetXDebugger tryGetXDebugger)) {
+				tryGetXDebugger.xDebugger_ = this;
+			}
+		}
+		/// <summary>
+		/// 获取对应XDebugger
+		/// </summary>
+		public static XDebugger GetXDebugger(Mod mod, string Name) {
+			return xDebuggers.Value[mod.Name + "." + Name];
+		}
+		/// <summary>
+		/// 获取对应XDebugger
+		/// </summary>
+		public static XDebugger GetXDebugger(string FullName) {
+			return xDebuggers.Value[FullName];
+		}
+	}
+	/// <summary>
+	/// 尝试获取XDebugger，在生成XDebugger时自动获取
+	/// </summary>
+	public class TryGetXDebugger {
+		/// <summary>
+		/// XDebugger的全名
+		/// </summary>
+		public readonly string FullName;
+		internal XDebugger xDebugger_;
+		/// <summary>
+		/// 目标XDebugger
+		/// </summary>
+		public XDebugger xDebugger { get => xDebugger_; }
+		internal static StaticRefWithNew< Dictionary<string,TryGetXDebugger>> items=new StaticRefWithNew<Dictionary<string, TryGetXDebugger>>();
+		/// <summary>
+		/// 获取尝试获取XDebugger名为FullName的TryGetXDebugger
+		/// </summary>
+		public static TryGetXDebugger GetTryGetXDebugger(string FullName) {
+			TryGetXDebugger tryGetXDebugger;
+			if (items.Value.TryGetValue(FullName,out tryGetXDebugger)) return tryGetXDebugger;
+			else return new TryGetXDebugger(FullName);
+		}
+		internal TryGetXDebugger(string FullName) {
+			this.FullName = FullName;
+			XDebugger.xDebuggers.Value.TryGetValue(FullName, out xDebugger_);
+			items.Value.Add(FullName, this);
+		}
+		/// <summary>
+		/// 如果xDebugger不存在，返回0；如果xDebugger禁用，返回1；否则返回2；
+		/// </summary>
+		public int XDebuggerMode { get {
+				if (xDebugger == null) return 0;
+				if (xDebugger.Using == false) return 1;
+				else return 2;
+			} }
 	}
 }
