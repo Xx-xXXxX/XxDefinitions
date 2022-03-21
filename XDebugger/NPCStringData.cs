@@ -11,6 +11,7 @@ namespace XxDefinitions.XDebugger
 	/// 未测试
 	/// </summary>
 #pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
+	[Obsolete]
 	public static class NPCStringData
 	{
 		public static string GetNPCDebugDataDef(NPC npc) {
