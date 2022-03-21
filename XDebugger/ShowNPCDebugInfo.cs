@@ -57,7 +57,6 @@ namespace XxDefinitions.XDebugger
 		public override void SetDefaults(NPC npc)
 		{
 			if (npc == null) return;
-			//Type t = npc.GetType();
 			if(npc.modNPC!=null)
 			{
 				System.Reflection.MemberInfo memberInfo = npc.modNPC.GetType();
