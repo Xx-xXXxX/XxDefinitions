@@ -112,30 +112,10 @@ namespace XxDefinitions.XDebugger
 		public static object Call(params object[] args)
 		{
 			string CTypeS = (string)args[0];
-			switch (CTypeS)
-			{
-				case "AddGetNPCDebugDataFunc":
-					//npctype,func
-					if (NPCStringData.GetNPCDebugDataFuncs.ContainsKey((int)args[1]))
-						NPCStringData.GetNPCDebugDataFuncs[(int)args[1]] = (Func<NPC, string>)args[2];
-					else
-						NPCStringData.GetNPCDebugDataFuncs.Add((int)args[1], (Func<NPC, string>)args[2]);
-					return true;
-				case "GetNPCDebugDataFuncDef":
-					return (Func<NPC, string>)NPCStringData.GetNPCDebugDataDef;
-
-				case "AddShowNPCDebugFunc":
-					//npctype,func
-					if (NPCStringData.ShowNPCDebugFuncs.ContainsKey((int)args[1]))
-						NPCStringData.ShowNPCDebugFuncs[(int)args[1]] = (Action<NPC>)args[2];
-					else
-						NPCStringData.ShowNPCDebugFuncs.Add((int)args[1], (Action<NPC>)args[2]);
-					return true;
-				case "GetShowNPCDebugFuncDef":
-					return (Action<NPC>)NPCStringData.ShowNPCDebugDef;
-				case "GetAddDrawFunc":
-					return (Action<Action<SpriteBatch>>)Utils.AddDraw.AddDrawFunc;
-			}
+			//switch (CTypeS)
+			//{
+				
+			//}
 			return null;
 		}
 		//static List<XDebugger> xDebuggers=new List<XDebugger>();

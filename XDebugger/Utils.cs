@@ -190,16 +190,8 @@ namespace XxDefinitions.XDebugger
 			}
 		}
 
-		/// <summary>
-		/// 加入对对应npc的DebugData
-		/// </summary>
-		public static void AddGetNPCDebugDataFunc(int type, Func<NPC, string> func)
-		{
-			if (NPCStringData.GetNPCDebugDataFuncs.ContainsKey(type))
-				NPCStringData.GetNPCDebugDataFuncs[type] = func;
-			else
-				NPCStringData.GetNPCDebugDataFuncs.Add(type, func);
-		}
+		
+		
 
 		public static void DefNPCDebugInfo1(NPC nPC, List<string> tooltip)
 		{
