@@ -56,13 +56,19 @@ namespace XxDefinitions.XDebugger
 		List<Action<NPC, List<string>>> actions=new List<Action<NPC, List<string>>>();
 		public override void SetDefaults(NPC npc)
 		{
+			if (npc == null) return;
 			//Type t = npc.GetType();
-			System.Reflection.MemberInfo memberInfo = npc.modNPC.GetType();
-			List<ModNPCInfoString> xDebuggerModNPCInfos= new List<ModNPCInfoString>((ModNPCInfoString[])memberInfo.GetCustomAttributes(typeof(ModNPCInfoString), true));
-			if (xDebuggerModNPCInfos.Count > 0) {
-				foreach (var i in xDebuggerModNPCInfos) {
-					Action<List<string>> action = i.GetInfoStringMethod(npc);
-					if (action != null) actions.Add( (n, l) => { action.Invoke(l); });
+			if(npc.modNPC!=null)
+			{
+				System.Reflection.MemberInfo memberInfo = npc.modNPC.GetType();
+				List<ModNPCInfoString> xDebuggerModNPCInfos = new List<ModNPCInfoString>((ModNPCInfoString[])memberInfo.GetCustomAttributes(typeof(ModNPCInfoString), true));
+				if (xDebuggerModNPCInfos.Count > 0)
+				{
+					foreach (var i in xDebuggerModNPCInfos)
+					{
+						Action<List<string>> action = i.GetInfoStringMethod(npc);
+						if (action != null) actions.Add((n, l) => { action.Invoke(l); });
+					}
 				}
 			}
 			List<GlobalNPCInfoString> xDebuggerGlobalNPCInfos;
@@ -91,6 +97,7 @@ namespace XxDefinitions.XDebugger
 		}
 		public override void PostDraw(NPC npc, SpriteBatch spriteBatch, Color drawColor)
 		{
+			if (!XDebugger.DebugMode) return;
 			if (DrawTimeLeft <= 0) return;
 			Vector2 Pos = npc.position + new Vector2(npc.width, npc.height / 2) - Main.screenPosition;
 			List<string> tooltips = new List<string>();

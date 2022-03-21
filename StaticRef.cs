@@ -60,64 +60,96 @@ namespace XxDefinitions
 	/// 通过new T()创建对象
 	/// 在内存中剩下一个WeakReference<T>]]>
 	/// </summary>
-	public struct StaticRefWithNew<T> : IGetValue<T>
+	public struct StaticRefWithNew<T> :IGetValue<T>, ISetValue<T>, IGetSetValue<T>
 		where T : class, new()
 	{
-		private WeakReference<T> item;
-	
-		public T CreateItem1()
+		private WeakReference<T> itemWR;
+		private WeakReference<LinkedListNode<object>> itemNodeWR;
+		private void SetItemNode(LinkedListNode<object> Node) {
+			if (itemNodeWR == null) itemNodeWR = new WeakReference<LinkedListNode<object>>(Node);
+			else {
+				if (itemNodeWR.TryGetTarget(out LinkedListNode<object> ON)) {
+					StaticRefHolder.sRitems.Remove(ON);
+				}
+				itemNodeWR.SetTarget(Node);
+			}
+		}
+		private T CreateItem1()
 		{
 			T V = new T();
-			item = new WeakReference<T>(V);
-			StaticRefHolder.SRitems.AddLast(V);
-			XxDefinitions.Logv1.Debug($"StaticRefWithNew{this.GetType().FullName} CreateItem1{V}");
+			itemWR = new WeakReference<T>(V);
+			SetItemNode(StaticRefHolder.SRitems.AddLast(V));
+			XxDefinitions.Logv1.Debug($"StaticRefWithNew{this.GetType().FullName} CreateItem1 {V}");
 			StaticRefHolder.SRs.AddLast(Unload);
 			return V;
 		}
-		public T CreateItem2()
+		private T CreateItem2()
 		{
 			T J = new T();
-			item.SetTarget(J);
-			StaticRefHolder.SRitems.AddLast(J);
-			XxDefinitions.Logv1.Debug($"StaticRefWithNew{this.GetType().FullName} CreateItem2{J}");
+			itemWR.SetTarget(J);
+			SetItemNode(StaticRefHolder.SRitems.AddLast(J));
+			XxDefinitions.Logv1.Debug($"StaticRefWithNew{this.GetType().FullName} CreateItem2 {J}");
 			StaticRefHolder.SRs.AddLast(Unload);
 			return J;
 		}
 		public bool ItemAvaliable()
 		{
-			if (item == null) return false;
-			if (!item.TryGetTarget(out var I)) return false;
+			if (itemWR == null) return false;
+			if (!itemWR.TryGetTarget(out var I)) return false;
 			return true;
 		}
-		public T CheckItem()
+		private T CheckItem()
 		{
-			if (item == null) return CreateItem1();
-			if (item.TryGetTarget(out var I)) { return I; }
+			if (itemWR == null) return CreateItem1();
+			if (itemWR.TryGetTarget(out var I)) { return I; }
 			else
 			{
 				return CreateItem2();
 			}
+
 		}
 		public StaticRefWithNew(bool CreateNow = false)
 		{
 			if (CreateNow)
 			{
 				T V = new T();
-				item = new WeakReference<T>(V);
-				StaticRefHolder.SRitems.AddLast(V);
+				itemWR = new WeakReference<T>(V);
+				itemNodeWR=new WeakReference<LinkedListNode<object>>(StaticRefHolder.SRitems.AddLast(V));
 				StaticRefHolder.SRs.AddLast(Unload);
 			}
-			else item = null;
+			else { 
+				itemWR = null;
+				itemNodeWR = null;
+			}
 			XxDefinitions.Logv1.Debug($"StaticRefWithNew{this.GetType().FullName} ctor {((Action)(Unload)).Method}");
 		}
 		public T Value
 		{
 			get => CheckItem();
+			set => SetItem(value);
+		}
+		private void SetItem1(T Item) {
+			T V = Item;
+			itemWR = new WeakReference<T>(V);
+			SetItemNode(StaticRefHolder.SRitems.AddLast(V));
+			XxDefinitions.Logv1.Debug($"StaticRefWithNew{this.GetType().FullName} SetItem1 {V}");
+			StaticRefHolder.SRs.AddLast(Unload);
+		}
+		private void SetItem2(T item) {
+			T J = item;
+			this.itemWR.SetTarget(J);
+			SetItemNode(StaticRefHolder.SRitems.AddLast(J));
+			XxDefinitions.Logv1.Debug($"StaticRefWithNew{this.GetType().FullName} SetItem2 {J}");
+		}
+		private void SetItem(T item) {
+			if (itemWR == null) SetItem1(item);
+			else SetItem2(item);
 		}
 		public static implicit operator T(StaticRefWithNew<T> I) => I.Value;
-		public void Unload()
+		private void Unload()
 		{
-			item.SetTarget(null);
+			itemWR.SetTarget(null);
+			itemNodeWR.SetTarget(null);
 			XxDefinitions.Logv1.Debug($"StaticRefWithNew{this.GetType().FullName} Run Unload");
 		}
 
@@ -128,7 +160,7 @@ namespace XxDefinitions
 	/// 在使用时自动用F()创建对象
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public abstract class CtorByF<T> : IGetValue<T>
+	public abstract class CtorByF<T> : IGetValue<T>, ISetValue<T>, IGetSetValue<T>
 		where T : class
 	{
 		private T item;
@@ -159,39 +191,52 @@ namespace XxDefinitions
 	/// 通过CtorF创建对象
 	/// 在内存中剩下一个WeakReference<T>和委派构造函数]]>
 	/// </summary>
-	public struct StaticRefWithFunc<T>:IGetValue<T>
+	public struct StaticRefWithFunc<T>:IGetValue<T>,ISetValue<T>,IGetSetValue<T>
 		where T : class
 	{
-		private WeakReference<T> item;
+		private WeakReference<T> itemWR;
+		private WeakReference<LinkedListNode<object>> itemNodeWR;
+		private void SetItemNode(LinkedListNode<object> Node)
+		{
+			if (itemNodeWR == null) itemNodeWR = new WeakReference<LinkedListNode<object>>(Node);
+			else
+			{
+				if (itemNodeWR.TryGetTarget(out LinkedListNode<object> ON))
+				{
+					StaticRefHolder.sRitems.Remove(ON);
+				}
+				itemNodeWR.SetTarget(Node);
+			}
+		}
 		public readonly Func<T> CtorF;
-		public T CreateItem1()
+		private T CreateItem1()
 		{
 			T V = CtorF();
-			item = new WeakReference<T>(V);
-			StaticRefHolder.SRitems.AddLast(V);
-			XxDefinitions.Logv1.Debug($"StaticRefWithFunc{this.GetType().FullName} CreateItem1{V}");
+			itemWR = new WeakReference<T>(V);
+			SetItemNode(StaticRefHolder.SRitems.AddLast(V));
+			XxDefinitions.Logv1.Debug($"StaticRefWithFunc{this.GetType().FullName} CreateItem1 {V}");
 			StaticRefHolder.SRs.AddLast(Unload);
 			return V;
 		}
-		public T CreateItem2()
+		private T CreateItem2()
 		{
 			T J = CtorF();
-			item.SetTarget(J);
-			StaticRefHolder.SRitems.AddLast(J);
-			XxDefinitions.Logv1.Debug($"StaticRefWithFunc{this.GetType().FullName} CreateItem2{J}");
+			itemWR.SetTarget(J);
+			SetItemNode(StaticRefHolder.SRitems.AddLast(J));
+			XxDefinitions.Logv1.Debug($"StaticRefWithFunc{this.GetType().FullName} CreateItem2 {J}");
 			StaticRefHolder.SRs.AddLast(Unload);
 			return J;
 		}
 		public bool ItemAvaliable()
 		{
-			if (item == null) return false;
-			if (!item.TryGetTarget(out var I)) return false;
+			if (itemWR == null) return false;
+			if (!itemWR.TryGetTarget(out var I)) return false;
 			return true;
 		}
-		public T CheckItem()
+		private T CheckItem()
 		{
-			if (item == null) return CreateItem1();
-			if (item.TryGetTarget(out var I)) { return I; }
+			if (itemWR == null) return CreateItem1();
+			if (itemWR.TryGetTarget(out var I)) { return I; }
 			else
 			{
 				return CreateItem2();
@@ -200,17 +245,40 @@ namespace XxDefinitions
 		public StaticRefWithFunc(Func<T> I)
 		{
 			CtorF = I;
-			item = null;
+			itemWR = null;
+			itemNodeWR = null;
 			XxDefinitions.Logv1.Debug($"StaticRefWithFunc{this.GetType().FullName} ctor {((Action)(Unload)).Method}");
 		}
 		public T Value
 		{
 			get => CheckItem();
+			set => SetItem(value);
+		}
+		private void SetItem1(T Item)
+		{
+			T V = Item;
+			itemWR = new WeakReference<T>(V);
+			SetItemNode(StaticRefHolder.SRitems.AddLast(V));
+			XxDefinitions.Logv1.Debug($"StaticRefWithNew{this.GetType().FullName} SetItem1 {V}");
+			StaticRefHolder.SRs.AddLast(Unload);
+		}
+		private void SetItem2(T item)
+		{
+			T J = item;
+			this.itemWR.SetTarget(J);
+			SetItemNode(StaticRefHolder.SRitems.AddLast(J));
+			XxDefinitions.Logv1.Debug($"StaticRefWithNew{this.GetType().FullName} SetItem2 {J}");
+		}
+		private void SetItem(T item)
+		{
+			if (itemWR == null) SetItem1(item);
+			else SetItem2(item);
 		}
 		public static explicit operator T(StaticRefWithFunc<T> I) => I.Value;
-		public void Unload()
+		private void Unload()
 		{
-			item.SetTarget(null);
+			itemWR.SetTarget(null);
+			itemNodeWR.SetTarget(null);
 			XxDefinitions.Logv1.Debug($"StaticRefWithFunc{this.GetType().FullName} Run Unload");
 		}
 

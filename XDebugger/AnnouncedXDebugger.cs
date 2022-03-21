@@ -21,9 +21,13 @@ namespace XxDefinitions.XDebugger
 		/// 尝试获取XDebugger
 		/// </summary>
 		public readonly TryGetXDebugger tryGetXDebugger;
+		/// <summary>
+		/// 声明一个公开的XDebugger给其他人使用
+		/// </summary>
 		public AnnouncedXDebugger(string FullName) {
+			XxDefinitions.Logv1.Debug($"Announce XDebugger {FullName}");
 			this.XDebuggerFullName = FullName;
-			tryGetXDebugger = TryGetXDebugger.GetTryGetXDebugger(FullName);
+			this.tryGetXDebugger = TryGetXDebugger.GetTryGetXDebugger(FullName);
 		}
 	}
 }

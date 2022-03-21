@@ -19,8 +19,6 @@ namespace XxDefinitions
             instance = this;
         }
         ~XxDefinitions() {
-            LogManager.GetLogger("XxDefinitions").Debug($"~XxDefinitions {this.GetType().FullName}");
-            GC.Collect(); GC.WaitForPendingFinalizers();
         }
         //public static Mod XDebugger;
         //public static Func<NPC, string> XDebuggerDefaultGetNPCDebugData;
@@ -37,30 +35,21 @@ namespace XxDefinitions
 		}*/
         public override void PostSetupContent()
         {
-            if (XDebugger.XDebugger.DebugMode)
-            {
-                XDebugger.XDebugger.PostSetupContent();//XDebuggerDefaultGetNPCDebugData = (Func<NPC, string>)XDebugger.Call("GetDefaultNPCDebugDataFunc");
-            }
+            XDebugger.XDebugger.PostSetupContent();//XDebuggerDefaultGetNPCDebugData = (Func<NPC, string>)XDebugger.Call("GetDefaultNPCDebugDataFunc");
         }
         public override void Load()
         {
             StaticRefHolder.Load();
-            Logv1.Using = true;
-            Logv1.Debug(mc.Value.name);
+            XDebugger.XDebugger.Load();
         }
         public override void Unload()
         {
             instance = null;
             Logv1 = null;
             //UnloadDo.Unload();
-            WaitForRelease();
             XDebugger.XDebugger.CloseDebugMode();
+            XDebugger.XDebugger.Unload();
             StaticRefHolder.Unload();
-        }
-        public void WaitForRelease() {
-            XxDefinitions.Logv1.Debug("WaitForRelease pre GC.Collect()");
-            GC.Collect(); GC.WaitForPendingFinalizers();
-            XxDefinitions.Logv1.Debug("WaitForRelease post GC.Collect()");
         }
         public override void UpdateUI(GameTime gameTime)
         {
@@ -101,7 +90,7 @@ namespace XxDefinitions
         //}
         //      public static StaticRef<XLWA> Log;
         private static LogWithUsing logv1;
-        public static bool Uselogv1 = true;
+        public static bool Uselogv1 = false;
         public static LogWithUsing Logv1{
             get { 
                 if(logv1==null)logv1 = new LogWithUsing("XxDefinitions", Uselogv1);
@@ -110,6 +99,6 @@ namespace XxDefinitions
             }
             set => logv1 = value;
         }
-        public static StaticRefWithFunc<MemoryCheck> mc = new StaticRefWithFunc<MemoryCheck>(()=>new MemoryCheck());
+        //public static StaticRefWithFunc<MemoryCheck> mc = new StaticRefWithFunc<MemoryCheck>(()=>new MemoryCheck());
     }
 }

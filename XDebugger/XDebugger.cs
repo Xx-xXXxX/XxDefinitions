@@ -10,6 +10,7 @@ using Terraria.UI;
 using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Reflection;
 
 namespace XxDefinitions.XDebugger
 {
@@ -18,6 +19,10 @@ namespace XxDefinitions.XDebugger
 	/// </summary>
 	public partial class XDebugger
 	{
+		/// <summary>
+		/// 所有公开XDebugger的
+		/// </summary>
+		public static StaticRefWithNew<List<TryGetXDebugger>> AnnouncedDebuggers=new StaticRefWithNew<List<TryGetXDebugger>>();
 		private static bool Loaded = false;
 		private static bool debugMode = false;
 		/// <summary>
@@ -25,21 +30,38 @@ namespace XxDefinitions.XDebugger
 		/// </summary>
 		public static void CloseDebugMode() {
 			debugMode = false;
-			Unload();
+			EndDebugMode();
 		}
 		/// <summary>
-		/// 开关调试
+		/// 开关调试，控制所有XDebugger
 		/// 只要有DebugMode=true 都会开启
 		/// </summary>
 		public static bool DebugMode {
 			get => debugMode;
-			set { debugMode = debugMode || value; Load(); }
+			set {
+				if (!debugMode && value) StartDebugMode();
+				debugMode = debugMode || value;
+			}
+		}
+		private static void StartDebugMode() {
+			CustomDraw.DrawerList.Clear();
+		}
+		private static void EndDebugMode() {
+			CustomDraw.DrawerList.Clear();
 		}
 		internal static void Update() { 
 			
 		}
 		internal static void PostSetupContent() {
 			//Utils.AddGetNPCDebugDataFunc(ModContent.NPCType<Test.NPCs.E3____Hover>(), (Func<NPC, string>)Test.NPCs.E3____Hover.XDebuggerDebugF);
+			foreach (var i in Terraria.ModLoader.ModLoader.Mods)
+			{
+				List<AnnouncedXDebugger> announcedXDebuggers = new List<AnnouncedXDebugger>(i.GetType().GetCustomAttributes<AnnouncedXDebugger>());
+				foreach (var j in announcedXDebuggers)
+				{
+					AnnouncedDebuggers.Value.Add(j.tryGetXDebugger);
+				}
+			}
 		}
 		internal static UI.CustomDraw customDraw;
 		internal static UserInterface customDrawInterface;
@@ -133,7 +155,7 @@ namespace XxDefinitions.XDebugger
 		public XDebugger(Mod mod,string Name, bool Using = false) {
 			this.FullName = mod.Name+"."+ Name;
 			this.Using = Using;
-			xDebuggers.Value.Add(Name,this);
+			xDebuggers.Value.Add(FullName, this);
 			if (TryGetXDebugger.items.Value.TryGetValue(FullName, out TryGetXDebugger tryGetXDebugger)) {
 				tryGetXDebugger.xDebugger_ = this;
 			}
