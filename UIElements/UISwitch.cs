@@ -55,6 +55,8 @@ namespace XxDefinitions.UIElements
 			Left.Set(0, 0f);
 			Width.Set(14, 0f);
 			Height.Set(14, 0f);
+			this.MaxHeight = MinHeight = Height;
+			this.MaxWidth = MinWidth = Width;
 		}
 		/// <summary>
 		/// 设置开关中心
@@ -69,11 +71,12 @@ namespace XxDefinitions.UIElements
 		public override void Click(UIMouseEvent evt)
 		{
 			Value = !Value;
+			base.Click(evt);
 		}
 
 	}
 	/// <summary>
-	/// 在开关右边显示文本
+	/// 在文本右边显示开关
 	/// </summary>
 	public class UINamedSwitch :UIElement
 	{
@@ -85,15 +88,21 @@ namespace XxDefinitions.UIElements
 		/// 文本
 		/// </summary>
 		public UIText Text; 
+		/// <summary>
+		/// 名字
+		/// </summary>
 		public string Name;
-		public UINamedSwitch(UISwitch Switch,string Name) {
-			this.Switch = Switch;
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
+		public UINamedSwitch(string Name,IGetSetValue<bool> Value,IGetValue<string> HoverString) {
+			Switch = new UISwitch(Value, HoverString);
+			Switch.SetCenter(new Vector2(-6.5f,0),new Vector2(1f,0.5f));
 			this.Name = Name;
 			Text = new UIText(Name);
 			Text.Top.Set(0, 0f);
-			Text.Left.Set(14, 0f);
+			Text.Left.Set(0, 0f);
 			Text.Width.Set(0, 1f);
 			Text.Height.Set(-14, 1f);
+			
 		}
 		public UINamedSwitch(UISwitch Switch, UIText Text)
 		{
@@ -105,6 +114,7 @@ namespace XxDefinitions.UIElements
 		{
 			Append(Switch);
 			Append(Text);
+			base.OnInitialize();
 		}
 	}
 }

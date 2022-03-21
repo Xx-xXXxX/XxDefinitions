@@ -12,6 +12,7 @@ using Terraria;
 using Terraria.Localization;
 using Terraria.ModLoader;
 
+using static System.Net.Mime.MediaTypeNames;
 using static System.Net.WebRequestMethods;
 
 namespace XxDefinitions
@@ -159,15 +160,6 @@ namespace XxDefinitions
 			while (n >= r) n -= d;
 			return n;
 		}
-		/*
-		public static void LoadT() {
-			Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Terraria.ModLoader.Default." + file + ".png");
-			if (stream == null)
-			{
-				throw new ArgumentException("Given EquipType for PatreonItem or name is not valid. It is possible either does not match up with the classname. If you added a new EquipType, modify GetEquipTypeSuffix() and AddPatreonItemAndEquipType() first.");
-			}
-			return Texture2D.FromStream(Main.instance.GraphicsDevice, stream);
-		}*/
 		/// <summary>
 		/// 用于计算的方法
 		/// </summary>
