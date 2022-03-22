@@ -104,14 +104,14 @@ namespace XxDefinitions.XDebugger
 			{
 				i(npc, tooltips);
 			}
-
 			string info = "";
 			foreach (var i in tooltips)
 			{
 				info += i;
 			}
-			int lines = info.Count((c) => c == '\n');
-			Pos -= new Vector2(lines * 12 / 2);
+			//int lines = info.Count((c) => c == '\n');
+			;
+			Pos -= new Vector2(0, Main.fontMouseText.MeasureString(info).Y / 2f);
 			Terraria.Utils.DrawBorderString(spriteBatch, info, Pos, Color.White);
 		}
 	}

@@ -22,8 +22,4 @@
   <ItemGroup>
     <PackageReference Include="tModLoader.CodeAssist" Version="0.1.*" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="XDebugger\Commands\" />
-    <Folder Include="XDebugger\Items\" />
-  </ItemGroup>
 </Project>

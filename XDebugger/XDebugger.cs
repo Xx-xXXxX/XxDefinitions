@@ -54,14 +54,18 @@ namespace XxDefinitions.XDebugger
 		}
 		internal static void PostSetupContent() {
 			//Utils.AddGetNPCDebugDataFunc(ModContent.NPCType<Test.NPCs.E3____Hover>(), (Func<NPC, string>)Test.NPCs.E3____Hover.XDebuggerDebugF);
-			foreach (var i in Terraria.ModLoader.ModLoader.Mods)
-			{
-				List<AnnouncedXDebugger> announcedXDebuggers = new List<AnnouncedXDebugger>(i.GetType().GetCustomAttributes<AnnouncedXDebugger>());
-				foreach (var j in announcedXDebuggers)
-				{
-					AnnouncedDebuggers.Value.Add(j.tryGetXDebugger);
-				}
-			}
+			//foreach (var i in Terraria.ModLoader.ModLoader.Mods)
+			//{
+			//	List<AnnouncedXDebugger> announcedXDebuggers = new List<AnnouncedXDebugger>(i.GetType().GetCustomAttributes<AnnouncedXDebugger>());
+			//	foreach (var j in announcedXDebuggers)
+			//	{
+			//		AnnouncedDebuggers.Value.Add(j.tryGetXDebugger);
+			//	}
+			//}
+			//foreach (var i in xDebuggers.Value) { 
+			//	if(i.Value.GetType().GetCustomAttribute<AnnounceAttribute>()!=null)
+			//		AnnouncedDebuggers.Value.Add(TryGetXDebugger.GetTryGetXDebugger(i.Value.FullName));
+			//}
 		}
 		internal static UI.CustomDraw customDraw;
 		internal static UserInterface customDrawInterface;
@@ -127,17 +131,20 @@ namespace XxDefinitions.XDebugger
 		/// <summary>
 		/// 名字
 		/// </summary>
-		public string FullName;
+		public readonly string FullName;
 		/// <summary>
 		/// 为mod生成XDebugger
 		/// 其全名为 mod.Name+"."+ Name
 		/// </summary>
-		public XDebugger(Mod mod,string Name, bool Using = false) {
+		public XDebugger(Mod mod,string Name, bool Using = false,bool Announce=false) {
 			this.FullName = mod.Name+"."+ Name;
 			this.Using = Using;
 			xDebuggers.Value.Add(FullName, this);
 			if (TryGetXDebugger.items.Value.TryGetValue(FullName, out TryGetXDebugger tryGetXDebugger)) {
 				tryGetXDebugger.xDebugger_ = this;
+			}
+			if (Announce) {
+				AnnouncedDebuggers.Value.Add(TryGetXDebugger.GetTryGetXDebugger(FullName));
 			}
 		}
 		/// <summary>

@@ -222,7 +222,7 @@ namespace XxDefinitions
 		/// 获取在Range内的向量
 		/// </summary>
 		public static Vector2 NextVectorInRect(this IRandom random, Rectangle Range) {
-			return new Vector2(random.NextFloat(Range.Left,Range.Right), random.Next(Range.Top, Range.Bottom));
+			return new Vector2(random.NextFloat(Range.Left,Range.Right), random.NextFloat(Range.Top, Range.Bottom));
 		}
 		/// <summary>
 		/// 获取XY在[min,max)的向量

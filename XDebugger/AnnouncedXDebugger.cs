@@ -9,8 +9,13 @@ namespace XxDefinitions.XDebugger
 
 	/// <summary>
 	/// 声明一个公开的XDebugger给其他人使用
+	/// <code><![CDATA[
+	/// [AnnouncedXDebugger("T.a")]
+	/// class T:Mod{}
+	/// ]]></code>
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+	[Obsolete("使用AnnounceAttribute")]
 	public class AnnouncedXDebugger:Attribute
 	{
 		/// <summary>
@@ -30,4 +35,11 @@ namespace XxDefinitions.XDebugger
 			this.tryGetXDebugger = TryGetXDebugger.GetTryGetXDebugger(FullName);
 		}
 	}
+	/// <summary>
+	/// 表示该XDebugger是公用的，该XDebugger可以在AnnouncedDebuggers.Value中找到
+	/// 可以在XDebuggerHelper(Mod)中开关
+	/// </summary>
+	[AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
+	[Obsolete("使用new XDebugger(Announce:true)")]
+	public class AnnounceAttribute : Attribute { }
 }
