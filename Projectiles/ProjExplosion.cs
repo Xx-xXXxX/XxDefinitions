@@ -103,7 +103,7 @@ namespace XxDefinitions.Projectiles
 		}
 		public override void ModifyHitPlayer(Player target, ref int damage, ref bool crit)
 		{
-			projectile.damage = (int)projectile.ai[1];
+			projectile.damage = (int)projectile.ai[0];
 		}
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit)
 		{
@@ -111,8 +111,8 @@ namespace XxDefinitions.Projectiles
 		}
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
 		{
-			if(target.friendly) projectile.damage = (int)projectile.ai[1];
-			else projectile.damage = (int)projectile.ai[0];
+			if(target.friendly) projectile.damage = (int)projectile.ai[0];
+			else projectile.damage = (int)projectile.ai[1];
 		}
 		public override bool PreKill(int timeLeft)
 		{

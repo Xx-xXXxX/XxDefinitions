@@ -27,23 +27,23 @@ namespace XxDefinitions.XDebugger
 			/// <summary>
 			/// 线
 			/// </summary>
-			//public static Texture2D Line => ModContent.GetTexture("XxDefinitions/XDebugger/Line");
+			public static Texture2D Line => ModContent.GetTexture("XxDefinitions/XDebugger/Line");
 			public static void DrawLine(SpriteBatch spriteBatch, Vector2 From, float Distance, float Rotation, Color color, float LineWidth = 1)
 			{
-				//From -= Main.screenPosition;
-				//spriteBatch.Draw(Line, From, null, color, Rotation, new Vector2(0, 3), new Vector2(Distance / 64f, LineWidth / 8f), SpriteEffects.None, 0f);
-				DrawLineTo(spriteBatch, From, From + new Vector2(Distance).RotatedBy(Rotation), color, LineWidth);
+				From -= Main.screenPosition;
+				spriteBatch.Draw(Line, From, null, color, Rotation, new Vector2(0, 3), new Vector2(Distance / 64f, LineWidth / 8f), SpriteEffects.None, 0f);
+				//DrawLineTo(spriteBatch, From, From + new Vector2(Distance).RotatedBy(Rotation), color, LineWidth);
 			}
 			public static void DrawLineBy(SpriteBatch spriteBatch, Vector2 From, Vector2 By, Color color, float LineWidth = 1)
 			{
-				//DrawLine(spriteBatch, From, By.Length(), By.ToRotation(), color, LineWidth);
-				DrawLineTo(spriteBatch, From, From+By, color,  LineWidth);
+				DrawLine(spriteBatch, From, By.Length(), By.ToRotation(), color, LineWidth);
+				//DrawLineTo(spriteBatch, From, From+By, color,  LineWidth);
 			}
 			public static void DrawLineTo(SpriteBatch spriteBatch, Vector2 From, Vector2 To, Color color, float LineWidth = 1)
 			{
-				//Vector2 By = To - From;
-				//DrawLine(spriteBatch, From, By.Length(), By.ToRotation(), color, LineWidth);
-				Terraria.Utils.DrawLine(spriteBatch,From,To,color,color,LineWidth);
+				Vector2 By = To - From;
+				DrawLine(spriteBatch, From, By.Length(), By.ToRotation(), color, LineWidth);
+				//Terraria.Utils.DrawLine(spriteBatch,From,To,color,color,LineWidth);
 			}
 			public static void DrawRect(SpriteBatch spriteBatch, Rectangle Rect, Color? color = null)
 			{

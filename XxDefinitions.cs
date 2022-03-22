@@ -1,4 +1,4 @@
-using log4net;
+ï»¿using log4net;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using Terraria.ModLoader;
@@ -6,10 +6,11 @@ using Terraria.UI;
 using Terraria;
 using System;
 using On.Terraria;
+using Terraria.Localization;
 
 namespace XxDefinitions
 {
-#pragma warning disable CS1591 // È±ÉÙ¶Ô¹«¹²¿É¼ûÀàĞÍ»ò³ÉÔ±µÄ XML ×¢ÊÍ
+#pragma warning disable CS1591 // ç¼ºå°‘å¯¹å…¬å…±å¯è§ç±»å‹æˆ–æˆå‘˜çš„ XML æ³¨é‡Š
 	public class XxDefinitions : Mod
 	{
         private static XxDefinitions instance;
@@ -41,6 +42,14 @@ namespace XxDefinitions
         {
             StaticRefHolder.Load();
             XDebugger.XDebugger.Load();
+            ModTranslation Translations = this.CreateTranslation("Disabled");
+            Translations.SetDefault("Disabled");
+            Translations.AddTranslation(GameCulture.Chinese, "å·²ç¦ç”¨");
+            this.AddTranslation(Translations);
+            Translations = this.CreateTranslation("Enabled");
+            Translations.SetDefault("Enabled");
+            Translations.AddTranslation(GameCulture.Chinese, "å·²å¯ç”¨");
+            this.AddTranslation(Translations);
         }
         public override void Unload()
         {

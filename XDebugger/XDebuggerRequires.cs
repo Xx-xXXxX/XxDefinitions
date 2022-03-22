@@ -43,16 +43,13 @@ namespace XxDefinitions.XDebugger
 			t = null; propertyInfo = null;
 		}
 		public T GetPropertyValue<T>(object obj) {
-			XDebugger xDebugger = tryGetXDebugger.xDebugger;
-			if (xDebugger != null && xDebugger.Using)
-			{
 				if (t == null)
 				{
 					t = obj.GetType();
 				}
 				if (propertyInfo == null)
 				{
-					propertyInfo = t.GetProperty(PropertyName);
+					propertyInfo = t.GetProperty(PropertyName,BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.Instance|BindingFlags.Static|BindingFlags.GetProperty|BindingFlags.SetProperty);
 				}
 				if (propertyInfo == null) {
 					t = null;
@@ -63,15 +60,12 @@ namespace XxDefinitions.XDebugger
 					throw new ArgumentException($"obj {obj.ToString()} 的 {PropertyName} 的类型 {propertyInfo.PropertyType} 不可读", "obj");
 				}
 				if (propertyInfo.PropertyType != typeof(T)) {
+					Type PropertyType = propertyInfo.PropertyType;
 					t = null;propertyInfo = null;
-					throw new ArgumentException($"obj {obj.ToString()} 的 {PropertyName} 的类型 {propertyInfo.PropertyType} 不是 {typeof(T)}", "obj"); 
+					throw new ArgumentException($"obj {obj.ToString()} 的 {PropertyName} 的类型 {PropertyType} 不是 {typeof(T)}", "obj"); 
 				}
 				
 				return (T)propertyInfo.GetValue(obj);
-			}
-			else {
-				return default(T);
-			}
 		}
 	}
 }

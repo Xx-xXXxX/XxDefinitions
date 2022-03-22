@@ -20,6 +20,10 @@ namespace XxDefinitions.XDebugger
 	public partial class XDebugger
 	{
 		/// <summary>
+		/// 用于默认操作的Xdebugger
+		/// </summary>
+		public static StaticRefWithFunc<XDebugger> DefXDebugger = new StaticRefWithFunc<XDebugger>(()=>new XDebugger("XDebugger.XDebugger",false,true));
+		/// <summary>
 		/// 所有公开XDebugger的
 		/// </summary>
 		public static StaticRefWithNew<List<TryGetXDebugger>> AnnouncedDebuggers=new StaticRefWithNew<List<TryGetXDebugger>>();
@@ -44,13 +48,12 @@ namespace XxDefinitions.XDebugger
 			}
 		}
 		private static void StartDebugMode() {
-			CustomDraw.DrawerList.Clear();
+			CustomDraw.DrawerList?.Clear();
 		}
 		private static void EndDebugMode() {
-			CustomDraw.DrawerList.Clear();
+			CustomDraw.DrawerList?.Clear();
 		}
-		internal static void Update() { 
-			
+		internal static void Update() {
 		}
 		internal static void PostSetupContent() {
 			//Utils.AddGetNPCDebugDataFunc(ModContent.NPCType<Test.NPCs.E3____Hover>(), (Func<NPC, string>)Test.NPCs.E3____Hover.XDebuggerDebugF);
@@ -77,6 +80,8 @@ namespace XxDefinitions.XDebugger
 				customDrawInterface = new UserInterface();
 				customDrawInterface.SetState(customDraw);
 			UI.CustomDraw.DrawerList = new List<CustomDraw.IDrawer>();
+
+			DefXDebugger.Value.Using = true;
 		}
 		internal static void Unload() {
 			if (!Loaded) return;
@@ -148,6 +153,25 @@ namespace XxDefinitions.XDebugger
 			}
 		}
 		/// <summary>
+		/// 生成XDebugger
+		/// 不建议使用
+		/// </summary>
+		public XDebugger(string FullName, bool Using = false, bool Announce = false)
+		{
+			this.FullName = FullName;
+			this.Using = Using;
+			xDebuggers.Value.Add(this.FullName, this);
+			if (TryGetXDebugger.items.Value.TryGetValue(this.FullName, out TryGetXDebugger tryGetXDebugger))
+			{
+				tryGetXDebugger.xDebugger_ = this;
+			}
+			if (Announce)
+			{
+				AnnouncedDebuggers.Value.Add(TryGetXDebugger.GetTryGetXDebugger(this.FullName));
+			}
+		}
+
+		/// <summary>
 		/// 获取对应XDebugger
 		/// </summary>
 		public static XDebugger GetXDebugger(Mod mod, string Name) {
@@ -158,7 +182,14 @@ namespace XxDefinitions.XDebugger
 		/// </summary>
 		public static XDebugger GetXDebugger(string FullName) {
 			return xDebuggers.Value[FullName];
+			
 		}
+		/// <summary>
+		/// 使得可以直接用if(xDebugger){...}
+		/// </summary>
+		/// <param name="xDebugger"></param>
+		public static implicit operator bool(XDebugger xDebugger) => xDebugger.Using;
+		public static TryGetXDebugger GetTryGetXDebugger(string FullName) => TryGetXDebugger.GetTryGetXDebugger(FullName);
 	}
 	/// <summary>
 	/// 尝试获取XDebugger，在生成XDebugger时自动获取
@@ -195,5 +226,6 @@ namespace XxDefinitions.XDebugger
 				if (xDebugger.Using == false) return 1;
 				else return 2;
 			} }
+		public static implicit operator bool(TryGetXDebugger xDebugger) => xDebugger.XDebuggerMode==2;
 	}
 }

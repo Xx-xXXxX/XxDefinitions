@@ -42,6 +42,7 @@ namespace XxDefinitions
 				Loaded = false;
 				XxDefinitions.Logv1.Debug("StaticRefHolder Unload");
 				sRitems = null;
+				if(sRs!=null)
 				foreach (var i in SRs)
 				{
 					i?.Invoke();

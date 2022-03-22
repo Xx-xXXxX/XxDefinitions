@@ -101,8 +101,8 @@ namespace XxDefinitions
 		/// </summary>
 		public static Rectangle MoveBy(this Rectangle rect, Point point)
 		{
-			rect.X -= point.X;
-			rect.Y -= point.Y;
+			rect.X += point.X;
+			rect.Y += point.Y;
 			return rect;
 		}
 		//public static Point operator +(Point A,Point B)

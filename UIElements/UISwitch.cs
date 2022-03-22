@@ -62,8 +62,8 @@ namespace XxDefinitions.UIElements
 		/// 设置开关中心
 		/// </summary>
 		public void SetCenter(Vector2 center,Vector2 precent) {
-			Top.Set(center.Y - Height.Pixels / 2, precent.Y);
-			Left.Set(center.X - Width.Pixels / 2, precent.X);
+			Left.Set(center.X - 7, precent.X);
+			Top.Set(center.Y - 7, precent.Y);
 		}
 		/// <summary>
 		/// 按下
@@ -78,7 +78,7 @@ namespace XxDefinitions.UIElements
 	/// <summary>
 	/// 在文本右边显示开关
 	/// </summary>
-	public class UINamedSwitch :UIElement
+	public class UILeftNamedSwitch :UIElement
 	{
 		/// <summary>
 		/// 开关
@@ -93,18 +93,68 @@ namespace XxDefinitions.UIElements
 		/// </summary>
 		public string Name;
 #pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
-		public UINamedSwitch(string Name,IGetSetValue<bool> Value,IGetValue<string> HoverString) {
+		public UILeftNamedSwitch(string Name,IGetSetValue<bool> Value,IGetValue<string> HoverString) {
 			Switch = new UISwitch(Value, HoverString);
-			Switch.SetCenter(new Vector2(-6.5f,0),new Vector2(1f,0.5f));
 			this.Name = Name;
 			Text = new UIText(Name);
 			Text.Top.Set(0, 0f);
 			Text.Left.Set(0, 0f);
-			Text.Width.Set(0, 1f);
-			Text.Height.Set(-14, 1f);
-			
+			Text.Width.Set(-14, 1f);
+			Text.Height.Set(0, 1f);
+			Height = Text.MinHeight;
+			Width.Pixels= Text.MinWidth.Pixels+16;
+			Switch.SetCenter(new Vector2(-6.5f, 0), new Vector2(1f, 0.5f));
+			//Height.Set(0,1f);
+			//Width.Set(0,1f);
 		}
-		public UINamedSwitch(UISwitch Switch, UIText Text)
+		public UILeftNamedSwitch(UISwitch Switch, UIText Text)
+		{
+			this.Switch = Switch;
+			this.Text = Text;
+			Name = Text.Text;
+		}
+		public override void OnInitialize()
+		{
+			Append(Switch);
+			Append(Text);
+			base.OnInitialize();
+		}
+	}
+
+	/// <summary>
+	/// 在文本右边显示开关
+	/// </summary>
+	public class UIRightNamedSwitch : UIElement
+	{
+		/// <summary>
+		/// 开关
+		/// </summary>
+		public UISwitch Switch;
+		/// <summary>
+		/// 文本
+		/// </summary>
+		public UIText Text;
+		/// <summary>
+		/// 名字
+		/// </summary>
+		public string Name;
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
+		public UIRightNamedSwitch(string Name, IGetSetValue<bool> Value, IGetValue<string> HoverString)
+		{
+			Switch = new UISwitch(Value, HoverString);
+			this.Name = Name;
+			Text = new UIText(Name);
+			Text.Top.Set(0, 0f);
+			Text.Left.Set(14, 0f);
+			Text.Width.Set(0, 1f);
+			Text.Height.Set(0, 1f);
+			Height = Text.MinHeight;
+			Width.Pixels = Text.MinWidth.Pixels + 16;
+			Switch.SetCenter(new Vector2(6.5f, 0), new Vector2(0f, 0.5f));
+			//Height.Set(0,1f);
+			//Width.Set(0,1f);
+		}
+		public UIRightNamedSwitch(UISwitch Switch, UIText Text)
 		{
 			this.Switch = Switch;
 			this.Text = Text;

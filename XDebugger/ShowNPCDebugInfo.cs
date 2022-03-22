@@ -12,48 +12,34 @@ using Terraria;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
-
 namespace XxDefinitions.XDebugger
 {
 	//[XDebuggerInfo()]
 	/// <summary><![CDATA[
-	/// 用于显示NPCDebugInfo，调用ModNPC[XDebuggerRequires] Action<List<string>>与GlobalNPC[XDebuggerRequires] Action<NPC,List<string>>]]>
+	/// 用于显示NPCDebugInfo，调用ModNPC[ModNPCInfoString]与GlobalNPC[GlobalNPCInfoString] Action<NPC,List<string>>]]>
 	/// </summary>
+	[GlobalNPCInfoString("XDebugger.XDebugger", "DefShowNPCDebugInfo")]
 	public class ShowNPCDebugInfo:GlobalNPC
 	{
-		//List< XDebuggerInfo> XInfos;
-		//public override void SetDefaults(NPC npc)
-		//{
-		//	System.Reflection.MemberInfo info = npc.GetType();
-		//	XInfos =new List<XDebuggerInfo>( (XDebuggerInfo[])info.GetCustomAttributes(typeof(XDebuggerInfo), true));
-		//	Type type = npc.GetType();
-		//	var gns= type.GetField("globalNPCs");
-		//	GlobalNPC[] globalNPCs=(GlobalNPC[])gns.GetValue(npc);
-		//	foreach (var i in globalNPCs) {
-		//		foreach (var j in (XDebuggerInfo[])i.GetType().GetCustomAttributes(typeof(XDebuggerInfo), true)) {
-		//			XInfos.Add(j);
-		//		}
-		//	}
-		//}
-		//public override void PostDraw(NPC npc, SpriteBatch spriteBatch, Color drawColor)
-		//{
-		//	Vector2 Pos = npc.position + new Vector2(npc.width, npc.height/2)-Main.screenPosition;
-		//	List<Terraria.ModLoader.TooltipLine> tooltips = new List<TooltipLine>();
-		//	foreach (var i in XInfos) {
-		//		i.action(npc,tooltips);
-		//	}
+		/// <summary>
+		/// 设为true使ShowNPCDebugInfo总是显示
+		/// DrawTimeLeft=1;
+		/// </summary>
+		public static bool ShowAlways=false;
 
-		//	string info = "";
-		//	foreach (var i in tooltips) {
-		//		info += i.text;
-		//	}
-		//	int lines= info.Count((c)=>c=='\n');
-		//	Pos -= new Vector2(lines*12/2);
-		//	Terraria.Utils.DrawBorderString(spriteBatch, info, Pos, Color.White);
-		//}
 #pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
+		public static Action<NPC, List<(string, string)>> DefShowNPCDebugInfo => (npc, l) =>
+		{
+			l.Add(("DefShowNPCDebugInfo",
+				$"Type:{npc.type} {npc.TypeName} aiStyle:{npc.aiStyle}\n"+
+				$"ais:{npc.ai[0]},{npc.ai[1]},{npc.ai[2]},{npc.ai[3]}\n"+
+				$"localAIs:{npc.localAI[0]},{npc.localAI[1]},{npc.localAI[2]},{npc.localAI[3]}\n" +
+				$"friendly:{npc.friendly} boss:{npc.boss} town:{npc.townNPC}\n"
+				));
+		};
 		public override bool InstancePerEntity => true;
-		List<Action<NPC, List<string>>> actions=new List<Action<NPC, List<string>>>();
+		List<Action<NPC, List<(string, string)>>> actions=new List<Action<NPC, List<(string, string)>>>();
+		List<TryGetXDebugger> actionsUsing = new List<TryGetXDebugger>();
 		public override void SetDefaults(NPC npc)
 		{
 			if (npc == null) return;
@@ -65,8 +51,11 @@ namespace XxDefinitions.XDebugger
 				{
 					foreach (var i in xDebuggerModNPCInfos)
 					{
-						Action<List<string>> action = i.GetInfoStringMethod(npc);
-						if (action != null) actions.Add((n, l) => { action.Invoke(l); });
+						Action<List<(string, string)>> action = i.GetInfoStringMethod(npc);
+						if (action != null) { 
+							actions.Add((n, l) => { action.Invoke(l); });
+							actionsUsing.Add(i.tryGetXDebugger);
+						}
 					}
 				}
 			}
@@ -77,8 +66,12 @@ namespace XxDefinitions.XDebugger
 				{
 					foreach (var i in xDebuggerGlobalNPCInfos)
 					{
-						Action<NPC,List<string>> action = i.GetInfoStringMethod(j);
-						if (action != null) actions.Add(action);
+						Action<NPC,List<(string, string)>> action = i.GetInfoStringMethod(j);
+						if (action != null)
+						{
+							actions.Add(action);
+							actionsUsing.Add(i.tryGetXDebugger);
+						}
 					}
 				}
 			}
@@ -97,20 +90,24 @@ namespace XxDefinitions.XDebugger
 		public override void PostDraw(NPC npc, SpriteBatch spriteBatch, Color drawColor)
 		{
 			if (!XDebugger.DebugMode) return;
+			if (ShowAlways) DrawTimeLeft = 1;
 			if (DrawTimeLeft <= 0) return;
 			Vector2 Pos = npc.position + new Vector2(npc.width, npc.height / 2) - Main.screenPosition;
-			List<string> tooltips = new List<string>();
-			foreach (var i in actions)
-			{
-				i(npc, tooltips);
+			List<(string,string)> tooltips = new List<(string, string)>();
+			//foreach (var i in actions)
+			//{
+			//	i(npc, tooltips);
+			//}
+			for (int i = 0; i < actions.Count; ++i) {
+				if (actionsUsing[i].XDebuggerMode == 2) { 
+					actions[i](npc, tooltips);
+				}
 			}
 			string info = "";
 			foreach (var i in tooltips)
 			{
-				info += i;
+				info += i.Item2;
 			}
-			//int lines = info.Count((c) => c == '\n');
-			;
 			Pos -= new Vector2(0, Main.fontMouseText.MeasureString(info).Y / 2f);
 			Terraria.Utils.DrawBorderString(spriteBatch, info, Pos, Color.White);
 		}
