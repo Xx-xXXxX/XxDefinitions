@@ -189,6 +189,10 @@ namespace XxDefinitions.XDebugger
 		/// </summary>
 		/// <param name="xDebugger"></param>
 		public static implicit operator bool(XDebugger xDebugger) => xDebugger.Using;
+		/// <summary>
+		/// 获取TryGetXDebugger
+		/// TryGetXDebugger有特殊的管理方法
+		/// </summary>
 		public static TryGetXDebugger GetTryGetXDebugger(string FullName) => TryGetXDebugger.GetTryGetXDebugger(FullName);
 	}
 	/// <summary>
@@ -226,6 +230,9 @@ namespace XxDefinitions.XDebugger
 				if (xDebugger.Using == false) return 1;
 				else return 2;
 			} }
-		public static implicit operator bool(TryGetXDebugger xDebugger) => xDebugger.XDebuggerMode==2;
+		/// <summary>
+		/// if(tryGetXDebugger)
+		/// </summary>
+		public static implicit operator bool(TryGetXDebugger tryGetXDebugger) => tryGetXDebugger.XDebuggerMode==2;
 	}
 }

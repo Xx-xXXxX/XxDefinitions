@@ -20,7 +20,7 @@ namespace XxDefinitions.Behavior
 		/// <summary>
 		/// 装行为的容器
 		/// </summary>
-		public readonly ListWithID_Index<string, RealBehaviorType> BehaviorsList = new ListWithID_Index<string, RealBehaviorType>();
+		public readonly ListWithIDandIndex<string, RealBehaviorType> BehaviorsList = new ListWithIDandIndex<string, RealBehaviorType>();
 		/// <summary>
 		/// 用id获取行为
 		/// </summary>
@@ -28,9 +28,13 @@ namespace XxDefinitions.Behavior
 		/// <summary>
 		/// 用索引获取行为
 		/// </summary>
-		/// <param name="index"></param>
-		/// <returns></returns>
 		public RealBehaviorType this[IndexList<string> index] => GetBehavior(index);
+		/// <summary>
+		/// 用索引获取id
+		/// </summary>
+		public int GetID(IndexList<string> index) {
+			return BehaviorsList.GetID(index);
+		}
 		/// <summary>
 		/// 用id获取行为
 		/// </summary>
@@ -59,7 +63,7 @@ namespace XxDefinitions.Behavior
 		{
 			foreach(var i in BehaviorsList)
 			{
-				if (!i.Value.Pausing) yield return i.Key;
+				if (i.Value.Active) yield return i.Key;
 			}
 		}
 		/// <summary>
@@ -69,25 +73,29 @@ namespace XxDefinitions.Behavior
 		{
 			return GetEnumerator();
 		}
+		private int behaviorMainID=-1;
 		/// <summary>
 		/// 正在进行的主要的行为的id
 		/// </summary>
-		public int BehaviorMainID;
+		public int BehaviorMainID=> behaviorMainID;
 		/// <summary>
 		/// 正在进行的主要的行为
 		/// </summary>
-		public RealBehaviorType BehaviorMain => this[BehaviorMainID];
+		public RealBehaviorType BehaviorMain => this[behaviorMainID];
 		/// <summary>
-		/// 改变主要行为
+		/// 改变主要行为或设置初始主要行为
 		/// </summary>
-		public bool ChangeBehavior(int NewBehaviorID)
+		public bool SetBehaviorMain(int NewBehaviorID)
 		{
 			RealBehaviorType NewBehavior = GetBehavior(NewBehaviorID);
-			if (NewBehavior.Pausing && !NewBehavior.CanContinue()) return false;
-			BehaviorMain.Pausing = true;
-			if (!BehaviorMain.Pausing) return false;
-			NewBehavior.Continue();
-			BehaviorMainID = NewBehaviorID;
+			if (!NewBehavior.Active && NewBehavior.CanActivate()) return false;
+			if (behaviorMainID != -1)
+			{
+				if (!BehaviorMain.CanPause()) return false;
+				BehaviorMain.TryPause();
+			}
+			NewBehavior.TryActivate();
+			behaviorMainID = NewBehaviorID;
 			return true;
 		}
 		/// <summary>
@@ -95,43 +103,75 @@ namespace XxDefinitions.Behavior
 		/// </summary>
 		public int RegisterBehavior(RealBehaviorType behavior, IndexList<string> index) {
 			int NewID = BehaviorsList.NextID;
-			BehaviorsList.Add(behavior);
+			index.AddBack(behavior.BehaviorName);
+			BehaviorsList.Add(behavior,index);
+			index.RemoveBack();
 			return NewID;
 		}
+		///// <summary>
+		///// 设置初始的BehaviorMain
+		///// </summary>
+		//public void SetBehaviorMain(int id) {
+		//	if (behaviorMainID == -1) behaviorMainID = id;
+		//	throw new InvalidOperationException($"不能重复设置BehaviorMain 目前BehaviorMain ID:{behaviorMainID} Index:{BehaviorsList.GetIndex(behaviorMainID)}");
+		//}
+		///// <summary>
+		///// 设置初始的BehaviorMain
+		///// </summary>
+		//public void SetBehaviorMain(IndexList<string> index) => SetBehaviorMain(GetID(index));
 		/// <summary>
 		/// 联机同步发送
 		/// </summary>
 		public void NetUpdateSend(BinaryWriter writer) {
+			bool All = false;
+			if (Terraria.Main.netMode==2) {
+				foreach (var i in Terraria.Netplay.Clients) {
+					if (i != null && i.IsActive && i.State == 3) {
+						All = true;break;//存在需要同步的端
+					}
+				}
+			}
+			writer.Write(All);
 			writer.Write(BehaviorMainID);
 			List<int> enumed = new List<int>();
-			foreach (var i in this)
+			foreach (var i in BehaviorsList)
 			{
 				//writer.Write(i);
 				//BehaviorsList[i].NetUpdateSend(writer);
-				enumed.Add(i);
+				enumed.Add(i.Key);
 			}
 			writer.Write(enumed.Count);
 			foreach (var i in enumed)
 			{
 				writer.Write(i);
-				BehaviorsList[i].NetUpdateSend(writer);
+				IBehavior behavior = BehaviorsList[i];
+				writer.Write(behavior.Active);
+				if(All|| behavior.Active)
+					behavior.NetUpdateSend(writer);
 			}
 		}
 		/// <summary>
 		/// 联机同步接收
 		/// </summary>
 		public void NetUpdateReceive(BinaryReader reader) {
-			ChangeBehavior(reader.ReadInt32());
+			bool All = reader.ReadBoolean();
+			SetBehaviorMain(reader.ReadInt32());
 			int Count = reader.ReadInt32();
 			for (int i = 0; i < Count; ++i) {
 				int id = reader.ReadInt32();
-				BehaviorsList[id].NetUpdateReceive(reader);
+				bool active = reader.ReadBoolean();
+				IBehavior behavior = BehaviorsList[id];
+				if (active) behavior.TryActivate();
+				else behavior.TryPause();
+				if(All||active)
+					behavior.NetUpdateReceive(reader);
 			}
 		}
 		/// <summary>
 		/// 先执行主要的行为，在执行全部进行的行为
 		/// </summary>
 		public void Update() {
+			if(BehaviorMainID!=-1)
 			BehaviorMain.Update();
 			foreach (var i in this) {
 				if (i != BehaviorMainID) GetBehavior(i).Update();

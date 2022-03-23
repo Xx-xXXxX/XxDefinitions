@@ -69,11 +69,12 @@ namespace XxDefinitions.Behavior
 	{
 		/// <summary>
 		/// 是否正在暂停，初始值应为true暂停
-		/// 在CanPause时Pausing必须能在Pause后set为true，Continue同理
+		/// 在CanPause()时Pausing必须能在Pause()后set为true，Continue同理
+		/// 不要在set_Active中套用TryPause等
 		/// </summary>
-		bool Pausing { get; set; }
+		bool Active { get; set; }
 		/// <summary>
-		/// 它会做什么
+		/// 执行
 		/// </summary>
 		void Update();
 		/// <summary>
@@ -85,33 +86,34 @@ namespace XxDefinitions.Behavior
 		/// </summary>
 		void Pause();
 		/// <summary>
-		/// 它是否能继续,true会
+		/// 它能否激活,true会
 		/// </summary>
-		bool CanContinue();
+		bool CanActivate();
 		/// <summary>
-		/// 进行继续时
+		/// 进行激活时
 		/// </summary>
-		void Continue();
+		void Activate();
 		/// <summary>
 		/// 开始(注册)时
 		/// </summary>
-		void Start();
+		void Initialize();
 		/// <summary>
 		/// 终止时
+		/// 因为某些原因，不保证执行
 		/// </summary>
-		void End();
+		void Dispose();
 		/// <summary>
-		/// 用于联机同步发送，一般不在暂停时使用
+		/// 用于联机同步发送，/*如果  会全部使用，否则在Active时使用*/总是使用
 		/// </summary>
 		/// <param name="writer"></param>
 		void NetUpdateSend(BinaryWriter writer);
 		/// <summary>
-		/// 用于联机同步接收，一般不在暂停时使用
+		/// 用于联机同步接收，/*如果  会全部使用，否则在Active时使用*/总是使用
 		/// </summary>
 		/// <param name="reader"></param>
 		void NetUpdateReceive(BinaryReader reader);
 		/// <summary>
-		/// 用于默认的数据传输
+		/// 用于通用的数据传输
 		/// </summary>
 		object Call(params object[] vs);
 		/// <summary>
@@ -124,20 +126,20 @@ namespace XxDefinitions.Behavior
 	/// </summary>
 
 #pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
-	public class Behavior : IBehavior
+	public abstract class Behavior : IBehavior
 	{
-		public bool pause = true;
-		public bool Pausing { get; set; }
-		public virtual string BehaviorName { get; }
+		private bool active = true;
+		public bool Active { get=>active; set=> active=value; }
+		public abstract string BehaviorName { get; }
 		public virtual object Call(params object[] vs) { return null; }
-		public virtual bool CanContinue() { return true; }
+		public virtual bool CanActivate() { return true; }
 		public virtual bool CanPause() { return true; }
-		public virtual void Continue() { }
-		public virtual void End() { }
+		public virtual void Activate() { }
+		public virtual void Dispose() { }
 		public virtual void NetUpdateReceive(BinaryReader reader) { }
 		public virtual void NetUpdateSend(BinaryWriter writer) { }
 		public virtual void Pause() { }
-		public virtual void Start() { }
+		public virtual void Initialize() { }
 		public virtual void Update() { }
 	}
 	public static class BehaviorUtils {
@@ -147,26 +149,26 @@ namespace XxDefinitions.Behavior
 		/// <returns>如果执行了Pause返回true</returns>
 		public static bool TryPause(this IBehavior behavior)
 		{
-			if (behavior.Pausing) return false;
+			if (!behavior.Active) return false;
 			if (behavior.CanPause())
 			{
 				behavior.Pause();
-				behavior.Pausing = true;
+				behavior.Active = false;
 				return true;
 			}
 			else return false;
 		}
 		/// <summary>
-		/// 尝试继续
+		/// 尝试激活
 		/// </summary>
-		/// <returns>如果执行了Continue返回true</returns>
-		public static bool TryContinue(this IBehavior behavior)
+		/// <returns>如果执行了Activate返回true</returns>
+		public static bool TryActivate(this IBehavior behavior)
 		{
-			if (!behavior.Pausing) return false;
-			if (behavior.CanContinue())
+			if (behavior.Active) return false;
+			if (behavior.CanActivate())
 			{
-				behavior.Continue();
-				behavior.Pausing = false;
+				behavior.Activate();
+				behavior.Active = true;
 				return true;
 			}
 			else return false;

@@ -43,7 +43,7 @@ namespace XxDefinitions
 		public virtual void ReSizeDown(int size)
 		{
 			while (IDToItem.Count > size+1) {
-				if (IDToItem.Last().Equals(default(T))) IDToItem.RemoveAt(IDToItem.Count - 1);
+				if (IDToItem.Last().IsDef()) IDToItem.RemoveAt(IDToItem.Count - 1);
 				else break;
 			}
 		}
@@ -72,7 +72,7 @@ namespace XxDefinitions
 		public virtual void Add(T Item, int id)
 		{
 			ReSizeUp(id + 1);
-			if (!IDToItem[id].Equals(default(T)))
+			if (!IDToItem[id].IsDef())
 				throw new ArgumentException($"位于 {id} 的元素已存在 {IDToItem[id]}");
 			IDToItem[id] = Item;
 			iDManager.Add(id);
@@ -83,7 +83,7 @@ namespace XxDefinitions
 		/// </summary>
 		public virtual bool ContiansID(int id) {
 			if (IDToItem.Count <= id) return false;
-			if (IDToItem[id].Equals(default(T))) return false;
+			if (IDToItem[id].IsDef()) return false;
 			return true;
 		}
 		/// <summary>

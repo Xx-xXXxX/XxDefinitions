@@ -39,6 +39,7 @@ namespace XxDefinitions.XDebugger
 			this.PropertyName = PropertyName;
 			this.tryGetXDebugger = TryGetXDebugger.GetTryGetXDebugger(XDebuggerFullName);
 		}
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		public void ResetReflect() {
 			t = null; propertyInfo = null;
 		}

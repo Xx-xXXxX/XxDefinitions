@@ -166,6 +166,7 @@ namespace XxDefinitions.UIElements
 			Parent.Top.Set(end.Y - Offset.Y, Parent.Top.Percent);
 			Parent.Recalculate();
 		}
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		public override void Update(GameTime gameTime)
 		{
 			if (Dragging)

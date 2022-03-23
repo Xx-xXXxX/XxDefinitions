@@ -100,17 +100,25 @@ namespace XxDefinitions
 	/// <summary>
 	/// 提供了结合ItemTree和ID来管理Item的类，可以移除
 	/// </summary>
-	public class ListWithID_Index<IndexType, ItemType> :ListWithID<ItemType>, IEnumerable<KeyValuePair<int, ItemType>>, IEnumerable<KeyValuePair<IndexList<IndexType>, ItemType>>, IEnumerable<ItemType>
+	public class ListWithIDandIndex<IndexType, ItemType> :IEnumerable<KeyValuePair<int, ItemType>>, IEnumerable<KeyValuePair<IndexList<IndexType>, ItemType>>, IEnumerable<ItemType>
 	{
 		/// <summary>
-		/// 从Index索引ID
+		/// Index->ID
 		/// </summary>
 		ItemTree<IndexType, int?> IndexToID = new ItemTree<IndexType, int?>();
 		//List<ItemType> IDToItem = new List<ItemType>();
 		/// <summary>
-		/// 从ID索引Index
+		/// ID->Index
 		/// </summary>
 		List<IndexList<IndexType>> IDToIndex = new List<IndexList<IndexType>>();
+		/// <summary>
+		/// ID->Item
+		/// </summary>
+		ListWithID<ItemType> IDToItem = new ListWithID<ItemType>();
+		/// <summary>
+		/// 下一个可用的ID
+		/// </summary>
+		public int NextID => IDToItem.NextID;
 		/// <summary>
 		/// 用索引获取元素的id
 		/// </summary>
@@ -128,13 +136,22 @@ namespace XxDefinitions
 		/// </summary>
 		public ItemType this[IndexList<IndexType> index] => GetItem(index);
 		/// <summary>
+		/// 用ID获取元素
+		/// </summary>
+		public ItemType GetItem(int id) => IDToItem[id];
+		/// <summary>
+		/// 用index获取元素
+		/// </summary>
+		public ItemType this[int id] => GetItem(id);
+		/// <summary>
 		/// 加入元素
 		/// </summary>
 		/// <returns>元素的id</returns>
 		public int Add(ItemType item, IndexList<IndexType> index=null,int id=-1)
 		{
 			if (id == -1) id = NextID;
-			base.Add(item, id);
+			ReSizeUp(id);
+			IDToItem.Add(item,id);
 			if (index != null)
 			{
 				IndexToID.Add(index, id);
@@ -143,61 +160,68 @@ namespace XxDefinitions
 			return id;
 		}
 #pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
-		public override void ReSizeUp(int size)
+		public void ReSizeUp(int AbleId)
 		{
-			base.ReSizeUp(size);
-			while (IDToIndex.Count <= size) IDToIndex.Add(null);
+			IDToItem.ReSizeUp(AbleId);
+			while (IDToIndex.Count <= AbleId) IDToIndex.Add(null);
 		}
-		public override void ReSizeDown(int size)
+		public void ReSizeDown(int AbleId)
 		{
-			base.ReSizeDown(size);
-			while (IDToIndex.Count > size + 1)
+			IDToItem.ReSizeDown(AbleId);
+			while (IDToIndex.Count > AbleId + 1)
 			{
 				if (IDToIndex.Last()==null) IDToIndex.RemoveAt(IDToIndex.Count - 1);
 				else break;
 			}
 		}
-		public override void ReSize(int size)
+		public void ReSize(int AbleId)
 #pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		{
-			ReSizeUp(size);
-			ReSizeDown(size);
+			ReSizeUp(AbleId);
+			ReSizeDown(AbleId);
 		}
 		/// <summary>
 		/// 在第一个可用的id加入Item,该Item无index
 		/// </summary>
 		/// <returns>Item的id</returns>
-		public override int Add(ItemType Item)
+		public int Add(ItemType Item)
 		{
-			int id = base.Add(Item);
+			int id = IDToItem.Add(Item);
 			IDToIndex[id]=null;
 			return id;
 		}
 		/// <summary>
 		/// 移除位于id的元素
 		/// </summary>
-		public override void RemoveAt(int id)
+		public void RemoveAt(int id)
 		{
-			if(!ContiansID(id)) throw new ArgumentException($"位于 {id} 的元素不存在");
+			if(!IDToItem.ContiansID(id)) throw new ArgumentException($"位于 {id} 的元素不存在");
 			IndexToID.RemoveItem(IDToIndex[id]);
 			IDToIndex[id] = null;
-			base.RemoveAt(id);
+			IDToItem.RemoveAt(id);
 		}
 		IEnumerator IEnumerable.GetEnumerator()
 		{
-			return GetEnumerator();
+			return IDToItem.GetEnumerator();
 		}
 		IEnumerator<KeyValuePair<IndexList<IndexType>, ItemType>> IEnumerable<KeyValuePair<IndexList<IndexType>, ItemType>>.GetEnumerator()
 		{
-			foreach (var i in iDManager) {
-				yield return new KeyValuePair<IndexList<IndexType>, ItemType>(IDToIndex[i],IDToItem[i]);
+			foreach (var i in IDToItem) {
+				yield return new KeyValuePair<IndexList<IndexType>, ItemType>(IDToIndex[i.Key],IDToItem[i.Key]);
 			}
 		}
 		IEnumerator<ItemType> IEnumerable<ItemType>.GetEnumerator()
 		{
-			foreach (var i in iDManager) {
-				yield return IDToItem[i];
+			foreach (var i in IDToItem) {
+				yield return IDToItem[i.Key];
 			}
+		}
+		/// <summary>
+		/// 枚举ID,ItemType
+		/// </summary>
+		public IEnumerator<KeyValuePair<int, ItemType>> GetEnumerator()
+		{
+			return ((IEnumerable<KeyValuePair<int, ItemType>>)IDToItem).GetEnumerator();
 		}
 	}
 }

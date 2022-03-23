@@ -20,7 +20,7 @@ namespace XxDefinitions.Projectiles.ProjBehaviors
 	/// ModProj的行为的基类
 	/// </summary>
 	/// <typeparam name="RealModProjType"></typeparam>
-	public abstract class ModProjBehavior<RealModProjType>: IModProjBehavior
+	public abstract class ModProjBehavior<RealModProjType>:Behavior.Behavior, IModProjBehavior
 		where RealModProjType:ModProjectile
 	{
 		/// <summary>
@@ -37,57 +37,16 @@ namespace XxDefinitions.Projectiles.ProjBehaviors
 		public ModProjBehavior(RealModProjType modProj) { this.modProj = modProj; }
 #pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		#region IBehavior
-		public virtual void Update() { }
-		public virtual bool CanPause() { return true; }
-		public virtual void Pause() { }
-		public virtual bool CanContinue() { return true; }
-		public virtual void Continue() { }
-		public virtual void Start() { }
-		public virtual void End() { }
-		public virtual void NetUpdateSend(BinaryWriter writer) { }
-		public virtual void NetUpdateReceive(BinaryReader reader) { }
-		public virtual object Call(params object[] vs) { return null; }
-		public virtual string BehaviorName => "ModNPCBehavior";
-		public bool pausing = true;
-		/// <summary>
-		/// 尝试暂停
-		/// </summary>
-		/// <returns>true代表操纵成功，!item.CanPause()与pausing都返回false</returns>
-		public bool TryPause()
-		{
-			if (pausing) return false;
-			if (CanPause())
-			{
-				Pause();
-				pausing = true;
-				return true;
-			}
-			else return false;
-		}
-		/// <summary>
-		/// 尝试继续
-		/// </summary>
-		/// <returns>true代表操纵成功，!item.CanContinue()与!pausing都返回false</returns>
-		public bool TryContinue()
-		{
-			if (!pausing) return false;
-			if (CanContinue())
-			{
-				Continue();
-				pausing = false;
-				return true;
-			}
-			else return false;
-		}
-		public bool Pausing
-		{
-			get => pausing;
-			set
-			{
-				if (value) TryPause();
-				else TryContinue();
-			}
-		}
+		public override void Update() { }
+		public override bool CanPause() { return true; }
+		public override void Pause() { }
+		public override bool CanActivate() { return true; }
+		public override void Activate() { }
+		public override void Initialize() { }
+		public override void Dispose() { }
+		public override void NetUpdateSend(BinaryWriter writer) { }
+		public override void NetUpdateReceive(BinaryReader reader) { }
+		public override object Call(params object[] vs) { return null; }
 		#endregion
 		#region IModProjHooks
 		/// <summary>

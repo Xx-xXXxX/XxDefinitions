@@ -13,8 +13,12 @@ using Terraria.ModLoader;
 
 namespace XxDefinitions.XDebugger.Commands
 {
+	/// <summary>
+	/// 使用ShowNPCDebugInfo
+	/// </summary>
 	public class ShowNPCDebugInfoCommand:ModCommand
 	{
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		public override CommandType Type => CommandType.Chat;
 		public override string Command => "ShowNPCDebugInfo";
 		public override string Description => "ShowNPCDebugInfo.DrawTimeLeft=time";

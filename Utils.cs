@@ -342,7 +342,6 @@ namespace XxDefinitions
 			/// <param name="color_">爆炸颜色</param>
 			/// <returns>爆炸弹幕的id</returns>
 			public static int SummonProjExplosionTrap(Vector2 Position, float radius, int friendlyDamage, int hostileDamage, Color? color_) => Projectiles.ProjExplosion.SummonProjExplosionTrap(Position, radius, friendlyDamage, hostileDamage, color_);
-			
 			static SummonUtils() {
 				ModTranslation DRS = XxDefinitions.Instance.CreateTranslation("KilledBySummonDustExplosion");
 				DRS.SetDefault("be kill with an explosion");
@@ -396,5 +395,17 @@ namespace XxDefinitions
 				}
 			}
 		}
+		/// <summary>
+		/// 如果value有值且为真
+		/// </summary>
+		public static bool True(this bool? value) => value.HasValue && value.Value == true;
+		/// <summary>
+		/// 判断是否为默认值
+		/// </summary>
+		public static bool IsDef<T>(this T obj) => obj == null || obj.Equals(default(T));
+		/// <summary>
+		/// 判断是否为空
+		/// </summary>
+		public static bool IsNull(this object obj) => obj == null;
 	}
 }

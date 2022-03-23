@@ -100,7 +100,7 @@ namespace XxDefinitions
 		/// <param name="groupTree"></param>
 		public void AddClone(ItemTree<IndexType, ItemType> groupTree)
 		{
-			if (!groupTree.item.Equals(default(ItemType))) item = groupTree.item;
+			if (!groupTree.item.IsDef()) item = groupTree.item;
 			foreach (var n in groupTree.keyValues)
 			{
 				if (!Contains(n.Key)) keyValues.Add(n.Key, new ItemTree<IndexType, ItemType>());
@@ -209,14 +209,14 @@ namespace XxDefinitions
 		/// 该节点为空，可以清理
 		/// </summary>
 		public bool IsNull() {
-			if (item.Equals(default(ItemType)) && keyValues.Count == 0) return true;
+			if (item.IsDef() && keyValues.Count == 0) return true;
 			return false;
 		}
 		/// <summary>
 		/// 清理孩子
 		/// </summary>
 		public void RemoveNullSuns() {
-			if (!item.Equals(default(ItemType))) return;
+			if (!item.IsDef()) return;
 			LinkedList<IndexType> Nulls = new LinkedList<IndexType>();
 			foreach (var i in keyValues) {
 				i.Value.RemoveNullSuns();
@@ -273,7 +273,7 @@ namespace XxDefinitions
 		/// </summary>
 		public IEnumerator<KeyValuePair<IndexList<IndexType>, ItemType>> GetEnumerator()
 		{
-			if (!item.Equals(default(ItemType)))
+			if (!item.IsDef())
 				yield return new KeyValuePair<IndexList<IndexType>, ItemType>(new IndexList<IndexType>(), item);
 			if (NodeCount > 0)
 			{
@@ -289,7 +289,7 @@ namespace XxDefinitions
 		}
 		IEnumerator IEnumerable.GetEnumerator()
 		{
-			if (!item.Equals(default(ItemType)))
+			if (!item.IsDef())
 				yield return new KeyValuePair<IndexList<IndexType>, ItemType>(new IndexList<IndexType>(), item);
 			if (NodeCount > 0)
 			{
@@ -346,7 +346,7 @@ namespace XxDefinitions
 			public IndexList<IndexType> IndicesFrom;
 			public IEnumerator<KeyValuePair<IndexList<IndexType>, ItemType>> GetEnumerator()
 			{
-				if (!itemTree.item.Equals(default(ItemType)))
+				if (!itemTree.item.IsDef())
 					yield return new KeyValuePair<IndexList<IndexType>, ItemType>(IndicesFrom, itemTree.item);
 				if (itemTree.NodeCount > 0)
 				{
@@ -362,7 +362,7 @@ namespace XxDefinitions
 			}
 			IEnumerator IEnumerable.GetEnumerator()
 			{
-				if (!itemTree.item.Equals(default(ItemType)))
+				if (!itemTree.item.IsDef())
 					yield return new KeyValuePair<IndexList<IndexType>, ItemType>(IndicesFrom, itemTree.item);
 				if (itemTree.NodeCount > 0)
 				{
@@ -496,7 +496,23 @@ namespace XxDefinitions
 			get => Indices.Count;
 		}
 		/// <summary>
-		/// 从开头进行匹配
+		/// 完整匹配
+		/// </summary>
+		public bool MatchAll(IndexList<IndexType> index) {
+			if (index.Count != Count) return false;
+			var Ib = index.Indices.First;
+			var Ia = Indices.First;
+			for (int i = 0; i < index.Count; ++i)
+			{
+				if (!Ib.Value.Equals(Ia.Value)) return false;
+				Ib = Ib.Next;
+				Ia = Ia.Next;
+			}
+			return true;
+
+		}
+		/// <summary>
+		/// 从开头进行匹配index.Count
 		/// </summary>
 		public bool MatchFront(IndexList<IndexType> index)
 		{
@@ -512,7 +528,7 @@ namespace XxDefinitions
 			return true;
 		}
 		/// <summary>
-		/// 从末尾开始向前匹配
+		/// 从末尾开始向前匹配index.Count
 		/// </summary>
 		public bool MatchBack(IndexList<IndexType> index)
 		{
@@ -563,7 +579,7 @@ namespace XxDefinitions
 			}
 		}
 		/// <summary>
-		/// 在开头加入index
+		/// 在末尾加入index
 		/// </summary>
 		public void AddBack(IndexList<IndexType> index)
 		{
@@ -576,6 +592,14 @@ namespace XxDefinitions
 		/// <summary>
 		/// 在末尾加入index
 		/// </summary>
+		public void AddBack(IndexType index)
+		{
+			Indices.AddLast(index);
+			//Indices.AddFirst(index.Indices);
+		}
+		/// <summary>
+		/// 在开头加入index
+		/// </summary>
 		public void AddFront(IndexList<IndexType> index)
 		{
 			var Il = index.Indices.Last;
@@ -584,6 +608,13 @@ namespace XxDefinitions
 				Indices.AddFirst(Il.Value);
 				Il = Il.Previous;
 			}
+		}
+		/// <summary>
+		/// 在开头加入index
+		/// </summary>
+		public void AddFront(IndexType index)
+		{
+			Indices.AddFirst(index);
 		}
 		/// <summary>
 		/// 枚举
@@ -597,7 +628,7 @@ namespace XxDefinitions
 			return Indices.GetEnumerator();
 		}
 		/// <summary>
-		/// 合并
+		/// 合并（克隆）
 		/// </summary>
 		public static IndexList<IndexType> operator +(IndexList<IndexType> a, IndexList<IndexType> b)
 		{
@@ -606,7 +637,7 @@ namespace XxDefinitions
 			return n;
 		}
 		/// <summary>
-		/// 合并
+		/// 合并（克隆）
 		/// </summary>
 		public static IndexList<IndexType> operator +(IndexList<IndexType> a, IndexType b)
 		{
@@ -615,7 +646,7 @@ namespace XxDefinitions
 			return n;
 		}
 		/// <summary>
-		/// 合并
+		/// 合并（克隆）
 		/// </summary>
 		public static IndexList<IndexType> operator +(IndexType b, IndexList<IndexType> a)
 		{
@@ -628,7 +659,13 @@ namespace XxDefinitions
 		/// </summary>
 		public override bool Equals(object item)
 		{
-			return MatchFront((IndexList<IndexType>)item);
+			//return item!=null&&MatchFront((IndexList<IndexType>)item);
+			if (item.IsNull()) return false;
+			if (item is IndexList<IndexType>)
+			{
+				return MatchAll((IndexList<IndexType>)item);
+			}
+			else return false;
 		}
 		/// <summary>
 		/// Indices.GetHashCode();
@@ -659,17 +696,25 @@ namespace XxDefinitions
 		/// <summary>
 		/// 判断相同
 		/// </summary>
-
 		public static bool operator ==(IndexList<IndexType> a, IndexList<IndexType> b)
 		{
-			return a.MatchFront(b);
+			if (((object)(a)) == null)
+			{
+				if ((object)(b) == null)
+					return true;
+				else
+					return false;
+			}
+			else if ((object)(b) == null) return false;
+			else
+				return a.MatchAll(b);
 		}
 		/// <summary>
-		/// 判断相同
+		/// 判断不同
 		/// </summary>
 		public static bool operator !=(IndexList<IndexType> a, IndexList<IndexType> b)
 		{
-			return !a.MatchFront(b);
+			return !(a == b);
 		}
 	}
 }
