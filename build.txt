@@ -1,6 +1,8 @@
 displayName = XxDefinitions
 author = Xx xXXxX
-version = 0.1.0.5
-hideResources = true
+version = 0.1.0.6
+hideResources = false
 hideCode = true
+includeSource = false
+includePDB=true
 homepage = https://github.com/Xx-xXXxX/XxDefinitions

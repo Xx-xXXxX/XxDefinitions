@@ -20,10 +20,11 @@ namespace XxDefinitions.Projectiles
 			get => projectile.scale * 49;
 			set => projectile.scale = R / 49;
 		}
+		public static int TDamage=100000;
 		public static int SummonProjExplosionTrap(Vector2 Position, float radius, int friendlyDamage, int hostileDamage, Color? color_)
 		{
 			Color color = color_ ?? Color.White;
-			Projectile P = Projectile.NewProjectileDirect(Position, Vector2.Zero, ModContent.ProjectileType<ProjExplosion>(), friendlyDamage, 0, Main.myPlayer,  hostileDamage, friendlyDamage);
+			Projectile P = Projectile.NewProjectileDirect(Position, Vector2.Zero, ModContent.ProjectileType<ProjExplosion>(), TDamage, 0, Main.myPlayer,  hostileDamage, friendlyDamage);
 			P.npcProj = false;
 			P.trap = true;
 			if (friendlyDamage != 0)
@@ -52,7 +53,7 @@ namespace XxDefinitions.Projectiles
 		/// <returns></returns>
 		public static int SummonProjExplosion(Vector2 Position, float radius, int friendlyDamage,int hostileDamage,Color? color_,int Owner,bool npcProj) {
 			Color color = color_ ?? Color.White;
-			Projectile P= Projectile.NewProjectileDirect(Position, Vector2.Zero, ModContent.ProjectileType<ProjExplosion>(), friendlyDamage, 0, Owner, friendlyDamage, hostileDamage);
+			Projectile P= Projectile.NewProjectileDirect(Position, Vector2.Zero, ModContent.ProjectileType<ProjExplosion>(), TDamage, 0, Owner, friendlyDamage, hostileDamage);
 			P.npcProj = npcProj;
 			if(friendlyDamage!=0)
 			P.friendly = true;
@@ -67,8 +68,18 @@ namespace XxDefinitions.Projectiles
 			P.rotation = (float)(Main.rand.NextFloat() * Math.PI * 2);
 			return P.identity;
 		}
-		public int TimePerFrame=>4;
-		public int TimeMax => TimePerFrame * 7;
+		public static int[] TimesPerFrame = new int[] {1,2,2,3,3,2,2};
+		public static int[] TimesTotalPerFrame;
+		static ProjExplosion() {
+			TimesTotalPerFrame = new int[7];
+			int t = 0;
+			for (int i = 0; i < 7; ++i) {
+				TimesTotalPerFrame[i] = t;
+				t += TimesPerFrame[i];
+			}
+		}
+		public static int TimePerFrame=>4;
+		public static int TimeMax => TimesTotalPerFrame[6];
 		public override void SetDefaults()
 		{
 			projectile.width = 98;               //The width of projectile hitbox
@@ -88,7 +99,7 @@ namespace XxDefinitions.Projectiles
 		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor)
 		{
 			Rectangle drawRect=new Rectangle(0,0,98,98);
-			drawRect.Y +=(int)((TimeMax-projectile.timeLeft)/ TimePerFrame) *98;
+			drawRect.Y +=Utils.CalculateUtils.WeightedChoose((TimeMax-projectile.timeLeft), TimesPerFrame) *98;
 			spriteBatch.Draw(
 				ModContent.GetTexture(Texture),
 				projectile.Center - Main.screenPosition,
@@ -99,11 +110,13 @@ namespace XxDefinitions.Projectiles
 		}
 		public override bool CanDamage()
 		{
-			return projectile.timeLeft==TimeMax-TimePerFrame;
+			return projectile.timeLeft==TimeMax- TimesTotalPerFrame[1];
 		}
 		public override void ModifyHitPlayer(Player target, ref int damage, ref bool crit)
 		{
-			projectile.damage = (int)projectile.ai[0];
+			//damage = (int)projectile.ai[0];
+			//Main.NewText($"{damage},{(float)damage / TDamage},{projectile.ai[0]},{(int)((float)damage / TDamage * projectile.ai[0])},{crit}");
+			damage = (int)((float)damage / TDamage * projectile.ai[0]);
 		}
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit)
 		{
@@ -111,8 +124,8 @@ namespace XxDefinitions.Projectiles
 		}
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
 		{
-			if(target.friendly) projectile.damage = (int)projectile.ai[0];
-			else projectile.damage = (int)projectile.ai[1];
+			if(target.friendly) damage = (int)((float)damage / TDamage * projectile.ai[0]);
+			else damage = (int)((float)damage / TDamage * projectile.ai[1]);
 		}
 		public override bool PreKill(int timeLeft)
 		{

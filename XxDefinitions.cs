@@ -42,6 +42,7 @@ namespace XxDefinitions
         {
             StaticRefHolder.Load();
             XDebugger.XDebugger.Load();
+
             ModTranslation Translations = this.CreateTranslation("Disabled");
             Translations.SetDefault("Disabled");
             Translations.AddTranslation(GameCulture.Chinese, "已禁用");
@@ -59,6 +60,8 @@ namespace XxDefinitions
             XDebugger.XDebugger.CloseDebugMode();
             XDebugger.XDebugger.Unload();
             StaticRefHolder.Unload();
+            UnloadDo.Unload();
+            SetNPCFallThroughPlatforms.UnLoad();
         }
         public override void UpdateUI(GameTime gameTime)
         {
