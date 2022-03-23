@@ -53,7 +53,7 @@ namespace XxDefinitions.XDebugger
 				{
 					foreach (var i in xDebuggerModNPCInfos)
 					{
-						Action<List<(string, string)>> action = i.GetInfoStringMethod(proj);
+						Action<List<(string, string)>> action = i.GetInfoStringMethod(proj.modProjectile);
 						if (action != null)
 						{
 							actions.Add((n, l) => { action.Invoke(l); });
@@ -83,7 +83,7 @@ namespace XxDefinitions.XDebugger
 		internal static IList<GlobalProjectile> globalProjs;
 		static ShowProjDebugInfo()
 		{
-			Type type = typeof(Terraria.ModLoader.NPCLoader);
+			Type type = typeof(Terraria.ModLoader.ProjectileLoader);
 			var fieldinfo = type.GetField("globalProjectiles", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
 			globalProjs = (IList<GlobalProjectile>)fieldinfo.GetValue(null);
 		}

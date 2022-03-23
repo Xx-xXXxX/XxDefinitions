@@ -15,7 +15,7 @@ namespace XxDefinitions.XDebugger
 #pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		public ModNPCInfoString(string XDebuggerFullName, string MethodName):base(XDebuggerFullName,MethodName)
 		{ }
-		public Action<List<(string, string)>> GetInfoStringMethod(Terraria.NPC npc) {
+		public Action<List<(string, string)>> GetInfoStringMethod(Terraria.ModLoader.ModNPC npc) {
 			return base.GetPropertyValue<Action<List<(string, string)>>>(npc);
 		}
 	}

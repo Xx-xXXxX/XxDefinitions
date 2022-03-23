@@ -51,7 +51,7 @@ namespace XxDefinitions.XDebugger
 				{
 					foreach (var i in xDebuggerModNPCInfos)
 					{
-						Action<List<(string, string)>> action = i.GetInfoStringMethod(npc);
+						Action<List<(string, string)>> action = i.GetInfoStringMethod(npc.modNPC);
 						if (action != null) { 
 							actions.Add((n, l) => { action.Invoke(l); });
 							actionsUsing.Add(i.tryGetXDebugger);
