@@ -45,6 +45,8 @@ namespace XxDefinitions.XDebugger
 		public override void SetDefaults(Projectile proj)
 		{
 			if (proj == null) return;
+			actions.Clear();//解决CloneDefaults重复
+			actionsUsing.Clear();
 			if (proj.modProjectile != null)
 			{
 				System.Reflection.MemberInfo memberInfo = proj.modProjectile.GetType();

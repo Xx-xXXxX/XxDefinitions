@@ -43,7 +43,10 @@ namespace XxDefinitions.XDebugger
 		public override void SetDefaults(NPC npc)
 		{
 			if (npc == null) return;
-			if(npc.modNPC!=null)
+			//if (npc.type >= 580 && npc.modNPC = null) return;
+			actions.Clear();//解决CloneDefaults重复
+			actionsUsing.Clear();
+			if (npc.modNPC!=null)
 			{
 				System.Reflection.MemberInfo memberInfo = npc.modNPC.GetType();
 				List<ModNPCInfoString> xDebuggerModNPCInfos = new List<ModNPCInfoString>((ModNPCInfoString[])memberInfo.GetCustomAttributes(typeof(ModNPCInfoString), true));
