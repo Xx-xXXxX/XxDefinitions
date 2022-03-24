@@ -45,6 +45,13 @@ namespace XxDefinitions
 			return IDSection.First();
 		}
 		/// <summary>
+		/// 获取比所有已用ID都大的第一个可用的ID
+		/// </summary>
+		public int LastID()
+		{
+			return IDSection.Last();
+		}
+		/// <summary>
 		/// 枚举所有正在使用的id
 		/// </summary>
 		public IEnumerator<int> GetEnumerator()
@@ -70,6 +77,42 @@ namespace XxDefinitions
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return this.GetEnumerator();
+		}
+		/// <summary>
+		/// 重置
+		/// </summary>
+		public void Clear() {
+			IDSection.Clear(); IDSection.Add(0);
+		}
+
+		/// <summary>
+		/// 返回对该id的下一个可用ID(如果id在原范围内)复杂度O(n)
+		/// </summary>
+		[Obsolete("但凡SortedList开放FindNode再写一个NextNode都可以有O(log n)的复杂度",true)]
+		public int NextID(int id)
+		{
+			//IDSection.ElementAt(id);
+			if (!IDSection.Contains(id + 1)) return id + 1;
+			else
+			{
+				bool found = false;
+				foreach (var i in IDSection) {
+					if (found) return i;
+					if (i == id) found = true;
+				}
+				return id + 1;
+			}
+		}
+		//public StaticRefWithFunc<System.Reflection.MethodInfo> FindNode = new StaticRefWithFunc<System.Reflection.MethodInfo>(() =>
+		//	typeof(SortedSet<int>).GetMethod("FindNode", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+		//);
+		/// <summary>
+		/// 所有使用的ID
+		/// </summary>\
+		public List<int> ToArray() {
+			List<int> vs = new List<int>();
+			foreach (var i in this) vs.Add(i);
+			return vs;
 		}
 	}
 }

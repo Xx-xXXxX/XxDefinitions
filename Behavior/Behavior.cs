@@ -103,12 +103,12 @@ namespace XxDefinitions.Behavior
 		/// </summary>
 		void Dispose();
 		/// <summary>
-		/// 用于联机同步发送，/*如果  会全部使用，否则在Active时使用*/总是使用
+		/// 用于联机同步发送，如果需要完整同步(Server存在需要同步世界的客户端)会全部使用，否则在NetUpdate时使用
 		/// </summary>
 		/// <param name="writer"></param>
 		void NetUpdateSend(BinaryWriter writer);
 		/// <summary>
-		/// 用于联机同步接收，/*如果  会全部使用，否则在Active时使用*/总是使用
+		/// 用于联机同步接收，如果需要完整同步(Server存在需要同步世界的客户端)会全部使用，否则在NetUpdate时使用
 		/// </summary>
 		/// <param name="reader"></param>
 		void NetUpdateReceive(BinaryReader reader);
@@ -120,6 +120,10 @@ namespace XxDefinitions.Behavior
 		/// 行为的名称
 		/// </summary>
 		string BehaviorName { get; }
+		/// <summary>
+		/// 是否进行同步
+		/// </summary>
+		bool NetUpdate { get; }
 	}
 	/// <summary>
 	/// 行为的基类
@@ -141,6 +145,7 @@ namespace XxDefinitions.Behavior
 		public virtual void Pause() { }
 		public virtual void Initialize() { }
 		public virtual void Update() { }
+		public abstract bool NetUpdate { get; }
 	}
 	public static class BehaviorUtils {
 		/// <summary>

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework.Input;
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +23,7 @@ namespace XxDefinitions
 		/// <summary>
 		/// 用索引获取元素的id
 		/// </summary>
-		public int GetID(IndexList<IndexType> index) => IndexToID[index].item.Value;
+		public int GetID(IndexList<IndexType> index) => IndexToID[index].value.Value;
 		/// <summary>
 		/// 用id获取元素的索引
 		/// </summary>
@@ -100,7 +102,8 @@ namespace XxDefinitions
 	/// <summary>
 	/// 提供了结合ItemTree和ID来管理Item的类，可以移除
 	/// </summary>
-	public class ListWithIDandIndex<IndexType, ItemType> :IEnumerable<KeyValuePair<int, ItemType>>, IEnumerable<KeyValuePair<IndexList<IndexType>, ItemType>>, IEnumerable<ItemType>
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
+	public class ListWithIDandIndex<IndexType, ItemType> : IEnumerable<KeyValuePair<int, ItemType>>, IEnumerable<KeyValuePair<IndexList<IndexType>, ItemType>>, IEnumerable<ItemType>, IDictionary<int, ItemType>, IDictionary<IndexList<IndexType>, ItemType>
 	{
 		/// <summary>
 		/// Index->ID
@@ -119,10 +122,28 @@ namespace XxDefinitions
 		/// 下一个可用的ID
 		/// </summary>
 		public int NextID => IDToItem.NextID;
+
+		public ICollection<int> Keys => ((IDictionary<int, ItemType>)IDToItem).Keys;
+		ICollection<IndexList<IndexType>> IDictionary<IndexList<IndexType>, ItemType>.Keys {
+			get {
+				List<IndexList<IndexType>> indices=new List<IndexList<IndexType>>();
+				foreach (var i in IDToItem) {
+					indices.Add(GetIndex(i.Key));
+				}
+				return indices;
+			}
+		}
+
+		public ICollection<ItemType> Values => ((IDictionary<int, ItemType>)IDToItem).Values;
+
+		public int Count => ((ICollection<KeyValuePair<int, ItemType>>)IDToItem).Count;
+
+		public bool IsReadOnly => ((ICollection<KeyValuePair<int, ItemType>>)IDToItem).IsReadOnly;
+
 		/// <summary>
 		/// 用索引获取元素的id
 		/// </summary>
-		public int GetID(IndexList<IndexType> index) => IndexToID[index].item.Value;
+		public int GetID(IndexList<IndexType> index) => IndexToID[index].value.Value;
 		/// <summary>
 		/// 用id获取元素的索引
 		/// </summary>
@@ -130,19 +151,27 @@ namespace XxDefinitions
 		/// <summary>
 		/// 用index获取元素
 		/// </summary>
-		public ItemType GetItem(IndexList<IndexType> index) => IDToItem[GetID(index)];
+		public ItemType Get(IndexList<IndexType> index) => IDToItem[GetID(index)];
+		/// <summary>
+		/// 用index获取元素更改
+		/// </summary>
+		public void Set(IndexList<IndexType> index, ItemType value) => IDToItem[GetID(index)] = value;
 		/// <summary>
 		/// 用index获取元素
 		/// </summary>
-		public ItemType this[IndexList<IndexType> index] => GetItem(index);
+		public ItemType this[IndexList<IndexType> index] {get=> Get(index);set=> Set(index, value); }
 		/// <summary>
 		/// 用ID获取元素
 		/// </summary>
-		public ItemType GetItem(int id) => IDToItem[id];
+		public ItemType Get(int id) => IDToItem[id];
+		/// <summary>
+		/// 用ID获取元素
+		/// </summary>
+		public void Set(int id, ItemType value) => IDToItem[id]=value;
 		/// <summary>
 		/// 用index获取元素
 		/// </summary>
-		public ItemType this[int id] => GetItem(id);
+		public ItemType this[int id] { get => Get(id);set => Set(id, value); }
 		/// <summary>
 		/// 加入元素
 		/// </summary>
@@ -151,7 +180,7 @@ namespace XxDefinitions
 		{
 			if (id == -1) id = NextID;
 			ReSizeUp(id);
-			IDToItem.Add(item,id);
+			IDToItem.Add(id,item);
 			if (index != null)
 			{
 				IndexToID.Add(index, id);
@@ -159,7 +188,8 @@ namespace XxDefinitions
 			IDToIndex[id]=index;
 			return id;
 		}
-#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
+		public void Add(int id, ItemType item) => Add(item,null,id);
+		public void Add(IndexList<IndexType> index, ItemType item) => Add(item, index);
 		public void ReSizeUp(int AbleId)
 		{
 			IDToItem.ReSizeUp(AbleId);
@@ -175,7 +205,6 @@ namespace XxDefinitions
 			}
 		}
 		public void ReSize(int AbleId)
-#pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		{
 			ReSizeUp(AbleId);
 			ReSizeDown(AbleId);
@@ -189,16 +218,6 @@ namespace XxDefinitions
 			int id = IDToItem.Add(Item);
 			IDToIndex[id]=null;
 			return id;
-		}
-		/// <summary>
-		/// 移除位于id的元素
-		/// </summary>
-		public void RemoveAt(int id)
-		{
-			if(!IDToItem.ContiansID(id)) throw new ArgumentException($"位于 {id} 的元素不存在");
-			IndexToID.RemoveItem(IDToIndex[id]);
-			IDToIndex[id] = null;
-			IDToItem.RemoveAt(id);
 		}
 		IEnumerator IEnumerable.GetEnumerator()
 		{
@@ -222,6 +241,113 @@ namespace XxDefinitions
 		public IEnumerator<KeyValuePair<int, ItemType>> GetEnumerator()
 		{
 			return ((IEnumerable<KeyValuePair<int, ItemType>>)IDToItem).GetEnumerator();
+		}
+		public bool ContainsKey(int id) => IDToItem.ContainsKey(id);
+		public bool ContainsKey(IndexList<IndexType> index) => IndexToID.ContainsValue(index);
+		/// <summary>
+		/// 移除位于id的元素
+		/// </summary>
+		public bool Remove(int id) {
+			if (!IDToItem.ContainsKey(id)) return false;
+			IndexToID.RemoveItem(IDToIndex[id]);
+			IDToIndex[id] = null;
+			IDToItem.Remove(id);
+			return true;
+		}
+		public bool Remove(IndexList<IndexType> index) {
+			if (!ContainsKey(index)) return false;
+			return Remove(GetID(index)); 
+		}
+		public bool TryGetValue(int id, out ItemType item) => IDToItem.TryGetValue(id,out item);
+		public bool TryGetValue(IndexList<IndexType> index, out ItemType item) {
+			if (ContainsKey(index))
+				return IDToItem.TryGetValue(GetID(index), out item);
+			else item = default;return false;
+		}
+		public void Add(KeyValuePair<int, ItemType> item)
+		{
+			//((ICollection<KeyValuePair<int, ItemType>>)IDToItem).Add(item);
+			Add(item.Key, item.Value);
+		}
+
+		public void Clear()
+		{
+			//((ICollection<KeyValuePair<int, ItemType>>)IDToItem).Clear();
+			IDToItem.Clear();
+			IDToIndex.Clear();
+			IndexToID.Clear();
+		}
+
+		public bool Contains(KeyValuePair<int, ItemType> item)
+		{
+			return IDToItem.Contains(item);
+		}
+
+		public void CopyTo(KeyValuePair<int, ItemType>[] array, int arrayIndex)
+		{
+			IDToItem.CopyTo(array, arrayIndex);
+		}
+
+		public bool Remove(KeyValuePair<int, ItemType> item)
+		{
+			if (TryGetValue(item.Key, out ItemType value)) {
+				if ((value?.Equals(item.Value)).IsTrue())
+				{
+					Remove(item.Key);
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public bool Remove(KeyValuePair<IndexList<IndexType>, ItemType> item)
+		{
+			if (TryGetValue(item.Key, out ItemType value))
+			{
+				if ((value?.Equals(item.Value)).IsTrue())
+				{
+					Remove(item.Key);
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public void Add(KeyValuePair<IndexList<IndexType>, ItemType> item)
+		{
+			Add(item.Key,item.Value);
+		}
+
+		public bool Contains(KeyValuePair<IndexList<IndexType>, ItemType> item)
+		{
+			if (IndexToID.TryGetValue(item.Key,out ItemTree<IndexType,int?> value))
+			{
+				if (value.Value.HasValue) {
+					return Contains(new KeyValuePair<int, ItemType>( value.Value.Value, item.Value));
+				}
+			}
+			return false;
+		}
+
+		public void CopyTo(KeyValuePair<IndexList<IndexType>, ItemType>[] array, int index)
+		{
+			if (array == null)
+			{
+				throw new ArgumentNullException("array");
+			}
+
+			if (index < 0 || index >= array.Length)
+			{
+				throw new ArgumentOutOfRangeException("index", $"{index} 不在array Length:{array.Length}范围内");
+			}
+
+			if (array.Length - index < Count)
+			{
+				throw new ArgumentException($"array 的可用长度 {array.Length - index} 小于元素数量 {Count}", "array,index");
+			}
+			foreach (var i in IDToItem) {
+				array[index++] = new KeyValuePair<IndexList<IndexType>, ItemType>(GetIndex(i.Key),i.Value);
+			}
 		}
 	}
 }

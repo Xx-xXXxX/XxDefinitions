@@ -30,7 +30,7 @@ namespace XxDefinitions.XDebugger
 			public static Texture2D Line => ModContent.GetTexture("XxDefinitions/XDebugger/Line");
 			public static void DrawLine(SpriteBatch spriteBatch, Vector2 From, float Distance, float Rotation, Color color, float LineWidth = 1)
 			{
-				From -= Main.screenPosition;
+				//From -= Main.screenPosition;
 				spriteBatch.Draw(Line, From, null, color, Rotation, new Vector2(0, 3), new Vector2(Distance / 64f, LineWidth / 8f), SpriteEffects.None, 0f);
 				//DrawLineTo(spriteBatch, From, From + new Vector2(Distance).RotatedBy(Rotation), color, LineWidth);
 			}

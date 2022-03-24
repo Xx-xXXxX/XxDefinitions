@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,25 +34,34 @@ namespace XxDefinitions.Projectiles.ProjBehaviors
 		//			}
 		public const int aiSize = 2;
 		public const int localAISize = 2;
+		public bool netUpdate;
+		public override bool NetUpdate => netUpdate;
 		public readonly int type;
+		public readonly int aiStyle;
 		public override string BehaviorName =>$"CopyNPCVanillaAI:{type}";
 		public IGetSetValue<float>[] ai;
 		public IGetSetValue<float>[] localAI;
-		public CopyProjVanillaAI(ModProjectile modProjectile, int type, IGetSetValue<float> ai0 = null, IGetSetValue<float> ai1=null,IGetSetValue<float> lovalAI0 = null, IGetSetValue<float> lovalAI1 = null) : base(modProjectile) {
+		public CopyProjVanillaAI(ModProjectile modProjectile, int type,int aiStyle, IGetSetValue<float> ai0 = null, IGetSetValue<float> ai1=null,IGetSetValue<float> lovalAI0 = null, IGetSetValue<float> lovalAI1 = null) : base(modProjectile) {
 			this.type = type;
+			this.aiStyle = aiStyle;
 			this.ai = new IGetSetValue<float>[]{ ai0, ai1};
 			this.localAI = new IGetSetValue<float>[] { lovalAI0, lovalAI1};
 		}
-		public CopyProjVanillaAI(ModProjectile modProjectile, int type, IGetSetValue<float>[] ai = null,IGetSetValue<float>[] localAI=null) : base(modProjectile)
+		public CopyProjVanillaAI(ModProjectile modProjectile, int type,int aiStyle, IGetSetValue<float>[] ai = null,IGetSetValue<float>[] localAI=null) : base(modProjectile)
 		{
 			this.type = type;
+			this.aiStyle = aiStyle;
 			this.ai = ai;
 			this.localAI = localAI;
 		}
 		public override void Update()
 		{
 			int rtype = projectile.type;
+			int raiStyle = projectile.aiStyle;
+			bool rnetUpdate = projectile.netUpdate;
 			projectile.type = type;
+			projectile.aiStyle = aiStyle;
+			projectile.netUpdate = netUpdate;
 			float[] npcai = new float[aiSize];
 			float[] npclocalAI = new float[localAISize];
 			if (ai != null) {
@@ -75,6 +85,9 @@ namespace XxDefinitions.Projectiles.ProjBehaviors
 			}
 			projectile.VanillaAI();
 			projectile.type = rtype;
+			projectile.aiStyle = aiStyle;
+			netUpdate = projectile.netUpdate;
+			projectile.netUpdate = rnetUpdate | netUpdate;
 			if (ai != null)
 			{
 				for (int i = 0; i < aiSize; ++i)
@@ -97,6 +110,14 @@ namespace XxDefinitions.Projectiles.ProjBehaviors
 					}
 				}
 			}
+		}
+		public override void NetUpdateSend(BinaryWriter writer)
+		{
+			for (int i = 0; i < aiSize; ++i) writer.Write(ai[i].Value);
+		}
+		public override void NetUpdateReceive(BinaryReader reader)
+		{
+			for (int i = 0; i < aiSize; ++i) ai[i].Value = reader.ReadSingle();
 		}
 	}
 }

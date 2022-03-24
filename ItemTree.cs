@@ -15,12 +15,19 @@ namespace XxDefinitions
 	/// <typeparam name="IndexType"></typeparam>
 	/// <typeparam name="ItemType"></typeparam>
 	[DebuggerDisplay("ElementCount = {ElementCount()}")]
-	public class ItemTree<IndexType, ItemType> : IEnumerable<KeyValuePair<IndexList<IndexType>, ItemType>>
+	public class ItemTree<IndexType, ItemType> : IEnumerable<KeyValuePair<IndexList<IndexType>, ItemType>>,IGetValue<ItemType>,ISetValue<ItemType>,IGetSetValue<ItemType>//,IDictionary<IndexList< IndexType >, ItemType>
 	{
 		/// <summary>
 		/// 该节点元素
 		/// </summary>
-		public ItemType item;
+		public ItemType value;
+		/// <summary>
+		/// 该节点元素
+		/// </summary>
+		public ItemType Value {
+			get => value;
+			set => this.value = value;
+		}
 		/// <summary>
 		/// 父亲
 		/// </summary>
@@ -35,7 +42,7 @@ namespace XxDefinitions
 		/// </summary>
 		public ItemTree(ItemType _item)
 		{
-			item = _item;
+			value = _item;
 		}
 		/// <summary>
 		/// 克隆
@@ -61,7 +68,7 @@ namespace XxDefinitions
 		public int ElementCount()
 		{
 			int n = 0;
-			if (item!=null) n += 1;
+			if (value!=null) n += 1;
 			foreach (var i in keyValues)
 			{
 				n += i.Value.ElementCount();
@@ -86,6 +93,20 @@ namespace XxDefinitions
 			}
 			return true;
 		}
+		/// <summary>
+		/// 包含该索引指向的ItemTree且该ItemTree有值
+		/// </summary>
+		public bool ContainsValue(IndexList<IndexType> index)
+		{
+			//return Contains_(new IndexList<IndexType>(index));
+			var N = this;
+			foreach (var i in index)
+			{
+				if (!N.Contains(i)) return false;
+				N = N[i];
+			}
+			return !N.value.IsDef();
+		}
 		private bool Contains_(IndexList<IndexType> index) {
 			if (index.Count <= 0) return true;
 			else {
@@ -100,7 +121,7 @@ namespace XxDefinitions
 		/// <param name="groupTree"></param>
 		public void AddClone(ItemTree<IndexType, ItemType> groupTree)
 		{
-			if (!groupTree.item.IsDef()) item = groupTree.item;
+			if (!groupTree.value.IsDef()) value = groupTree.value;
 			foreach (var n in groupTree.keyValues)
 			{
 				if (!Contains(n.Key)) keyValues.Add(n.Key, new ItemTree<IndexType, ItemType>());
@@ -193,12 +214,12 @@ namespace XxDefinitions
 				if (!N.Contains(i)) throw new ArgumentException($"{index} 不存在");
 				N = N[i];
 			}
-			N.item = default(ItemType);
+			N.value = default(ItemType);
 			N.RemoveNulls();
 		}
 		private void Remove_(IndexList<IndexType> index) {
 			if (index.Count == 0) {
-				item = default(ItemType);
+				value = default(ItemType);
 				return;
 			}
 			IndexType i = index.First;
@@ -209,14 +230,14 @@ namespace XxDefinitions
 		/// 该节点为空，可以清理
 		/// </summary>
 		public bool IsNull() {
-			if (item.IsDef() && keyValues.Count == 0) return true;
+			if (value.IsDef() && keyValues.Count == 0) return true;
 			return false;
 		}
 		/// <summary>
 		/// 清理孩子
 		/// </summary>
 		public void RemoveNullSuns() {
-			if (!item.IsDef()) return;
+			if (!value.IsDef()) return;
 			LinkedList<IndexType> Nulls = new LinkedList<IndexType>();
 			foreach (var i in keyValues) {
 				i.Value.RemoveNullSuns();
@@ -273,8 +294,8 @@ namespace XxDefinitions
 		/// </summary>
 		public IEnumerator<KeyValuePair<IndexList<IndexType>, ItemType>> GetEnumerator()
 		{
-			if (!item.IsDef())
-				yield return new KeyValuePair<IndexList<IndexType>, ItemType>(new IndexList<IndexType>(), item);
+			if (!value.IsDef())
+				yield return new KeyValuePair<IndexList<IndexType>, ItemType>(new IndexList<IndexType>(), value);
 			if (NodeCount > 0)
 			{
 				foreach (var n in keyValues)
@@ -289,8 +310,8 @@ namespace XxDefinitions
 		}
 		IEnumerator IEnumerable.GetEnumerator()
 		{
-			if (!item.IsDef())
-				yield return new KeyValuePair<IndexList<IndexType>, ItemType>(new IndexList<IndexType>(), item);
+			if (!value.IsDef())
+				yield return new KeyValuePair<IndexList<IndexType>, ItemType>(new IndexList<IndexType>(), value);
 			if (NodeCount > 0)
 			{
 				foreach (var n in keyValues)
@@ -346,8 +367,8 @@ namespace XxDefinitions
 			public IndexList<IndexType> IndicesFrom;
 			public IEnumerator<KeyValuePair<IndexList<IndexType>, ItemType>> GetEnumerator()
 			{
-				if (!itemTree.item.IsDef())
-					yield return new KeyValuePair<IndexList<IndexType>, ItemType>(IndicesFrom, itemTree.item);
+				if (!itemTree.value.IsDef())
+					yield return new KeyValuePair<IndexList<IndexType>, ItemType>(IndicesFrom, itemTree.value);
 				if (itemTree.NodeCount > 0)
 				{
 					foreach (var n in itemTree.keyValues)
@@ -362,8 +383,8 @@ namespace XxDefinitions
 			}
 			IEnumerator IEnumerable.GetEnumerator()
 			{
-				if (!itemTree.item.IsDef())
-					yield return new KeyValuePair<IndexList<IndexType>, ItemType>(IndicesFrom, itemTree.item);
+				if (!itemTree.value.IsDef())
+					yield return new KeyValuePair<IndexList<IndexType>, ItemType>(IndicesFrom, itemTree.value);
 				if (itemTree.NodeCount > 0)
 				{
 					foreach (var n in itemTree.keyValues)
@@ -380,6 +401,19 @@ namespace XxDefinitions
 				this.itemTree = itemTree;
 				this.IndicesFrom = IndicesFrom;
 			}
+		}
+		public void Clear() {
+			value = default;
+			keyValues.Clear();
+		}
+		public bool TryGetValue(IndexList<IndexType> index, out ItemTree<IndexType, ItemType> itemTree) {
+			itemTree = null;
+			foreach (var i in index)
+			{
+				if (!itemTree.Contains(i)) { itemTree = null; return false; }
+				itemTree = itemTree[i];
+			}
+			return true;
 		}
 
 #pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释

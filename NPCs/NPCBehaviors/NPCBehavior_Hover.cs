@@ -13,6 +13,7 @@ namespace XxDefinitions.NPCs.NPCBehaviors
 #pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 	public class NPCBehavior_Hover:ModNPCBehavior<ModNPC>
 	{
+		public override bool NetUpdate => false;
 		public override string BehaviorName => "NPC_Hover";
 		public NPCBehavior_Hover(ModNPC I, int Tilehigh = 3, float speed = 2f, float acceleration = 0.1f, float speedY = 1.5f, float accelerationY = 0.04f) : base(I)
 		{

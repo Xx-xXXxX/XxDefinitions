@@ -35,7 +35,6 @@ namespace XxDefinitions.NPCs.NPCBehaviors
 		{
 			BehaviorSet.Update();
 		}
-
 		#region Hooks
 		public override void FindFrame(int frameHeight)
 		{
@@ -425,6 +424,9 @@ namespace XxDefinitions.NPCs.NPCBehaviors
 			return Result;
 			//return States[IState].CheckActive();
 		}
+		/// <summary>
+		/// 会BehaviorSet.Dispose
+		/// </summary>
 		public override bool CheckDead()
 		{
 			bool Result = true;
@@ -433,6 +435,7 @@ namespace XxDefinitions.NPCs.NPCBehaviors
 				bool N = BehaviorSet[State].CheckDead();
 				if (N != true) Result = N;
 			}
+			if (Result) BehaviorSet.Dispose();
 			return Result;
 			//return States[IState].CheckDead();
 		}

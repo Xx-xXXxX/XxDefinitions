@@ -137,12 +137,17 @@ namespace XxDefinitions.Projectiles.ProjBehaviors
 				BehaviorSet[ID].DrawBehind(index, drawCacheProjsBehindNPCsAndTiles, drawCacheProjsBehindNPCs, drawCacheProjsBehindProjectiles, drawCacheProjsOverWiresUI);
 			}
 		}
+
+		/// <summary>
+		/// 会BehaviorSet.Dispose
+		/// </summary>
 		public override void Kill(int timeLeft)
 		{
 			foreach (var ID in BehaviorSet)
 			{
 				BehaviorSet[ID].Kill(timeLeft);
 			}
+			BehaviorSet.Dispose();
 		}
 		public override void ModifyDamageHitbox(ref Rectangle hitbox)
 		{

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,17 +21,8 @@ namespace XxDefinitions.NPCs.NPCBehaviors
 #pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 	public class CopyNPCVanillaAI:ModNPCBehavior<ModNPC>
 	{
-		//	int type = npc.type;
-		//	bool num = npc.modNPC != null && npc.modNPC.aiType > 0;
-		//			if (num)
-		//			{
-		//				npc.type = npc.modNPC.aiType;
-		//			}
-		//	npc.VanillaAI();
-		//			if (num)
-		//			{
-		//				npc.type = type;
-		//			}
+		public bool netUpdate;
+		public override bool NetUpdate => netUpdate;
 		public const int aiSize = 4;
 		public const int localAISize = 4;
 		public readonly int type;
@@ -56,6 +48,8 @@ namespace XxDefinitions.NPCs.NPCBehaviors
 
 			int rtype = npc.type;
 			int raiStyle = npc.aiStyle;
+			bool rUpdate = npc.netUpdate;
+			npc.netUpdate = netUpdate;
 			npc.type = type;
 			npc.aiStyle = aiStyle;
 			float[] npcai = new float[aiSize];
@@ -80,8 +74,10 @@ namespace XxDefinitions.NPCs.NPCBehaviors
 				}
 			}
 			npc.VanillaAI();
+			netUpdate = npc.netUpdate;
 			npc.type = rtype;
 			npc.aiStyle = raiStyle;
+			npc.netUpdate = rUpdate | netUpdate;
 			if (ai != null)
 			{
 				for (int i = 0; i < aiSize; ++i)
@@ -104,6 +100,15 @@ namespace XxDefinitions.NPCs.NPCBehaviors
 					}
 				}
 			}
+		}
+
+		public override void NetUpdateSend(BinaryWriter writer)
+		{
+			for (int i = 0; i < aiSize; ++i) writer.Write(ai[i].Value);
+		}
+		public override void NetUpdateReceive(BinaryReader reader)
+		{
+			for (int i = 0; i < aiSize; ++i) ai[i].Value=reader.ReadSingle();
 		}
 	}
 }

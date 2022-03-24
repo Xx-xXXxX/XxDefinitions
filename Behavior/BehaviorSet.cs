@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 
 using XxDefinitions.NPCs.NPCBehaviors;
 using System.IO;
+using Terraria.ID;
+
 namespace XxDefinitions.Behavior
 {
 	/// <summary>
@@ -106,6 +108,7 @@ namespace XxDefinitions.Behavior
 			index.AddBack(behavior.BehaviorName);
 			BehaviorsList.Add(behavior,index);
 			index.RemoveBack();
+			behavior.Initialize();
 			return NewID;
 		}
 		///// <summary>
@@ -124,7 +127,7 @@ namespace XxDefinitions.Behavior
 		/// </summary>
 		public void NetUpdateSend(BinaryWriter writer) {
 			bool All = false;
-			if (Terraria.Main.netMode==2) {
+			if (Terraria.Main.netMode==NetmodeID.Server) {
 				foreach (var i in Terraria.Netplay.Clients) {
 					if (i != null && i.IsActive && i.State == 3) {
 						All = true;break;//存在需要同步的端
@@ -176,6 +179,12 @@ namespace XxDefinitions.Behavior
 			foreach (var i in this) {
 				if (i != BehaviorMainID) GetBehavior(i).Update();
 			}
+		}
+		/// <summary>
+		/// 释放
+		/// </summary>
+		public void Dispose() {
+			foreach (var i in BehaviorsList) i.Value.Dispose();
 		}
 	}
 }

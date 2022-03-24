@@ -112,25 +112,184 @@ namespace XxDefinitions
 #pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		public static string ToBitString(int data)
 		{
-			return ToBitString(IToBytes(data));
+			return ToBitString(BitConverter.GetBytes(data));
 		}
-		public static int FToIBit(float d)
+		[Obsolete]
+		public static int FloatToIntBits(float d)
 		{
 			return BitConverter.ToInt32(BitConverter.GetBytes(d), 0);
 		}
-		public static float IToFBit(int d)
+		[Obsolete]
+		public static float IntToFloatBits(int d)
 		{
 			return BitConverter.ToSingle(BitConverter.GetBytes(d), 0);
 		}
-		public static byte[] FToBytes(float d)
-		{
-			return BitConverter.GetBytes(d);
+		[Obsolete]
+		public static long Int2ToLongBits(int d1, int d2) {
+			return ((long)d1 << 32 )| (long)d2;
 		}
-		public static byte[] IToBytes(int d)
+		[Obsolete]
+		public static uint IntToUIntBits(int d) {
+			return BitConverter.ToUInt32(BitConverter.GetBytes(d),0);
+		}
+		[Obsolete]
+		public static int IntToUIntBits(uint d)
 		{
-			return BitConverter.GetBytes(d);
+			return BitConverter.ToInt32(BitConverter.GetBytes(d), 0);
 		}
 
+
+
+		public static int ToInt32(float d) {
+			return BitConverter.ToInt32(BitConverter.GetBytes(d), 0);
+		}
+		public static int ToInt32(uint d)
+		{
+			return (int)d;
+		}
+		public static uint ToUint32(int d) {
+			return (uint)d;
+		}
+		public static uint ToUint32(float d)
+		{
+			return BitConverter.ToUInt32(BitConverter.GetBytes(d), 0);
+		}
+		public static float ToFloat(int d) {
+			return BitConverter.ToSingle(BitConverter.GetBytes(d),0);
+		}
+		public static float ToFloat(uint d)
+		{
+			return BitConverter.ToSingle(BitConverter.GetBytes(d), 0);
+		}
+		public static ulong ToULong(long d) {
+			return (ulong)d;
+		}
+		public static ulong ToULong(double d)
+		{
+			return (ulong)BitConverter.DoubleToInt64Bits(d);
+		}
+		public static ulong ToULong(int d1,int d2)
+		{
+			byte[] vs=new byte[8];
+			Array.Copy(BitConverter.GetBytes(d1), 0, vs, 0, 4);
+			Array.Copy(BitConverter.GetBytes(d2), 0, vs, 4, 4);
+			return BitConverter.ToUInt64(vs, 0);
+		}
+		public static ulong ToULong(float d1, float d2)
+		{
+			byte[] vs = new byte[8];
+			Array.Copy(BitConverter.GetBytes(d1), 0, vs, 0, 4);
+			Array.Copy(BitConverter.GetBytes(d2), 0, vs, 4, 4);
+			return BitConverter.ToUInt64(vs, 0);
+		}
+		public static ulong ToULong(uint d1, uint d2)
+		{
+			byte[] vs = new byte[8];
+			Array.Copy(BitConverter.GetBytes(d1), 0, vs, 0, 4);
+			Array.Copy(BitConverter.GetBytes(d2), 0, vs, 4, 4);
+			return BitConverter.ToUInt64(vs, 0);
+		}
+		public static long ToLong(ulong d)
+		{
+			return (long)d;
+		}
+		public static long ToLong(double d)
+		{
+			return BitConverter.DoubleToInt64Bits(d);
+		}
+		public static long ToLong(int d1, int d2)
+		{
+			byte[] vs = new byte[8];
+			Array.Copy(BitConverter.GetBytes(d1), 0, vs, 0, 4);
+			Array.Copy(BitConverter.GetBytes(d2), 0, vs, 4, 4);
+			return BitConverter.ToInt64(vs, 0);
+		}
+		public static long ToLong(float d1, float d2)
+		{
+			byte[] vs = new byte[8];
+			Array.Copy(BitConverter.GetBytes(d1), 0, vs, 0, 4);
+			Array.Copy(BitConverter.GetBytes(d2), 0, vs, 4, 4);
+			return BitConverter.ToInt64(vs, 0);
+		}
+		public static long ToLong(uint d1, uint d2)
+		{
+			byte[] vs = new byte[8];
+			Array.Copy(BitConverter.GetBytes(d1), 0, vs, 0, 4);
+			Array.Copy(BitConverter.GetBytes(d2), 0, vs, 4, 4);
+			return BitConverter.ToInt64(vs, 0);
+		}
+		public static double ToDouble(long d) {
+			return BitConverter.Int64BitsToDouble(d);
+		}
+		public static double ToDouble(ulong d)
+		{
+			return BitConverter.Int64BitsToDouble((long)d);
+		}
+		public static double ToDouble(int d1, int d2)
+		{
+			byte[] vs = new byte[8];
+			Array.Copy(BitConverter.GetBytes(d1), 0, vs, 0, 4);
+			Array.Copy(BitConverter.GetBytes(d2), 0, vs, 4, 4);
+			return BitConverter.ToDouble(vs, 0);
+		}
+		public static double ToDouble(float d1, float d2)
+		{
+			byte[] vs = new byte[8];
+			Array.Copy(BitConverter.GetBytes(d1), 0, vs, 0, 4);
+			Array.Copy(BitConverter.GetBytes(d2), 0, vs, 4, 4);
+			return BitConverter.ToDouble(vs, 0);
+		}
+		public static double ToDouble(uint d1, uint d2)
+		{
+			byte[] vs = new byte[8];
+			Array.Copy(BitConverter.GetBytes(d1), 0, vs, 0, 4);
+			Array.Copy(BitConverter.GetBytes(d2), 0, vs, 4, 4);
+			return BitConverter.ToDouble(vs, 0);
+		}
+		public static (int, int) ToInt2(long d) {
+			byte[] vs = BitConverter.GetBytes(d);
+			return (BitConverter.ToInt32(vs, 0),BitConverter.ToInt32(vs,4));
+		}
+		public static (int, int) ToInt2(ulong d)
+		{
+			byte[] vs = BitConverter.GetBytes(d);
+			return (BitConverter.ToInt32(vs, 0), BitConverter.ToInt32(vs, 4));
+		}
+		public static (int, int) ToInt2(double d)
+		{
+			byte[] vs = BitConverter.GetBytes(d);
+			return (BitConverter.ToInt32(vs, 0), BitConverter.ToInt32(vs, 4));
+		}
+		public static (uint, uint) ToUInt2(long d)
+		{
+			byte[] vs = BitConverter.GetBytes(d);
+			return (BitConverter.ToUInt32(vs, 0), BitConverter.ToUInt32(vs, 4));
+		}
+		public static (uint, uint) ToUInt2(ulong d)
+		{
+			byte[] vs = BitConverter.GetBytes(d);
+			return (BitConverter.ToUInt32(vs, 0), BitConverter.ToUInt32(vs, 4));
+		}
+		public static (uint, uint) ToUInt2(double d)
+		{
+			byte[] vs = BitConverter.GetBytes(d);
+			return (BitConverter.ToUInt32(vs, 0), BitConverter.ToUInt32(vs, 4));
+		}
+		public static (float, float) ToFloat2(long d)
+		{
+			byte[] vs = BitConverter.GetBytes(d);
+			return (BitConverter.ToSingle(vs, 0), BitConverter.ToSingle(vs, 4));
+		}
+		public static (float, float) ToFloat2(ulong d)
+		{
+			byte[] vs = BitConverter.GetBytes(d);
+			return (BitConverter.ToSingle(vs, 0), BitConverter.ToSingle(vs, 4));
+		}
+		public static (float, float) ToFloat2(double d)
+		{
+			byte[] vs = BitConverter.GetBytes(d);
+			return (BitConverter.ToSingle(vs, 0), BitConverter.ToSingle(vs, 4));
+		}
 #pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
 	}
 	/// <summary>
@@ -256,7 +415,7 @@ namespace XxDefinitions
 	}
 
 	/// <summary>
-	/// 将int按位分离操作
+	/// 将int按值分离操作
 	/// </summary>
 	[DebuggerDisplay("[ToString()]")]
 	public class IntSeparator

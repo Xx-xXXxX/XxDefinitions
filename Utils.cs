@@ -314,7 +314,61 @@ namespace XxDefinitions
 				}
 				return -1;
 			}
-			//public static int WeightingChoose(int I, params int[] values) => WeightingChoose(I, values);
+			/// <summary>
+			/// 计算以origin为起始点，向direction方向移动，直到碰到方块或到达最远距离的距离
+			/// </summary>
+			public static float CanHitLineDistance(Vector2 origin, float direction, float MaxDistance= 2200f, float step = 5) {
+				float d = 0;
+				Vector2 Check1 = origin;
+				Vector2 unit = new Vector2(step, 0).RotatedBy(direction);
+				Vector2 Check2 = Check1 + unit;
+				while (d < MaxDistance) {
+					if (!Collision.CanHit(Check1, 1, 1, Check2, 1, 1))
+					{
+						d -= step;
+						break;
+					}
+					else { 
+						d += step;
+						Check1 = Check2;
+						Check2+= unit;
+					}
+				}
+				return d;
+			}
+
+			/// <summary>
+			/// 计算碰撞箱以Velocity速度移动，碰撞后最终速度
+			/// </summary>
+			/// <param name="rect"></param>
+			/// <param name="Velocity"></param>
+			/// <param name="StopWhenHit">是否在碰到物块时结束计算</param>
+			/// <param name="fallThrough">是否穿过平台</param>
+			/// <param name="fall2">在Velocity.Y>1时穿过平台</param>
+			/// <param name="gravDir"></param>
+			/// <returns></returns>
+			public static Vector2 TileCollisionPerfect(Rectangle rect, Vector2 Velocity,bool StopWhenHit=false, bool fallThrough = false, bool fall2 = false, int gravDir = 1)
+			{
+				Vector2 Position= rect.Location.ToVector2();
+				int Width= rect.Width;
+				int Height= rect.Height;
+				Vector2 NewPosition = Position;
+				float PL = Math.Min(Width, Height);
+				Vector2 PV = Vector2.Normalize(Velocity) * PL;
+				Vector2 PV0 = PV;
+				int i = 1;
+				bool RealFall = fallThrough || (Velocity.Y > 1 && fall2);
+				for (; PL * i < Velocity.Length(); ++i)
+				{
+					Vector2 NPL = Collision.TileCollision(NewPosition, PV, Width, Height, RealFall, false, gravDir);
+					NewPosition += NPL;
+					if (NPL != PV&& StopWhenHit) return NewPosition - Position;
+					PV = NPL;
+				}
+				NewPosition += Collision.TileCollision(NewPosition, (PV/ PV0.Length()) * (Velocity.Length() - PL * (i - 1)), Width, Height, RealFall, false, gravDir);
+				return NewPosition - Position;
+			}
+
 		}
 		/// <summary>
 		/// 生成方法
@@ -376,10 +430,10 @@ namespace XxDefinitions
 				{
 					foreach (var i in Main.npc)
 					{
-						if (i.active)
+						if (i.active&&!i.dontTakeDamage)
 						{
 							if (!i.friendly && friendlyDamage > 0 && CalculateUtils.CheckAABBvCircleColliding(i.Hitbox, Position, radius)) i.StrikeNPC(friendlyDamage, 0, 0);
-							if (i.friendly && hostileDamage > 0 && CalculateUtils.CheckAABBvCircleColliding(i.Hitbox, Position, radius)) i.StrikeNPC(hostileDamage, 0, 0);
+							if (i.friendly&&!i.dontTakeDamageFromHostiles && hostileDamage > 0 && CalculateUtils.CheckAABBvCircleColliding(i.Hitbox, Position, radius)) i.StrikeNPC(hostileDamage, 0, 0);
 						}
 					}
 				}
@@ -398,7 +452,7 @@ namespace XxDefinitions
 		/// <summary>
 		/// 如果value有值且为真
 		/// </summary>
-		public static bool True(this bool? value) => value.HasValue && value.Value == true;
+		public static bool IsTrue(this bool? value) => value.HasValue && value.Value == true;
 		/// <summary>
 		/// 判断是否为默认值
 		/// </summary>
@@ -407,5 +461,9 @@ namespace XxDefinitions
 		/// 判断是否为空
 		/// </summary>
 		public static bool IsNull(this object obj) => obj == null;
+		//public static float TurnTo(this float From, float To, float rotation) {
+		//	float D1;
+		//	Terraria.Utils.AngleLerp
+		//}
 	}
 }
