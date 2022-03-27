@@ -1,6 +1,6 @@
 displayName = XxDefinitions
 author = Xx xXXxX
-version = 0.1.0.7
+version = 0.1.0.8
 hideResources = false
 hideCode = true
 includeSource = false
