@@ -56,6 +56,8 @@ namespace XxDefinitions
 		{
 			get => GetFunc();
 		}
+		public static implicit operator Func<T>(Get<T> get) => get.GetFunc;
+		public static implicit operator Get<T>(Func<T> func)=>(GetByDelegate<T>)func;
 	}
 	public abstract class Set<T> :ISetValue<T>
 	{
@@ -70,6 +72,8 @@ namespace XxDefinitions
 		{
 			set => SetFunc(value);
 		}
+		public static implicit operator Action<T>(Set<T> set) => set.SetFunc;
+		public static implicit operator Set<T>(Action<T> action)=>(SetByDelegate<T>)action;
 	}
 	/// <summary>
 	/// 通过委派函数实现引用
@@ -97,6 +101,7 @@ namespace XxDefinitions
 		public override void SetFunc(T value) => SetF(value);
 		public static explicit operator GetByDelegate<T>(RefByDelegate<T> I) => new GetByDelegate<T>(I.GetF);
 		public static explicit operator SetByDelegate<T>(RefByDelegate<T> I) => new SetByDelegate<T>(I.SetF);
+		
 	}
 	public class GetByDelegate<T> : Get<T>
 	{
@@ -113,6 +118,10 @@ namespace XxDefinitions
 		}
 		public override T GetFunc() => GetF();
 		public static implicit operator GetByDelegate<T>(Func<T> func) => new GetByDelegate<T>(func);
+		public static implicit operator GetByDelegate<T>(System.Linq.Expressions.LambdaExpression lambda)
+		{
+			return new GetByDelegate<T>((Func<T>)lambda.Compile());
+		}
 	}
 	public class SetByDelegate<T> : Set<T>
 	{
@@ -129,9 +138,13 @@ namespace XxDefinitions
 		}
 		public override void SetFunc(T value) => SetF(value);
 		public static implicit operator SetByDelegate<T>(Action<T> func) => new SetByDelegate<T>(func);
+		public static implicit operator SetByDelegate<T>(System.Linq.Expressions.LambdaExpression lambda)
+		{
+			return new SetByDelegate<T>((Action<T>)lambda.Compile());
+		}
 	}
 	/// <summary>
-	/// 使用类表示值
+	/// 使用托管类型表示值
 	/// </summary>
 	/// <typeparam name="T">类型</typeparam>
 	public class ClassValue<T> : IGetValue<T>, ISetValue<T>, IGetSetValue<T>

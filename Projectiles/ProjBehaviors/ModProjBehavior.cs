@@ -26,28 +26,16 @@ namespace XxDefinitions.Projectiles.ProjBehaviors
 		/// <summary>
 		/// 被操作的modProj
 		/// </summary>
-		public RealModProjType modProj;
+		public RealModProjType modProjectile;
 		/// <summary>
 		/// 被操作的projectile
 		/// </summary>
-		public Projectile projectile => modProj.projectile;
+		public Projectile projectile => modProjectile.projectile;
 		/// <summary>
 		/// 初始化
 		/// </summary>
-		public ModProjBehavior(RealModProjType modProj) { this.modProj = modProj; }
+		public ModProjBehavior(RealModProjType modProjectile) { this.modProjectile = modProjectile; }
 #pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
-		#region IBehavior
-		public override void Update() { }
-		public override bool CanPause() { return true; }
-		public override void Pause() { }
-		public override bool CanActivate() { return true; }
-		public override void Activate() { }
-		public override void Initialize() { }
-		public override void Dispose() { }
-		public override void NetUpdateSend(BinaryWriter writer) { }
-		public override void NetUpdateReceive(BinaryReader reader) { }
-		public override object Call(params object[] vs) { return null; }
-		#endregion
 		#region IModProjHooks
 		/// <summary>
 		/// Whether or not this projectile should update its position based on factors such as its velocity, whether it is in liquid, etc. Return false to make its velocity have no effect on its position. Returns true by default.

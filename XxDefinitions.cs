@@ -47,9 +47,20 @@ namespace XxDefinitions
             Translations.SetDefault("Disabled");
             Translations.AddTranslation(GameCulture.Chinese, "已禁用");
             this.AddTranslation(Translations);
+
             Translations = this.CreateTranslation("Enabled");
             Translations.SetDefault("Enabled");
             Translations.AddTranslation(GameCulture.Chinese, "已启用");
+            this.AddTranslation(Translations);
+
+            this.CreateTranslation("On");
+            Translations.SetDefault("On");
+            Translations.AddTranslation(GameCulture.Chinese, "开");
+            this.AddTranslation(Translations);
+
+            Translations = this.CreateTranslation("Off");
+            Translations.SetDefault("Off");
+            Translations.AddTranslation(GameCulture.Chinese, "关");
             this.AddTranslation(Translations);
         }
         public override void Unload()

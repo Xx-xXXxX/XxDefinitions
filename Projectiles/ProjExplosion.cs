@@ -53,7 +53,7 @@ namespace XxDefinitions.Projectiles
 		/// <returns></returns>
 		public static int SummonProjExplosion(Vector2 Position, float radius, int friendlyDamage,int hostileDamage,Color? color_,int Owner,bool npcProj) {
 			Color color = color_ ?? Color.White;
-			Projectile P= Projectile.NewProjectileDirect(Position, Vector2.Zero, ModContent.ProjectileType<ProjExplosion>(), TDamage, 0, Owner, friendlyDamage, hostileDamage);
+			Projectile P= Projectile.NewProjectileDirect(Position, Vector2.Zero, ModContent.ProjectileType<ProjExplosion>(), TDamage, 0, Owner, hostileDamage,friendlyDamage );
 			P.npcProj = npcProj;
 			if(friendlyDamage!=0)
 			P.friendly = true;

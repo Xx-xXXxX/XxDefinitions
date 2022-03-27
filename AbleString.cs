@@ -20,4 +20,16 @@ namespace XxDefinitions
 		}
 		public AbleString(IGetValue<bool> value) { this.value = value; }
 	}
+	/// <summary>
+	/// 对应value的 开|关
+	/// </summary>
+	public class OnOffString:IGetValue<string>
+	{
+		public readonly IGetValue<bool> value;
+		public string Value
+		{
+			get => value.Value ? Terraria.Localization.Language.GetTextValue($"Mods.XxDefinitions.On") : Terraria.Localization.Language.GetTextValue($"Mods.XxDefinitions.Off");
+		}
+		public OnOffString(IGetValue<bool> value) { this.value = value; }
+	}
 }

@@ -41,11 +41,11 @@ namespace XxDefinitions.NPCs.NPCBehaviors
 		#region IBehavior
 		public override void Update() { }
 		public override bool CanPause() { return true; }
-		public override void Pause() { }
+		public override void OnPause() { }
 		public override bool CanActivate() { return true; }
-		public override void Activate() { }
-		public override void Initialize() { }
-		public override void Dispose() { }
+		public override void OnActivate() { }
+		public override void OnInitialize() { }
+		public override void OnDispose() { }
 		public override void NetUpdateSend(BinaryWriter writer) { }
 		public override void NetUpdateReceive(BinaryReader reader) { }
 		public override object Call(params object[] vs) { return null; }

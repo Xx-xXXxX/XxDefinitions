@@ -20,7 +20,7 @@ namespace XxDefinitions
 		/// <summary>
 		/// 目标的值
 		/// </summary>
-		public short data;
+		private short data;
 		/// <summary>
 		/// 目标是否为npc
 		/// </summary>
@@ -111,15 +111,47 @@ namespace XxDefinitions
 		/// <summary>
 		/// 生成对应NPC的id的UnifiedTarget
 		/// </summary>
-		public static UnifiedTarget MakeNPCID(int NPCID) {
+		public static UnifiedTarget MakeNPC(int NPCID) {
 			return new UnifiedTarget() { NPCID = NPCID };
 		}
 		/// <summary>
 		/// 生成对应player的id的UnifiedTarget
 		/// </summary>
-		public static UnifiedTarget MakePlayerID(int PlayerID)
+		public static UnifiedTarget MakePlayer(int PlayerID)
 		{
 			return new UnifiedTarget() { PlayerID = PlayerID };
+		}
+		/// <summary>
+		/// 空对象
+		/// </summary>
+		public static UnifiedTarget Null => new UnifiedTarget();
+		/// <summary>
+		/// 生成对应NPC的id的UnifiedTarget
+		/// </summary>
+		public static UnifiedTarget MakeNPC(NPC npc)
+		{
+			return new UnifiedTarget() { NPCID = npc.whoAmI };
+		}
+		/// <summary>
+		/// 生成对应player的id的UnifiedTarget
+		/// </summary>
+		public static UnifiedTarget MakePlayer(Player player)
+		{
+			return new UnifiedTarget() { PlayerID = player.whoAmI };
+		}
+		/// <summary>
+		/// 生成对应NPC的id的UnifiedTarget
+		/// </summary>
+		public static UnifiedTarget Make(NPC npc)
+		{
+			return new UnifiedTarget() { NPCID = npc.whoAmI };
+		}
+		/// <summary>
+		/// 生成对应player的id的UnifiedTarget
+		/// </summary>
+		public static UnifiedTarget Make(Player player)
+		{
+			return new UnifiedTarget() { PlayerID = player.whoAmI };
 		}
 		/// <summary>
 		/// 设置表示npc
@@ -129,6 +161,14 @@ namespace XxDefinitions
 		/// 设置表示player
 		/// </summary>
 		public void Set(Player player) { PlayerID = player.whoAmI; }
+		/// <summary>
+		/// 设置表示npc
+		/// </summary>
+		public void SetNPC(int id) => NPCID = id;
+		/// <summary>
+		/// 设置表示player
+		/// </summary>
+		public void SetPlayer(int id) => PlayerID = id;
 		/// <summary>
 		/// 与npc.target对应
 		/// </summary>
@@ -152,6 +192,7 @@ namespace XxDefinitions
 	/// ==0:为空
 	/// ]]></code>
 	/// </summary>
+	[Obsolete("用UnifiedTarget")]
 	public struct UnifiedTarget2
 	{
 		public short data;
@@ -214,13 +255,13 @@ namespace XxDefinitions
 		public static explicit operator short(UnifiedTarget2 A) { return A.data; }
 		public static explicit operator UnifiedTarget2(short A) { return new UnifiedTarget2(A); }
 		public static explicit operator UnifiedTarget2(int A) { return new UnifiedTarget2((short)A); }
-		//public void WriteBinary(BinaryWriter writer) { writer.Write(data); }
-		//public void ReadBinary(BinaryReader reader) { data = reader.ReadInt16(); }
-		public static void WriteBinary(BinaryWriter writer, UnifiedTarget i) { writer.Write(i.data); }
-		public static UnifiedTarget ReadBinary(BinaryReader reader)
-		{
-			return new UnifiedTarget(reader.ReadInt16());
-		}
+		public void WriteBinary(BinaryWriter writer) { writer.Write(data); }
+		public void ReadBinary(BinaryReader reader) { data = reader.ReadInt16(); }
+		//public static void WriteBinary(BinaryWriter writer, UnifiedTarget i) { writer.Write(i.data); }
+		//public static UnifiedTarget ReadBinary(BinaryReader reader)
+		//{
+		//	return new UnifiedTarget(reader.ReadInt16());
+		//}
 		public static UnifiedTarget MakeNPCID(int NPCID)
 		{
 			return new UnifiedTarget() { NPCID = NPCID };

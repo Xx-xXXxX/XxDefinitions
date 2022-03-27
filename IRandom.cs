@@ -52,7 +52,7 @@ namespace XxDefinitions
 	/// <summary>
 	/// 用一个ulong完成随机数
 	/// </summary>
-	public class RandomL1: IRandom
+	public class RandomULong1: IRandom
 	{
 		/// <summary>
 		/// 值
@@ -61,7 +61,7 @@ namespace XxDefinitions
 		/// <summary>
 		/// 操作value1生成随机数
 		/// </summary>
-		public RandomL1(IGetSetValue<ulong> value1) { Value1 = value1; }
+		public RandomULong1(IGetSetValue<ulong> value1) { Value1 = value1; }
 		/// <summary>
 		/// IntSample
 		/// </summary>
@@ -73,12 +73,20 @@ namespace XxDefinitions
 		/// Sample
 		/// </summary>
 		public double Sample() => this.SampleFromIntSample();
+		/// <summary>
+		/// 加入一个数以增强随机
+		/// </summary>
+		/// <param name="v"></param>
+		public void AddRand(ulong v)
+		{
+			Value1.Value = Terraria.Utils.RandomNextSeed(Value1.Value ^ Terraria.Utils.RandomNextSeed(v));
+		}
 	}
 
 	/// <summary>
 	/// 用1个int完成随机数
 	/// </summary>
-	public class RandomI1 : IRandom
+	public class RandomInt1 : IRandom
 	{
 		/// <summary>
 		/// 值
@@ -87,7 +95,7 @@ namespace XxDefinitions
 		/// <summary>
 		/// 操作value1生成随机数
 		/// </summary>
-		public RandomI1(IGetSetValue<int> value1) { Value1 = value1; }
+		public RandomInt1(IGetSetValue<int> value1) { Value1 = value1; }
 		/// <summary>
 		/// IntSample
 		/// </summary>
@@ -100,11 +108,17 @@ namespace XxDefinitions
 		/// Sample
 		/// </summary>
 		public double Sample() => this.SampleFromIntSample();
+		/// <summary>
+		/// 加入一个数以增强随机
+		/// </summary>
+		public void AddRand(int v) {
+			Value1.Value = IRandomUtils.NextIntSeed(Value1.Value^ IRandomUtils.NextIntSeed(v));
+		}
 	}
 	/// <summary>
 	/// 用2个int完成随机数
 	/// </summary>
-	public class RandomI2 : IRandom
+	public class RandomInt2 : IRandom
 	{
 		/// <summary>
 		/// 值
@@ -117,7 +131,7 @@ namespace XxDefinitions
 		/// <summary>
 		/// 操作value1生成随机数
 		/// </summary>
-		public RandomI2(IGetSetValue<int> value1, IGetSetValue<int> value2) { Value1 = value1;Value2 = value2; }
+		public RandomInt2(IGetSetValue<int> value1, IGetSetValue<int> value2) { Value1 = value1;Value2 = value2; }
 		/// <summary>
 		/// IntSample
 		/// </summary>
@@ -131,6 +145,14 @@ namespace XxDefinitions
 		/// Sample
 		/// </summary>
 		public double Sample() => this.SampleFromIntSample();
+		/// <summary>
+		/// 加入一个数以增强随机
+		/// </summary>
+		/// <param name="value"></param>
+		public void AddRand(int value) {
+			Value1.Value = IRandomUtils.NextIntSeed(Value1.Value - Value2.Value+ value);
+			Value2.Value = IRandomUtils.NextIntSeed(Value1.Value + Value2.Value- value);
+		}
 	}
 	/// <summary>
 	/// 随机数接口的方法
@@ -139,7 +161,7 @@ namespace XxDefinitions
 	{
 #pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		public static int NextIntSeed(int seed) {
-			return seed * 2134223952 + 19;
+			return (int)((uint)seed * 65537 + 9586585221L);
 		}
 		/// <summary>
 		/// 将Terraria.Utilities.UnifiedRandom转为IRandom

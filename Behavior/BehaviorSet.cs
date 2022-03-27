@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using XxDefinitions.NPCs.NPCBehaviors;
 using System.IO;
 using Terraria.ID;
+using XxDefinitions.Behavior;
 
 namespace XxDefinitions.Behavior
 {
@@ -127,20 +128,19 @@ namespace XxDefinitions.Behavior
 		/// </summary>
 		public void NetUpdateSend(BinaryWriter writer) {
 			bool All = false;
-			if (Terraria.Main.netMode==NetmodeID.Server) {
-				foreach (var i in Terraria.Netplay.Clients) {
-					if (i != null && i.IsActive && i.State == 3) {
-						All = true;break;//存在需要同步的端
+			if (Terraria.Main.netMode == NetmodeID.Server)
+			{
+				foreach (var i in Terraria.Netplay.Clients)
+				{
+					if (i != null && i.IsActive && i.State == 3)
+					{
+						All = true; break;//存在需要同步的端
 					}
 				}
 			}
-			writer.Write(All);
-			writer.Write(BehaviorMainID);
 			List<int> enumed = new List<int>();
 			foreach (var i in BehaviorsList)
 			{
-				//writer.Write(i);
-				//BehaviorsList[i].NetUpdateSend(writer);
 				enumed.Add(i.Key);
 			}
 			writer.Write(enumed.Count);
@@ -148,8 +148,11 @@ namespace XxDefinitions.Behavior
 			{
 				writer.Write(i);
 				IBehavior behavior = BehaviorsList[i];
-				writer.Write(behavior.Active);
-				if(All|| behavior.Active)
+				Terraria.BitsByte bits = (byte)0;
+				bits[0] = behavior.Active;
+				bool NetUpdate = bits[1] = All || behavior.NetUpdate;
+				writer.Write(bits);
+				if (NetUpdate)
 					behavior.NetUpdateSend(writer);
 			}
 		}
@@ -157,16 +160,16 @@ namespace XxDefinitions.Behavior
 		/// 联机同步接收
 		/// </summary>
 		public void NetUpdateReceive(BinaryReader reader) {
-			bool All = reader.ReadBoolean();
-			SetBehaviorMain(reader.ReadInt32());
 			int Count = reader.ReadInt32();
-			for (int i = 0; i < Count; ++i) {
+			for (int i = 0; i < Count; ++i)
+			{
 				int id = reader.ReadInt32();
-				bool active = reader.ReadBoolean();
+				Terraria.BitsByte bits = reader.ReadByte();
+				bool active = bits[0];
+				bool NetUpdate = bits[1];
 				IBehavior behavior = BehaviorsList[id];
-				if (active) behavior.TryActivate();
-				else behavior.TryPause();
-				if(All||active)
+				behavior.TrySetActive(active);
+				if (NetUpdate)
 					behavior.NetUpdateReceive(reader);
 			}
 		}

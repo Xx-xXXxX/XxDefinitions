@@ -109,19 +109,27 @@ namespace XxDefinitions
 		/// <summary>
 		/// 判断npc是否活动
 		/// </summary>
-		public static bool NPCCanUse(NPC npc) => npc.active;
+		public static bool NPCCanUse(this NPC npc) => npc.active;
 		/// <summary>
 		/// 判断player是否活动
 		/// </summary>
-		public static bool PlayerCanUse(Player player) => player.active && !player.dead && !player.ghost;
+		public static bool PlayerCanUse(this Player player) => player.active && !player.dead && !player.ghost;
 		/// <summary>
 		/// 判断npc是否可以追踪
 		/// </summary>
-		public static bool NPCCanFind(NPC npc) => NPCCanUse(npc) && npc.CanBeChasedBy();
+		public static bool NPCCanFind(this NPC npc) => NPCCanUse(npc) && npc.CanBeChasedBy();
+		/// <summary>
+		/// 判断npc是否可以追踪，避开Tile
+		/// </summary>
+		public static bool NPCCanFindNoTile(this NPC npc,Vector2 pos) => NPCCanFind(npc)&&Terraria.Collision.CanHitLine(npc.Center,1,1,pos,1,1);
 		/// <summary>
 		/// 判断玩家是否可以追踪
 		/// </summary>
-		public static bool PlayerCanFind(Player player) => PlayerCanUse(player);
+		public static bool PlayerCanFind(this Player player) => PlayerCanUse(player);
+		/// <summary>
+		/// 判断npc是否可以追踪，避开Tile
+		/// </summary>
+		public static bool PlayerCanFindNoTile(this Player player, Vector2 pos) => PlayerCanUse(player) && Terraria.Collision.CanHitLine(player.Center, 1, 1, pos, 1, 1);
 		/// <summary>
 		/// 将n限制在[l,r]
 		/// </summary>
@@ -242,6 +250,18 @@ namespace XxDefinitions
 				if (D > 1 || D < -1) return null;
 				else return (float)Math.Asin(D) + OffsetPos.ToRotation();
 			}
+			/// <summary>
+			/// 预判，返回速度，如果没有，返回Vector2.Normalize(OffsetVel) * Speed)
+			/// </summary>
+			/// <param name="OffsetPos"></param>
+			/// <param name="OffsetVel"></param>
+			/// <param name="Speed"></param>
+			/// <returns></returns>
+			public static Vector2 PredictWithVelDirect(Vector2 OffsetPos, Vector2 OffsetVel, float Speed) {
+				//float? D= PredictWithVel(OffsetPos, OffsetVel, Speed);
+				//return (D.HasValue ? D.Value.ToRotationVector2() * Speed : Vector2.Normalize(OffsetVel) * Speed);
+				return (PredictWithVel(OffsetPos, OffsetVel, Speed) ?? OffsetVel.ToRotation()).ToRotationVector2() * Speed;
+			}
 			//public static bool EntityCanFind(Entity item)=>item.
 			//public static bool EntityInRange(Entity item,Vector2 pos,float R)=> item.active&&
 			/// <summary>
@@ -336,7 +356,6 @@ namespace XxDefinitions
 				}
 				return d;
 			}
-
 			/// <summary>
 			/// 计算碰撞箱以Velocity速度移动，碰撞后最终速度
 			/// </summary>
@@ -368,7 +387,59 @@ namespace XxDefinitions
 				NewPosition += Collision.TileCollision(NewPosition, (PV/ PV0.Length()) * (Velocity.Length() - PL * (i - 1)), Width, Height, RealFall, false, gravDir);
 				return NewPosition - Position;
 			}
-
+			/// <summary>
+			/// 对蠕虫的头执行，加载全身，需要npc最后的速度
+			/// </summary>
+			/// <param name="npc">头</param>
+			/// <param name="Nextnpc">下一个npc</param>
+			/// <param name="End">是否结束</param>
+			/// <param name="projLength">体节的长度，应比npc的长度稍小</param>
+			/// <param name="Acceleration">转向加速度，用于计算角度</param>
+			public static void UpdateWornPositionNPC(NPC npc, Func<NPC, NPC> Nextnpc, Func<NPC, bool> End, float projLength,float Acceleration=0.3f)
+			{
+				float MaxAngle = Acceleration / npc.velocity.Length()*10;
+				while (End(npc))
+				{
+					NPC Nownpc = Nextnpc(npc);
+					Vector2 ToPos = npc.Center + npc.velocity + new Vector2(-0.5f * projLength, 0).RotatedBy(npc.rotation);
+					Vector2 OffsetPos = ToPos - Nownpc.Center;
+					float OffsetAngle = npc.rotation.AngleTowards(OffsetPos.ToRotation(), MaxAngle);
+					Nownpc.Center = ToPos - OffsetAngle.ToRotationVector2() * projLength / 2;
+					Nownpc.rotation = OffsetAngle;
+					Nownpc.velocity = Vector2.Zero;
+					npc = Nownpc;
+				}
+			}
+			/// <summary>
+			/// 对蠕虫的头执行，加载全身，需要projectile最后的速度
+			/// </summary>
+			/// <param name="projectile">头</param>
+			/// <param name="NextProj">下一个proj</param>
+			/// <param name="End">是否结束</param>
+			/// <param name="projLength">体节的长度，应比proj的长度稍小</param>
+			/// <param name="Acceleration">转向加速度，用于计算角度</param>
+			public static void UpdateWornPositionProj(Projectile projectile, Func<Projectile, Projectile> NextProj, Func<Projectile, bool> End, float projLength, float Acceleration=0.3f) {
+				float MaxAngle = Acceleration / projectile.velocity.Length() * 10;
+				while (!End(projectile))
+				{
+					Projectile NowProj1 = NextProj(projectile);
+					Vector2 ToPos = projectile.Center + projectile.velocity + new Vector2(-0.5f * projLength, 0).RotatedBy(projectile.rotation);
+					Vector2 OffsetPos = ToPos- NowProj1.Center;
+					float OffsetAngle = projectile.rotation.AngleTowards(OffsetPos.ToRotation(),MaxAngle);
+					NowProj1.Center = ToPos - OffsetAngle.ToRotationVector2() * projLength / 2;
+					NowProj1.rotation = OffsetAngle;
+					NowProj1.velocity = Vector2.Zero;
+					projectile = NowProj1;
+				}
+			}
+			/// <summary>
+			/// 获取两个向量的夹角的cos值
+			/// </summary>
+			public static float AngleCos(Vector2 a, Vector2 b) => (Vector2.Dot(a,b)) / (a.Length()*b.Length());
+			/// <summary>
+			/// 获取两个向量的夹角
+			/// </summary>
+			public static float Angle(Vector2 a, Vector2 b) => (float)Math.Acos(AngleCos(a,b));
 		}
 		/// <summary>
 		/// 生成方法
@@ -461,9 +532,91 @@ namespace XxDefinitions
 		/// 判断是否为空
 		/// </summary>
 		public static bool IsNull(this object obj) => obj == null;
-		//public static float TurnTo(this float From, float To, float rotation) {
-		//	float D1;
-		//	Terraria.Utils.AngleLerp
-		//}
+		/// <summary>
+		/// 在范围内
+		/// </summary>
+		public static bool InRange(this float obj, float value=0, float range = float.Epsilon) {
+			float d =(float)Math.Abs( obj - value);
+			return d < range;
+		}
+		/// <summary>
+		/// 在范围内
+		/// </summary>
+		public static bool InRange(this double obj, double value=0, double range = float.Epsilon)
+		{
+			double d = (double)Math.Abs(obj - value);
+			return d < range;
+		}
+		/// <summary><![CDATA[
+		/// 从IGetValue<T>到Func<T>]]>
+		/// </summary>
+		public static Func<T> ToGetDelegate<T>(this IGetValue<T> get) => () => get.Value;
+		/// <summary><![CDATA[
+		/// 从ISetValue<T>到Action<T>]]>
+		/// </summary>
+		public static Action<T> ToSetDelegate<T>(this ISetValue<T> set) => (v) => set.Value = v;
+		/// <summary><![CDATA[
+		/// 从Func<T>到IGetValue<T>]]>
+		/// </summary>
+		public static GetByDelegate<T> ToGet<T>(this Func<T> func) =>(GetByDelegate<T>)func;
+		/// <summary><![CDATA[
+		/// 从Action<T>到ISetValue<T>]]>
+		/// </summary>
+		public static SetByDelegate<T> ToSet<T>(this Action<T> action) => (SetByDelegate<T>)action;
+		/// <summary>
+		/// 将Get和Set结合成Ref
+		/// </summary>
+		public static RefByDelegate<T> Combine<T>(this IGetValue<T> get, ISetValue<T> set) => new RefByDelegate<T>(get.ToGetDelegate(), set.ToSetDelegate());
+		/// <summary>
+		/// 将Get和Set结合成Ref
+		/// </summary>
+		public static RefByDelegate<T> Combine<T>(this ISetValue<T> set,IGetValue<T> get) => new RefByDelegate<T>(get.ToGetDelegate(), set.ToSetDelegate());
+
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
+		public static float Max(params float[] vs)
+		{
+			float MaxV = vs[0];
+			foreach (var i in vs) if (i > MaxV) MaxV = i;
+			return MaxV;
+		}
+		public static float Min(params float[] vs)
+		{
+			float MaxV = vs[0];
+			foreach (var i in vs) if (i < MaxV) MaxV = i;
+			return MaxV;
+		}
+		public static int Max(params int[] vs)
+		{
+			int MaxV = vs[0];
+			foreach (var i in vs) if (i > MaxV) MaxV = i;
+			return MaxV;
+		}
+		public static int Min(params int[] vs)
+		{
+			int MaxV = vs[0];
+			foreach (var i in vs) if (i < MaxV) MaxV = i;
+			return MaxV;
+		}
+#pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
+		/// <summary>
+		/// 获取Player的位置的IGetValue
+		/// </summary>
+		public static IGetValue<Vector2> GetPlayerCenter(int id, Vector2 Offset = default) {
+			return (Get<Vector2>)(()=>Main.player[id].Center+Offset);
+		}
+		/// <summary>
+		/// 获取NPC的位置的IGetValue
+		/// </summary>
+		public static IGetValue<Vector2> GetNPCCenter(int id, Vector2 Offset = default)
+		{
+			return (Get<Vector2>)(() => Main.npc[id].Center + Offset);
+		}
+		/// <summary>
+		/// 获取Proj的位置的IGetValue
+		/// </summary>
+		public static IGetValue<Vector2> GetProjCenter(int id, Vector2 Offset = default)
+		{
+			return (Get<Vector2>)(() => Main.projectile[id].Center + Offset);
+		}
 	}
 }

@@ -72,7 +72,7 @@ namespace XxDefinitions.Behavior
 		/// 在CanPause()时Pausing必须能在Pause()后set为true，Continue同理
 		/// 不要在set_Active中套用TryPause等
 		/// </summary>
-		bool Active { get; set; }
+		bool Active { get;}
 		/// <summary>
 		/// 执行
 		/// </summary>
@@ -132,20 +132,26 @@ namespace XxDefinitions.Behavior
 #pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 	public abstract class Behavior : IBehavior
 	{
+		private bool initialized = false;
+		public bool Initialized => initialized;
 		private bool active = true;
-		public bool Active { get=>active; set=> active=value; }
+		public virtual bool Active { get=>active;}
 		public abstract string BehaviorName { get; }
 		public virtual object Call(params object[] vs) { return null; }
-		public virtual bool CanActivate() { return true; }
-		public virtual bool CanPause() { return true; }
-		public virtual void Activate() { }
-		public virtual void Dispose() { }
-		public virtual void NetUpdateReceive(BinaryReader reader) { }
-		public virtual void NetUpdateSend(BinaryWriter writer) { }
-		public virtual void Pause() { }
-		public virtual void Initialize() { }
+		public virtual bool CanActivate() { return !Active; }
+		public virtual bool CanPause() { return Active; }
+		public void Dispose() { initialized = false; }
+		public virtual void OnDispose() { }
+		public void Activate() { if (!initialized) Initialize(); active = true; OnActivate(); }
+		public virtual void OnActivate() { }
+		public void Pause() { active = false; OnPause(); }
+		public virtual void OnPause() { }
+		public void Initialize() { initialized = true; OnInitialize(); }
+		public virtual void OnInitialize() { }
 		public virtual void Update() { }
 		public abstract bool NetUpdate { get; }
+		public virtual void NetUpdateReceive(BinaryReader reader) { }
+		public virtual void NetUpdateSend(BinaryWriter writer) { }
 	}
 	public static class BehaviorUtils {
 		/// <summary>
@@ -158,7 +164,6 @@ namespace XxDefinitions.Behavior
 			if (behavior.CanPause())
 			{
 				behavior.Pause();
-				behavior.Active = false;
 				return true;
 			}
 			else return false;
@@ -173,10 +178,13 @@ namespace XxDefinitions.Behavior
 			if (behavior.CanActivate())
 			{
 				behavior.Activate();
-				behavior.Active = true;
 				return true;
 			}
 			else return false;
+		}
+		public static bool TrySetActive(this IBehavior behavior, bool active) {
+			if (active) return behavior.TryActivate();
+			else return behavior.TryPause();
 		}
 	}
 }

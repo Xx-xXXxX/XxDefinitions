@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 
 using Terraria;
 using Terraria.ModLoader;
+
+using XxDefinitions.Behavior;
 using XxDefinitions.NPCs.NPCBehaviors;
 
 namespace XxDefinitions.Projectiles.ProjBehaviors
@@ -520,5 +522,196 @@ namespace XxDefinitions.Projectiles.ProjBehaviors
 
 		#endregion
 		*/
+	}
+
+
+	/// <summary>
+	/// ModProjectile应用行为自动机的基类
+	/// </summary>
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
+	public abstract class ModProjBehaviorComponentAutomata : ModProjectile
+	{
+		public IModProjBehaviorComponent BehaviorMain;
+
+		public override void ReceiveExtraAI(BinaryReader reader)
+		{
+			BehaviorMain.NetUpdateReceive(reader);
+		}
+		public override void SendExtraAI(BinaryWriter writer)
+		{
+			BehaviorMain.NetUpdateSend(writer);
+		}
+		public override void AI()
+		{
+			BehaviorMain.Update();
+		}
+		#region Hooks
+		public override bool ShouldUpdatePosition()
+		{
+			return ((IModProjHooks)BehaviorMain).ShouldUpdatePosition();
+		}
+
+		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough)
+		{
+			return ((IModProjHooks)BehaviorMain).TileCollideStyle(ref width, ref height, ref fallThrough);
+		}
+
+		public override bool OnTileCollide(Vector2 oldVelocity)
+		{
+			return ((IModProjHooks)BehaviorMain).OnTileCollide(oldVelocity);
+		}
+
+		public override bool? CanCutTiles()
+		{
+			return ((IModProjHooks)BehaviorMain).CanCutTiles();
+		}
+
+		public override void CutTiles()
+		{
+			((IModProjHooks)BehaviorMain).CutTiles();
+		}
+
+		public override bool PreKill(int timeLeft)
+		{
+			return ((IModProjHooks)BehaviorMain).PreKill(timeLeft);
+		}
+
+		public override void Kill(int timeLeft)
+		{
+			((IModProjHooks)BehaviorMain).Kill(timeLeft);
+		}
+
+		public override bool CanDamage()
+		{
+			return ((IModProjHooks)BehaviorMain).CanDamage();
+		}
+
+		public override bool MinionContactDamage()
+		{
+			return ((IModProjHooks)BehaviorMain).MinionContactDamage();
+		}
+
+		public override void ModifyDamageHitbox(ref Rectangle hitbox)
+		{
+			((IModProjHooks)BehaviorMain).ModifyDamageHitbox(ref hitbox);
+		}
+
+		public override bool? CanHitNPC(NPC target)
+		{
+			return ((IModProjHooks)BehaviorMain).CanHitNPC(target);
+		}
+
+		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
+		{
+			((IModProjHooks)BehaviorMain).ModifyHitNPC(target, ref damage, ref knockback, ref crit, ref hitDirection);
+		}
+
+		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit)
+		{
+			((IModProjHooks)BehaviorMain).OnHitNPC(target, damage, knockback, crit);
+		}
+
+		public override bool CanHitPvp(Player target)
+		{
+			return ((IModProjHooks)BehaviorMain).CanHitPvp(target);
+		}
+
+		public override void ModifyHitPvp(Player target, ref int damage, ref bool crit)
+		{
+			((IModProjHooks)BehaviorMain).ModifyHitPvp(target, ref damage, ref crit);
+		}
+
+		public override void OnHitPvp(Player target, int damage, bool crit)
+		{
+			((IModProjHooks)BehaviorMain).OnHitPvp(target, damage, crit);
+		}
+
+		public override bool CanHitPlayer(Player target)
+		{
+			return ((IModProjHooks)BehaviorMain).CanHitPlayer(target);
+		}
+
+		public override void ModifyHitPlayer(Player target, ref int damage, ref bool crit)
+		{
+			((IModProjHooks)BehaviorMain).ModifyHitPlayer(target, ref damage, ref crit);
+		}
+
+		public override void OnHitPlayer(Player target, int damage, bool crit)
+		{
+			((IModProjHooks)BehaviorMain).OnHitPlayer(target, damage, crit);
+		}
+
+		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
+		{
+			return ((IModProjHooks)BehaviorMain).Colliding(projHitbox, targetHitbox);
+		}
+
+		public override Color? GetAlpha(Color lightColor)
+		{
+			return ((IModProjHooks)BehaviorMain).GetAlpha(lightColor);
+		}
+
+		public override bool PreDrawExtras(SpriteBatch spriteBatch)
+		{
+			return ((IModProjHooks)BehaviorMain).PreDrawExtras(spriteBatch);
+		}
+
+		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor)
+		{
+			return ((IModProjHooks)BehaviorMain).PreDraw(spriteBatch, lightColor);
+		}
+
+		public override void PostDraw(SpriteBatch spriteBatch, Color lightColor)
+		{
+			((IModProjHooks)BehaviorMain).PostDraw(spriteBatch, lightColor);
+		}
+
+		public override bool? CanUseGrapple(Player player)
+		{
+			return ((IModProjHooks)BehaviorMain).CanUseGrapple(player);
+		}
+
+		public override bool? SingleGrappleHook(Player player)
+		{
+			return ((IModProjHooks)BehaviorMain).SingleGrappleHook(player);
+		}
+
+		public override void UseGrapple(Player player, ref int type)
+		{
+			((IModProjHooks)BehaviorMain).UseGrapple(player, ref type);
+		}
+
+		public override float GrappleRange()
+		{
+			return ((IModProjHooks)BehaviorMain).GrappleRange();
+		}
+
+		public override void NumGrappleHooks(Player player, ref int numHooks)
+		{
+			((IModProjHooks)BehaviorMain).NumGrappleHooks(player, ref numHooks);
+		}
+
+		public override void GrappleRetreatSpeed(Player player, ref float speed)
+		{
+			((IModProjHooks)BehaviorMain).GrappleRetreatSpeed(player, ref speed);
+		}
+
+		public override void GrapplePullSpeed(Player player, ref float speed)
+		{
+			((IModProjHooks)BehaviorMain).GrapplePullSpeed(player, ref speed);
+		}
+
+		public override void GrappleTargetPoint(Player player, ref float grappleX, ref float grappleY)
+		{
+			((IModProjHooks)BehaviorMain).GrappleTargetPoint(player, ref grappleX, ref grappleY);
+		}
+
+		public override void DrawBehind(int index, List<int> drawCacheProjsBehindNPCsAndTiles, List<int> drawCacheProjsBehindNPCs, List<int> drawCacheProjsBehindProjectiles, List<int> drawCacheProjsOverWiresUI)
+		{
+			((IModProjHooks)BehaviorMain).DrawBehind(index, drawCacheProjsBehindNPCsAndTiles, drawCacheProjsBehindNPCs, drawCacheProjsBehindProjectiles, drawCacheProjsOverWiresUI);
+		}
+
+		#endregion
+
 	}
 }
