@@ -93,12 +93,21 @@ namespace XxDefinitions.XDebugger
 			{
 				DrawEllipse(spriteBatch, rect.Center.ToVector2(), rect.Width / 2f, rect.Height / 2f, Accuracy, LineWidth, color);
 			}
+			public static void DrawVector(SpriteBatch spriteBatch, Vector2 Pos, Vector2 Vec,Color? color=null) {
+				Color RealColor;
+				if (color == null) RealColor = Color.GreenYellow;
+				else RealColor = (Color)color;
+				float L = Math.Min(8, Vec.Length());
+				DrawLineBy(spriteBatch,Pos, Vec, RealColor, 1);
+				DrawLineBy(spriteBatch, Pos + Vec, new Vector2(L, 0).RotatedBy(Math.PI * 3 / 4 + Vec.ToRotation()), RealColor, 1);
+				DrawLineBy(spriteBatch, Pos + Vec, new Vector2(L, 0).RotatedBy(-Math.PI * 3 / 4 + Vec.ToRotation()), RealColor, 1);
+			}
 		}
 		/// <summary>
 		/// 可用随时调用的添加绘画的方法
 		/// 比如<code>
 		/// public override void AI(){
-		///		.AddDrawVector(npc.velocity,npc.Center);
+		///		AddDraw.AddDrawVector(npc.velocity,npc.Center);
 		/// }
 		/// </code>
 		/// </summary>
@@ -165,6 +174,7 @@ namespace XxDefinitions.XDebugger
 			{
 				AddDrawLine(From, By.Length(), By.ToRotation(), color, LineWidth, DrawTime);
 			}
+			public static void AddDrawTilePos(Point point, Color? color = null, int DrawTime = 0) => AddDrawRect(new Rectangle(point.X*16,point.Y*16,16,16),color,DrawTime);
 			public static void AddDrawRect(Rectangle Rect, Color? color = null, int DrawTime = 0)
 			{
 				Color RealColor;

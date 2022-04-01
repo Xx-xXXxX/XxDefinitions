@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Terraria;
+using Terraria.Enums;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -209,7 +210,7 @@ namespace XxDefinitions.Projectiles
 		/// 对玩家和友好NPC的伤害
 		/// </summary>
 		public int FriendlyDamage {
-			get => BitOperate.ToInt32(projectile.ai[0]);
+			get => BitOperate.ToInt(projectile.ai[0]);
 			set => projectile.ai[0] = BitOperate.ToFloat(value);
 		}
 		/// <summary>
@@ -217,14 +218,14 @@ namespace XxDefinitions.Projectiles
 		/// </summary>
 		public int HostileDamage
 		{
-			get => BitOperate.ToInt32(projectile.ai[1]);
+			get => BitOperate.ToInt(projectile.ai[1]);
 			set => projectile.ai[1] = BitOperate.ToFloat(value);
 		}
 		private static UIntSeparatorFactory IntSeparatorFactory = new UIntSeparatorFactory(new uint[] {2,8192});
 		private UIntSeparator Data1 => IntSeparatorFactory.Build(new RefByDelegate<uint>(() => LocalAI0uInt, (v) => LocalAI0uInt = v));
 		private uint LocalAI0uInt
 		{
-			get => BitOperate.ToUint32(projectile.localAI[0]);
+			get => BitOperate.ToUInt(projectile.localAI[0]);
 			set => projectile.localAI[0] = BitOperate.ToFloat(value);
 		}
 		/// <summary>
@@ -297,14 +298,16 @@ namespace XxDefinitions.Projectiles
 			StartTime += 1;
 			if (Pos!=null)
 				projectile.position = Pos.Value;
-			if (Vel != null)
-				projectile.velocity = Vel.Value;
-			else {
+			if (rotation != null) Rotation = rotation.Value;
+			if (distance != null) Distance = distance.Value;
+			else
+			{
 				if (Collide)
 				{
-					Distance = Utils.CalculateUtils.CanHitLineDistance(projectile.Center, Rotation, MaxDistance);
+					Distance = Utils.CalculateUtils.CanHitLineDistance(projectile.Center, Rotation, MaxDistance,true);
 				}
-				else {
+				else
+				{
 					Distance = MaxDistance;
 				}
 			}
@@ -353,6 +356,13 @@ namespace XxDefinitions.Projectiles
 		{
 			OnHitPlayerEffect?.Invoke(this,target,damage,crit);
 		}
+
+		public override void CutTiles()
+		{
+			DelegateMethods.tilecut_0 = TileCuttingContext.AttackProjectile;
+			Vector2 unit = projectile.velocity;
+			Terraria.Utils.PlotTileLine(projectile.Center, projectile.Center +LaserVel, Width, DelegateMethods.CutTiles);
+		}
 		/// <summary>
 		/// 绘图的头（结束的位置）
 		/// </summary>
@@ -370,9 +380,13 @@ namespace XxDefinitions.Projectiles
 		/// </summary>
 		public IGetValue<Vector2> Pos=null;
 		/// <summary>
-		/// 激光的方向和长度，如果存在，自动设置，否则计算
+		/// 角度，如果存在，自动设置
 		/// </summary>
-		public IGetValue<Vector2> Vel = null;
+		public IGetValue<float> rotation=null;
+		/// <summary>
+		/// 距离，如果存在，自动设置，否则计算
+		/// </summary>
+		public IGetValue<float> distance = null;
 		/// <summary>
 		/// 击中NPC的效果
 		/// </summary>

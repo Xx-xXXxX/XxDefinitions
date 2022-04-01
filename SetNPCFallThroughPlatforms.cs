@@ -21,7 +21,7 @@ namespace XxDefinitions
 	public static class SetNPCFallThroughPlatforms
 	{
 		private static bool loaded=false;
-		private static void _Load() {
+		private static void Load_() {
 			funcs = new List<System.Func<NPC, bool>>();
 			iDfuncs = new SortedList<int, System.Func<NPC, bool>>();
 			On.Terraria.NPC.Collision_DecideFallThroughPlatforms += UseFuncs;
@@ -86,17 +86,17 @@ namespace XxDefinitions
 			}
 			return false;
 		}
-		private static void _Unload() {
+		private static void Unload_() {
 			funcs = null;
 			iDfuncs = null;
 			On.Terraria.NPC.Collision_DecideFallThroughPlatforms -= UseFuncs;
 			loaded = false;
 		}
 		internal static void Load() {
-			if (!loaded) _Load();
+			if (!loaded) Load_();
 		}
 		internal static void UnLoad() {
-			if (loaded) _Unload();
+			if (loaded) Unload_();
 		}
 	}
 }

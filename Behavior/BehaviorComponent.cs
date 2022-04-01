@@ -29,6 +29,20 @@ namespace XxDefinitions.Behavior
 		where RealBehaviorType : IBehavior
 	{
 		/// <summary>
+		/// 是否同步自己
+		/// </summary>
+		public abstract bool NetUpdateThis{get;}
+		/// <summary>
+		/// 如果存在需要同步的组件则同步
+		/// </summary>
+		public sealed override bool NetUpdate {
+			get {
+				if (NetUpdateThis) return true;
+				foreach (var i in GetUsings()) if (i.NetUpdate) return true;
+				return false;
+			}
+		}
+		/// <summary>
 		/// 装有Behavior的容器
 		/// </summary>
 		protected List<RealBehaviorType> BehaviorsList = new List<RealBehaviorType>();
@@ -136,7 +150,7 @@ namespace XxDefinitions.Behavior
 			}
 		}
 
-		public override void NetUpdateSend(BinaryWriter writer)
+		public sealed override void NetUpdateSend(BinaryWriter writer)
 		{
 			base.NetUpdateSend(writer);
 			bool All = false;
@@ -151,6 +165,12 @@ namespace XxDefinitions.Behavior
 				}
 			}
 
+			if (NetUpdateThis)
+			{
+				writer.Write(true);
+				OnNetUpdateSend(writer);
+			}
+			else writer.Write(false);
 			writer.Write(BehaviorsList.Count);
 			for (int i = 0; i < BehaviorsList.Count; ++i)
 			{
@@ -163,10 +183,12 @@ namespace XxDefinitions.Behavior
 					behavior.NetUpdateSend(writer);
 			}
 		}
-
-		public override void NetUpdateReceive(BinaryReader reader)
+		public virtual void OnNetUpdateSend(BinaryWriter writer) { }
+		public sealed override void NetUpdateReceive(BinaryReader reader)
 		{
 			base.NetUpdateReceive(reader);
+			bool netUpdateThis = reader.ReadBoolean();
+			if (netUpdateThis) OnNetUpdateReceive(reader);
 			int Count = reader.ReadInt32();
 			for (int i = 0; i < Count; ++i)
 			{
@@ -180,7 +202,7 @@ namespace XxDefinitions.Behavior
 					behavior.NetUpdateReceive(reader);
 			}
 		}
-
+		public virtual void OnNetUpdateReceive(BinaryReader reader) { }
 		public override object Call(params object[] vs)
 		{
 			return null;

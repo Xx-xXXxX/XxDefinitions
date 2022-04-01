@@ -134,9 +134,9 @@ namespace XxDefinitions.Behavior
 	{
 		private bool initialized = false;
 		public bool Initialized => initialized;
-		private bool active = true;
+		private bool active = false;
 		public virtual bool Active { get=>active;}
-		public abstract string BehaviorName { get; }
+		public virtual string BehaviorName { get { return this.GetType().FullName; } }
 		public virtual object Call(params object[] vs) { return null; }
 		public virtual bool CanActivate() { return !Active; }
 		public virtual bool CanPause() { return Active; }

@@ -85,7 +85,7 @@ namespace XxDefinitions.Projectiles.ProjBehaviors
 			}
 			projectile.VanillaAI();
 			projectile.type = rtype;
-			projectile.aiStyle = aiStyle;
+			projectile.aiStyle = raiStyle;
 			netUpdate = projectile.netUpdate;
 			projectile.netUpdate = rnetUpdate | netUpdate;
 			if (ai != null)

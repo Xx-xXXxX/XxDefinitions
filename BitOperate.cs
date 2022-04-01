@@ -137,20 +137,17 @@ namespace XxDefinitions
 		{
 			return BitConverter.ToInt32(BitConverter.GetBytes(d), 0);
 		}
-
-
-
-		public static int ToInt32(float d) {
+		public static int ToInt(float d) {
 			return BitConverter.ToInt32(BitConverter.GetBytes(d), 0);
 		}
-		public static int ToInt32(uint d)
+		public static int ToInt(uint d)
 		{
 			return (int)d;
 		}
-		public static uint ToUint32(int d) {
+		public static uint ToUInt(int d) {
 			return (uint)d;
 		}
-		public static uint ToUint32(float d)
+		public static uint ToUInt(float d)
 		{
 			return BitConverter.ToUInt32(BitConverter.GetBytes(d), 0);
 		}
@@ -325,7 +322,7 @@ namespace XxDefinitions
 		/// <summary>
 		/// 初始化，自动生成SeparateIndex
 		/// </summary>
-		public BitSeparator(IGetSetValue<int> SeparatedNumber, int[] SeparateDistance) {
+		public BitSeparator(IGetSetValue<int> SeparatedNumber, params int[] SeparateDistance) {
 			this.SeparatedNumber = SeparatedNumber;
 			this.SeparateDistance = SeparateDistance;
 			int n = 0;
@@ -381,7 +378,7 @@ namespace XxDefinitions
 		/// <summary>
 		/// 初始化，自动生成SeparateIndex
 		/// </summary>
-		public BitSeparatorFactory(int[] SeparateDistance)
+		public BitSeparatorFactory(params int[] SeparateDistance)
 		{
 			this.SeparateDistance = SeparateDistance;
 			int n = 0;
@@ -413,7 +410,6 @@ namespace XxDefinitions
 			return SeparatedNumber.Value = BitOperate.SetBits(SeparatedNumber.Value, value, SeparateIndex[index], SeparateDistance[index]);
 		}
 	}
-
 	/// <summary>
 	/// 将uint按值分离操作
 	/// </summary>
@@ -434,11 +430,11 @@ namespace XxDefinitions
 			return I;
 		}
 		/// <summary>
-		/// 按位分离长度
+		/// 分离长度
 		/// </summary>
 		public readonly uint[] SeparateDistance;
 		/// <summary>
-		/// 按位分离位置
+		/// 分离位置
 		/// </summary>
 		public readonly uint[] SeparateIndex;
 		/// <summary>
@@ -448,7 +444,7 @@ namespace XxDefinitions
 		/// <summary>
 		/// 初始化，自动生成SeparateIndex
 		/// </summary>
-		public UIntSeparator(IGetSetValue<uint> SeparatedNumber, uint[] SeparateDistance)
+		public UIntSeparator(IGetSetValue<uint> SeparatedNumber, params uint[] SeparateDistance)
 		{
 			this.SeparatedNumber = SeparatedNumber;
 			this.SeparateDistance = SeparateDistance;
@@ -481,7 +477,8 @@ namespace XxDefinitions
 		/// </summary>
 		public uint Set(int index, uint value)
 		{
-			SeparatedNumber.Value -= (SeparatedNumber.Value / SeparateIndex[index]) % SeparateDistance[index];
+			Check(index, value);
+			SeparatedNumber.Value -= ((SeparatedNumber.Value / SeparateIndex[index]) % SeparateDistance[index]) * SeparateIndex[index];
 			SeparatedNumber.Value += value* SeparateIndex[index];
 			return SeparatedNumber.Value;
 		}
@@ -492,25 +489,31 @@ namespace XxDefinitions
 		{
 			get => Get(index);
 			set => Set(index, value);
+		}/// <summary>
+		 /// 检查值是否在范围内
+		 /// </summary>
+		public void Check(int index, uint value)
+		{
+			if (value < 0 || value >= SeparateDistance[index]) throw new ArgumentOutOfRangeException("value", $"value:{value} 不在index:{index} 范围 [0,{SeparateDistance[index]})内");
 		}
 	}
 	/// <summary>
-	/// 按位分离的工厂
+	/// uint按值分离的工厂
 	/// </summary>
 	public class UIntSeparatorFactory
 	{
 		/// <summary>
-		/// 按位分离长度
+		/// 分离长度
 		/// </summary>
 		public readonly uint[] SeparateDistance;
 		/// <summary>
-		/// 按位分离位置
+		/// 分离位置
 		/// </summary>
 		public readonly uint[] SeparateIndex;
 		/// <summary>
 		/// 初始化，自动生成SeparateIndex
 		/// </summary>
-		public UIntSeparatorFactory(uint[] SeparateDistance)
+		public UIntSeparatorFactory(params uint[] SeparateDistance)
 		{
 			this.SeparateDistance = SeparateDistance;
 			uint n = 1;
@@ -522,7 +525,7 @@ namespace XxDefinitions
 			}
 		}
 		/// <summary>
-		/// 创建BitSeparator
+		/// 创建UIntSeparator
 		/// </summary>
 		public UIntSeparator Build(IGetSetValue<uint> I)
 		{
@@ -531,18 +534,231 @@ namespace XxDefinitions
 		/// <summary>
 		/// 获取分离的值
 		/// </summary>
-		public uint Get(IGetSetValue<uint> SeparatedNumber, int index)
+		public uint Get(IGetValue<uint> SeparatedNumber, int index)
 		{
 			return (SeparatedNumber.Value / SeparateIndex[index]) % SeparateDistance[index];
+		}
+		/// <summary>
+		/// 获取分离的值
+		/// </summary>
+		public uint Get(uint SeparatedNumber, int index)
+		{
+			return (SeparatedNumber / SeparateIndex[index]) % SeparateDistance[index];
 		}
 		/// <summary>
 		/// 设置分离的值
 		/// </summary>
 		public uint Set(IGetSetValue<uint> SeparatedNumber, int index, uint value)
 		{
-			SeparatedNumber.Value -= (SeparatedNumber.Value / SeparateIndex[index]) % SeparateDistance[index];
+			Check(index, value);
+			SeparatedNumber.Value -= ((SeparatedNumber.Value / SeparateIndex[index]) % SeparateDistance[index]) * SeparateIndex[index];
 			SeparatedNumber.Value += value * SeparateIndex[index];
 			return SeparatedNumber.Value;
+		}
+		/// <summary>
+		/// 设置分离的值
+		/// </summary>
+		public uint Set(ref uint SeparatedNumber, int index, uint value)
+		{
+			Check(index, value);
+			SeparatedNumber -= ((SeparatedNumber / SeparateIndex[index]) % SeparateDistance[index]) * SeparateIndex[index];
+			SeparatedNumber += value * SeparateIndex[index];
+			return SeparatedNumber;
+		}
+		/// <summary>
+		/// 设置分离的值
+		/// </summary>
+		public uint Set(uint SeparatedNumber, int index, uint value)
+		{
+			Check(index,value);
+			SeparatedNumber -= ((SeparatedNumber / SeparateIndex[index]) % SeparateDistance[index]) * SeparateIndex[index];
+			SeparatedNumber += value * SeparateIndex[index];
+			return SeparatedNumber;
+		}
+
+		/// <summary>
+		/// 检查值是否在范围内
+		/// </summary>
+		public void Check(int index, uint value)
+		{
+			if (value < 0 || value >= SeparateDistance[index]) throw new ArgumentOutOfRangeException("value", $"value:{value} 不在index:{index} 范围 [0,{SeparateDistance[index]})内");
+		}
+	}
+	/// <summary>
+	/// 将int按值分离操作
+	/// 但不会有负数，设置为负数会出错
+	/// </summary>
+	[DebuggerDisplay("[ToString()]")]
+	public class IntSeparator
+	{
+		/// <summary>
+		/// 显示所有分离结果值
+		/// </summary>
+		/// <returns></returns>
+		public override string ToString()
+		{
+			string I = Get(0).ToString();
+			for (int i = 1; i < SeparateIndex.Length; ++i)
+			{
+				I += $",{Get(i)}";
+			}
+			return I;
+		}
+		/// <summary>
+		/// 分离长度
+		/// </summary>
+		public readonly int[] SeparateDistance;
+		/// <summary>
+		/// 分离位置
+		/// </summary>
+		public readonly int[] SeparateIndex;
+		/// <summary>
+		/// 被分离的值
+		/// </summary>
+		public readonly IGetSetValue<int> SeparatedNumber;
+		/// <summary>
+		/// 初始化，自动生成SeparateIndex
+		/// </summary>
+		public IntSeparator(IGetSetValue<int> SeparatedNumber, params int[] SeparateDistance)
+		{
+			this.SeparatedNumber = SeparatedNumber;
+			this.SeparateDistance = SeparateDistance;
+			int n = 1;
+			SeparateIndex = new int[SeparateDistance.Length];
+			for (int i = 0; i < SeparateDistance.Length; ++i)
+			{
+				SeparateIndex[i] = n;
+				n *= SeparateDistance[i];
+			}
+		}
+		/// <summary>
+		/// 初始化
+		/// </summary>
+		public IntSeparator(IGetSetValue<int> SeparatedNumber, int[] SeparateDistance, int[] SeparateIndex)
+		{
+			this.SeparatedNumber = SeparatedNumber;
+			this.SeparateDistance = SeparateDistance;
+			this.SeparateIndex = SeparateIndex;
+		}
+		/// <summary>
+		/// 获取分离的值
+		/// </summary>
+		public int Get(int index)
+		{
+			return (int)(((uint)SeparatedNumber.Value / (uint)SeparateIndex[index]) % (uint)SeparateDistance[index]);
+		}
+		/// <summary>
+		/// 设置分离的值，使用负数会报错
+		/// </summary>
+		public int Set(int index, int value)
+		{
+			Check(index, value);
+			SeparatedNumber.Value -= ((SeparatedNumber.Value / SeparateIndex[index]) % SeparateDistance[index]) * SeparateIndex[index];
+			SeparatedNumber.Value += value * SeparateIndex[index];
+			return SeparatedNumber.Value;
+		}
+		/// <summary>
+		/// 
+		/// </summary>
+		public int this[int index]
+		{
+			get => Get(index);
+			set => Set(index, value);
+		}
+		/// <summary>
+		/// 检查值是否在范围内
+		/// </summary>
+		/// <param name="index"></param>
+		/// <param name="value"></param>
+		public void Check(int index, int value)
+		{
+			if (value < 0 || value >= SeparateDistance[index]) throw new ArgumentOutOfRangeException("value", $"value:{value} 不在index:{index} 范围 [0,{SeparateDistance[index]})内");
+		}
+	}
+	/// <summary>
+	/// int按值分离的工厂
+	/// 但不会有负数，设置为负数会出错
+	/// </summary>
+	public class IntSeparatorFactory
+	{
+		/// <summary>
+		/// 分离长度
+		/// </summary>
+		public readonly int[] SeparateDistance;
+		/// <summary>
+		/// 分离位置
+		/// </summary>
+		public readonly int[] SeparateIndex;
+		/// <summary>
+		/// 初始化，自动生成SeparateIndex
+		/// </summary>
+		public IntSeparatorFactory(params int[] SeparateDistance)
+		{
+			this.SeparateDistance = SeparateDistance;
+			int n = 1;
+			SeparateIndex = new int[SeparateDistance.Length];
+			for (int i = 0; i < SeparateDistance.Length; ++i)
+			{
+				SeparateIndex[i] = n;
+				n *= SeparateDistance[i];
+			}
+		}
+		/// <summary>
+		/// 创建IntSeparator
+		/// </summary>
+		public IntSeparator Build(IGetSetValue<int> I)
+		{
+			return new IntSeparator(I, SeparateDistance, SeparateIndex);
+		}
+		/// <summary>
+		/// 获取分离的值
+		/// </summary>
+		public int Get(IGetValue<int> SeparatedNumber, int index)
+		{
+			return (int)(((uint)SeparatedNumber.Value / (uint)SeparateIndex[index]) % (uint)SeparateDistance[index]);
+		}
+		/// <summary>
+		/// 获取分离的值
+		/// </summary>
+		public int Get(int SeparatedNumber, int index)
+		{
+			return (int)(((uint)SeparatedNumber / (uint)SeparateIndex[index]) % (uint)SeparateDistance[index]);
+		}
+		/// <summary>
+		/// 检查值是否在范围内
+		/// </summary>
+		public void Check(int index, int value) {
+			if (value < 0 || value >= SeparateDistance[index]) throw new ArgumentOutOfRangeException("value",$"value:{value} 不在index:{index} 范围 [0,{SeparateDistance[index]})内");
+		}
+		/// <summary>
+		/// 设置分离的值
+		/// </summary>
+		public int Set(IGetSetValue<int> SeparatedNumber, int index, int value)
+		{
+			Check(index, value);
+			SeparatedNumber.Value -= ((SeparatedNumber.Value / SeparateIndex[index]) % SeparateDistance[index]) * SeparateIndex[index];
+			SeparatedNumber.Value += value * SeparateIndex[index];
+			return SeparatedNumber.Value;
+		}
+		/// <summary>
+		/// 设置分离的值
+		/// </summary>
+		public int Set(ref int SeparatedNumber, int index, int value)
+		{
+			Check(index, value);
+			SeparatedNumber -= ((SeparatedNumber / SeparateIndex[index]) % SeparateDistance[index]) * SeparateIndex[index];
+			SeparatedNumber += value * SeparateIndex[index];
+			return SeparatedNumber;
+		}
+		/// <summary>
+		/// 设置分离的值
+		/// </summary>
+		public int Set(int SeparatedNumber, int index, int value)
+		{
+			Check(index, value);
+			SeparatedNumber -= ((SeparatedNumber / SeparateIndex[index]) % SeparateDistance[index])* SeparateIndex[index];
+			SeparatedNumber += value * SeparateIndex[index];
+			return SeparatedNumber;
 		}
 	}
 }

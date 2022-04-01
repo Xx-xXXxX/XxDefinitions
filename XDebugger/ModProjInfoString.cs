@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework.Graphics;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -32,6 +34,33 @@ namespace XxDefinitions.XDebugger
 		public Action<Terraria.Projectile, List<(string, string)>> GetInfoStringMethod(Terraria.ModLoader.GlobalProjectile globalProj)
 		{
 			return base.GetPropertyValue<Action<Terraria.Projectile, List<(string, string)>>>(globalProj);
+		}
+	}/// <summary>
+	 /// ModProjectile绘图，<![CDATA[Func<Projectile,SpriteBatch, bool>]]>
+	 /// </summary>
+	[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+	public class ModProjInfoDraw : XDebuggerRequires
+	{
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
+		public ModProjInfoDraw(string XDebuggerFullName, string MethodName) : base(XDebuggerFullName, MethodName)
+		{ }
+		public Func<SpriteBatch, bool> GetInfoStringMethod(Terraria.ModLoader.ModProjectile proj)
+		{
+			return base.GetPropertyValue<Func<SpriteBatch, bool>>(proj);
+		}
+	}
+	/// <summary>
+	/// GlobalProjectile绘图，<![CDATA[Func<Projectile,SpriteBatch, bool>]]>
+	/// </summary>
+	[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+	public class GlobalProjInfoDraw : XDebuggerRequires
+	{
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
+		public GlobalProjInfoDraw(string XDebuggerFullName, string MethodName) : base(XDebuggerFullName, MethodName)
+		{ }
+		public Func<Terraria.Projectile, SpriteBatch, bool> GetInfoStringMethod(Terraria.ModLoader.GlobalProjectile globalProj)
+		{
+			return base.GetPropertyValue<Func<Terraria.Projectile,SpriteBatch, bool>>(globalProj);
 		}
 	}
 }

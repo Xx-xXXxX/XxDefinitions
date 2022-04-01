@@ -32,7 +32,7 @@ namespace XxDefinitions.NPCs.NPCBehaviors
 		/// <summary>
 		/// 是否进行更新，在间隔期，只会判断目标是否可用，并在不可用时更新
 		/// </summary>
-		public Func<bool> DoUpdate=null;
+		public Func<bool> DoCalculate=null;
 		/// <summary>
 		/// 玩家是否可以成为目标
 		/// </summary>
@@ -64,27 +64,35 @@ namespace XxDefinitions.NPCs.NPCBehaviors
 #pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		public CheckTarget(ModNPC modNPC, IGetSetValue<UnifiedTarget> Target) : base(modNPC) {
 			this.Target = Target;
-			DoUpdate=()=> modNPC.npc.timeLeft % 15 == 0;
+			DoCalculate=()=> modNPC.npc.timeLeft % 15 == 0;
 		}
 		public CheckTarget(ModNPC modNPC, IGetSetValue<UnifiedTarget> Target,int UpdateTime) : base(modNPC)
 		{
 			this.Target = Target;
-			DoUpdate = () => modNPC.npc.timeLeft % UpdateTime == 0;
+			DoCalculate = () => modNPC.npc.timeLeft % UpdateTime == 0;
 		}
 		public override void Update()
 		{
-			if(DoUpdate==null) DoUpdate = () => npc.timeLeft % 15 == 0;
+			if(DoCalculate==null) DoCalculate = () => npc.timeLeft % 15 == 0;
 
 			if (NPCCanBeTargeted == null) NPCCanBeTargeted =Utils.NPCCanFind;
 			if (PlayerCanBeTargeted == null) PlayerCanBeTargeted = Utils.PlayerCanFind;
 
-			if (DoUpdate.Invoke()||(
-					Target.Value.IsNPC&&NPCCanBeTargeted(Target.Value.npc)||
-					Target.Value.IsPlayer&&PlayerCanBeTargeted(Target.Value.player)||
+			if (DoCalculate.Invoke()||(
+					Target.Value.IsNPC&&!NPCCanBeTargeted(Target.Value.npc)||
+					Target.Value.IsPlayer&&!PlayerCanBeTargeted(Target.Value.player)||
 					Target.Value.IsNull
 				)) {
-				Target.Value = Utils.CalculateUtils.FindTargetClosest(npc.Center,DefaultValue,FindFriendly,FindHostile,NPCCanBeTargeted,PlayerCanBeTargeted,NPCValue,PlayerValue);
+				Claculate();
 			}
+		}
+		public override void OnActivate()
+		{
+			Claculate();
+			base.OnActivate();
+		}
+		public void Claculate() { 
+			Target.Value = Utils.CalculateUtils.FindTargetClosest(npc.Center, DefaultValue, FindFriendly, FindHostile, NPCCanBeTargeted, PlayerCanBeTargeted, NPCValue, PlayerValue); 
 		}
 		/// <summary>
 		/// 设置为搜索邪恶生物

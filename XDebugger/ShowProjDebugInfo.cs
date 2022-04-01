@@ -19,6 +19,7 @@ namespace XxDefinitions.XDebugger
 	/// 用于显示ProjDebugInfo，调用ModProjectile[ModProjInfoString]与GlobalProjectile[GlobalProjInfoString]]]>
 	/// </summary>
 	[GlobalProjInfoString("XDebugger.XDebugger", "DefShowProjDebugInfo")]
+
 	public class ShowProjDebugInfo:GlobalProjectile
 	{
 
@@ -40,13 +41,17 @@ namespace XxDefinitions.XDebugger
 		};
 
 		public override bool InstancePerEntity => true;
-		List<Action<Projectile, List<(string, string)>>> actions = new List<Action<Projectile, List<(string, string)>>>();
-		List<TryGetXDebugger> actionsUsing = new List<TryGetXDebugger>();
+		List<Action<Projectile, List<(string, string)>>> StringActions = new List<Action<Projectile, List<(string, string)>>>();
+		List<TryGetXDebugger> StringActionsUsing = new List<TryGetXDebugger>();
+		List<Func<Projectile, SpriteBatch, bool>> DrawActions = new List<Func<Projectile, SpriteBatch, bool>>();
+		List<TryGetXDebugger> DrawActionsUsing = new List<TryGetXDebugger>();
 		public override void SetDefaults(Projectile proj)
 		{
 			if (proj == null) return;
-			actions.Clear();//解决CloneDefaults重复
-			actionsUsing.Clear();
+			StringActions.Clear();//解决CloneDefaults重复
+			StringActionsUsing.Clear();
+			DrawActions.Clear();
+			DrawActionsUsing.Clear();
 			if (proj.modProjectile != null)
 			{
 				System.Reflection.MemberInfo memberInfo = proj.modProjectile.GetType();
@@ -58,8 +63,22 @@ namespace XxDefinitions.XDebugger
 						Action<List<(string, string)>> action = i.GetInfoStringMethod(proj.modProjectile);
 						if (action != null)
 						{
-							actions.Add((n, l) => { action.Invoke(l); });
-							actionsUsing.Add(i.tryGetXDebugger);
+							StringActions.Add((n, l) => { action.Invoke(l); });
+							StringActionsUsing.Add(i.tryGetXDebugger);
+						}
+					}
+				}
+
+				List<ModProjInfoDraw> xDebuggerModNPCDraw = new List<ModProjInfoDraw>((ModProjInfoDraw[])memberInfo.GetCustomAttributes(typeof(ModProjInfoDraw), true));
+				if (xDebuggerModNPCDraw.Count > 0)
+				{
+					foreach (var i in xDebuggerModNPCDraw)
+					{
+						Func<SpriteBatch, bool> action = i.GetInfoStringMethod(proj.modProjectile);
+						if (action != null)
+						{
+							DrawActions.Add((n, sb) => { return action(sb); });
+							DrawActionsUsing.Add(i.tryGetXDebugger);
 						}
 					}
 				}
@@ -75,8 +94,27 @@ namespace XxDefinitions.XDebugger
 						Action<Projectile, List<(string, string)>> action = i.GetInfoStringMethod(j);
 						if (action != null)
 						{
-							actions.Add(action);
-							actionsUsing.Add(i.tryGetXDebugger);
+							StringActions.Add(action);
+							StringActionsUsing.Add(i.tryGetXDebugger);
+						}
+					}
+				}
+			}
+
+
+			List<GlobalProjInfoDraw> xDebuggerGlobalNPCDraws;
+			foreach (var j in globalProjs)
+			{
+				xDebuggerGlobalNPCDraws = new List<GlobalProjInfoDraw>((GlobalProjInfoDraw[])j.Instance(proj).GetType().GetCustomAttributes(typeof(GlobalProjInfoDraw), true));
+				if (xDebuggerGlobalNPCDraws.Count > 0)
+				{
+					foreach (var i in xDebuggerGlobalNPCDraws)
+					{
+						Func<Projectile, SpriteBatch, bool> action = i.GetInfoStringMethod(j);
+						if (action != null)
+						{
+							DrawActions.Add(action);
+							DrawActionsUsing.Add(i.tryGetXDebugger);
 						}
 					}
 				}
@@ -101,17 +139,22 @@ namespace XxDefinitions.XDebugger
 			if (!XDebugger.DebugMode) return;
 			if (ShowAlways) DrawTimeLeft = 1;
 			if (DrawTimeLeft <= 0) return;
+			bool ShowString = true;
+			for (int i = 0; i < DrawActions.Count; i++)
+			{
+				if (DrawActionsUsing[i].XDebuggerMode == 2)
+				{
+					ShowString = ShowString && DrawActions[i](proj, spriteBatch);
+				}
+			}
+
 			Vector2 Pos = proj.position + new Vector2(proj.width, proj.height / 2) - Main.screenPosition;
 			List<(string, string)> tooltips = new List<(string, string)>();
-			//foreach (var i in actions)
-			//{
-			//	i(proj, tooltips);
-			//}
-			for (int i = 0; i < actions.Count; ++i)
+			for (int i = 0; i < StringActions.Count; ++i)
 			{
-				if (actionsUsing[i].XDebuggerMode == 2)
+				if (StringActionsUsing[i].XDebuggerMode == 2)
 				{
-					actions[i](proj, tooltips);
+					StringActions[i](proj, tooltips);
 				}
 			}
 			string info = "";

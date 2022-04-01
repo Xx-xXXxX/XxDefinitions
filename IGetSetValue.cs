@@ -42,7 +42,6 @@ namespace XxDefinitions
 			set => SetFunc(value);
 		}
 	}
-
 	public abstract class Get<T> : IGetValue<T>
 	{
 		/// <summary>
@@ -101,7 +100,6 @@ namespace XxDefinitions
 		public override void SetFunc(T value) => SetF(value);
 		public static explicit operator GetByDelegate<T>(RefByDelegate<T> I) => new GetByDelegate<T>(I.GetF);
 		public static explicit operator SetByDelegate<T>(RefByDelegate<T> I) => new SetByDelegate<T>(I.SetF);
-		
 	}
 	public class GetByDelegate<T> : Get<T>
 	{

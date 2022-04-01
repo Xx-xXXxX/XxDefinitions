@@ -361,7 +361,7 @@ namespace XxDefinitions.Projectiles.ProjBehaviors
 	{
 		public readonly string name;
 		public override string BehaviorName => name;
-		public override bool NetUpdate => true;
+		public override bool NetUpdateThis => true;
 		public ModProjBehaviorComponentState(ModProjectile projectile,string name= "State") : base(projectile) { this.name = name; }
 	}
 }

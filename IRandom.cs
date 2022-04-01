@@ -82,7 +82,6 @@ namespace XxDefinitions
 			Value1.Value = Terraria.Utils.RandomNextSeed(Value1.Value ^ Terraria.Utils.RandomNextSeed(v));
 		}
 	}
-
 	/// <summary>
 	/// 用1个int完成随机数
 	/// </summary>
@@ -102,7 +101,7 @@ namespace XxDefinitions
 		public int IntSample()
 		{
 			Value1.Value = IRandomUtils.NextIntSeed(Value1.Value);
-			return Value1.Value;
+			return Value1.Value.ToNonnegative();
 		}
 		/// <summary>
 		/// Sample
@@ -139,7 +138,7 @@ namespace XxDefinitions
 		{
 			Value1.Value = IRandomUtils.NextIntSeed(Value1.Value-Value2.Value);
 			Value2.Value = IRandomUtils.NextIntSeed(Value1.Value+Value2.Value);
-			return Value1.Value^Value2.Value;
+			return (Value1.Value^Value2.Value).ToNonnegative();
 		}
 		/// <summary>
 		/// Sample
@@ -160,8 +159,23 @@ namespace XxDefinitions
 	public static class IRandomUtils
 	{
 #pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
+		/// <summary>
+		/// 对该seed生成下一个seed，可以小于0
+		/// </summary>
 		public static int NextIntSeed(int seed) {
 			return (int)((uint)seed * 65537 + 9586585221L);
+		}
+		/// <summary>
+		/// 对该seed生成下一个seed
+		/// </summary>
+		public static uint NextUIntSeed(uint seed)
+		{
+			return (uint)(seed * 65537 + 9586585221L);
+		}
+		public static int ToNonnegative(this int v) {
+			if (v < 0) v += int.MaxValue;
+			if (v == int.MaxValue) v -= 1;
+			return v;
 		}
 		/// <summary>
 		/// 将Terraria.Utilities.UnifiedRandom转为IRandom

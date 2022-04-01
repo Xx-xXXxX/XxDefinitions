@@ -1,6 +1,9 @@
-XxDefinitions 提供大量内容：
-	各种数据结构，通用接口，
-	为设计NPC穿过平台的On的
+XxDefinitions 提供一些函数，数据结构等：
+	各种数据结构，通用接口
+	位操作
+	StaticRef解决静态引用的问题
+	为设计NPC穿过平台的On
 	一些UIElement
-	Behavior
+	Behavior及其组合模式
 	XDebugger用于调试
+还会有很多更新（所以就暂时别用了）
