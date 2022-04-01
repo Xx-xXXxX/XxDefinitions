@@ -1068,16 +1068,16 @@ namespace XxDefinitions
 		public static void SetInWorld(Entity entity) {
 
 			if (entity.position.Y + entity.velocity.Y < 16)
-				entity.position.Y += 16 - entity.velocity.Y;
+				entity.position.Y = 16 - entity.velocity.Y;
 
 			if (entity.position.X + entity.velocity.X < 16)
-				entity.position.X += 16 - entity.velocity.X;
+				entity.position.X = 16 - entity.velocity.X;
 
-			if (entity.position.Y + entity.velocity.Y >Main.maxTilesY*16- 16)
-				entity.position.Y += Main.maxTilesY * 16 - 16 - entity.velocity.Y;
+			if (entity.position.Y+entity.height + entity.velocity.Y >Main.maxTilesY*16- 16)
+				entity.position.Y = Main.maxTilesY * 16 - 16 - entity.velocity.Y - entity.height;
 
-			if (entity.position.X + entity.velocity.X > Main.maxTilesX * 16 - 16)
-				entity.position.X += Main.maxTilesX * 16 - 16 - entity.velocity.X;
+			if (entity.position.X + entity.width + entity.velocity.X > Main.maxTilesX * 16 - 16)
+				entity.position.X = Main.maxTilesX * 16 - 16 - entity.velocity.X -entity.width;
 		}
 		/// <summary>
 		/// 从相对位置到世界位置

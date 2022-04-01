@@ -50,7 +50,7 @@ namespace XxDefinitions.NPCs.NPCBehaviors.Physics
 		/// <summary>
 		/// 最大旋转角
 		/// </summary>
-		public float MaxRotation = (float)Math.PI / 2 * 0.9f;
+		public float MaxRotation = (float)Math.PI / 2 * 0.75f;
 		/// <summary>
 		/// 角度修正，使得角度向0趋近
 		/// </summary>
@@ -80,7 +80,7 @@ namespace XxDefinitions.NPCs.NPCBehaviors.Physics
 		}
 		public override void Update()
 		{
-			Palstance -= npc.rotation * RotationCorrection;
+			npc.rotation *= 1 - RotationCorrection;
 			base.Update();
 			npc.rotation += Palstance;
 			Palstance *= 1 - PalstanceCorrection;

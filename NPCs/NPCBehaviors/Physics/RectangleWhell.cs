@@ -19,6 +19,7 @@ namespace XxDefinitions.NPCs.NPCBehaviors.Physics
 	/// 如果离地距离近则产生力
 	/// 组件在产生力时执行
 	/// </summary>
+	[Obsolete("效果很差，用VerticalGroundHover")]
 	public class RectangleWhell:PhysicsPartComponent<ModNPC>
 	{
 #pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释

@@ -19,11 +19,11 @@ namespace XxDefinitions.NPCs.NPCBehaviors.Physics
 	/// <summary>
 	/// 圆形轮子
 	/// </summary>
+	[Obsolete("效果很差，用VerticalGroundHover")]
 	public class CircularWhell:PhysicsPartComponent<ModNPC>
 	{
 #pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		public override bool NetUpdateThis => false;
-#pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		/// <summary>
 		/// 相对位置
 		/// </summary>
@@ -67,15 +67,23 @@ namespace XxDefinitions.NPCs.NPCBehaviors.Physics
 				Vector2 RealNext = //(Offset.RotatedBy(Palstance)).OffsetToWorld(npc)+npc.velocity;
 					(Offset).OffsetToWorld(npc.Center + npc.velocity, npc.rotation + Palstance, npc.direction);
 				float BL = Utils.CalculateUtils.CanHitLineDistancePerfect(RealNext, i, R + TireR);
+				if (BL < R + TireR)
+				{
+					float DF = Utils.Min((TireR + R - BL), 4);
+					AddForce(RealCenter, DF * RotatePower.Value * (i - (float)Math.PI / 2).ToRotationVector2());
+					Collided = true;
+				}
+				RealCenter = Offset.OffsetToWorld(npc);
+				RealNext = //(Offset.RotatedBy(Palstance)).OffsetToWorld(npc)+npc.velocity;
+					(Offset).OffsetToWorld(npc.Center + npc.velocity, npc.rotation + Palstance, npc.direction);
+				BL = Utils.CalculateUtils.CanHitLineDistancePerfect(RealNext, i, R + TireR);
 				if (BL < R+ TireR)
 				{
 					Vector2 DVel = (BL-R-TireR) * i.ToRotationVector2();
 					if(BL < R)
 						npc.position += (BL - R) * i.ToRotationVector2() * (1 - Elasticity) * 1f;
 					AddForce(RealCenter, Elasticity * DVel * Mass );
-					Collided = true;
-					float DF = Utils. Min((TireR+R - BL),4);
-					AddForce(RealCenter, DF * RotatePower.Value*(i-(float)Math.PI/2).ToRotationVector2());
+					
 				}
 			}
 
