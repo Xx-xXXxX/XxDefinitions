@@ -742,7 +742,6 @@ namespace XxDefinitions
 							yield return new Point(i, FromYP);
 				}
 			}
-			
 			/// <summary>
 			/// 确定点是否在线的上方（世界上线的下方）
 			/// </summary>
@@ -762,6 +761,17 @@ namespace XxDefinitions
 				Vector2 OffsetPoint = Point;
 				Vector2 PointXOnLine = Unit / Unit.X * OffsetPoint.X;
 				return OffsetPoint.Y > PointXOnLine.Y;
+			}
+			/// <summary>
+			/// 枚举被Rect接触的物块Point
+			/// </summary>
+			public static IEnumerable<Point> EnumTilesRectCovered(Rectangle rectangle) {
+				for (int x = rectangle.Left / 16; x <= rectangle.Right / 16; ++x) {
+					for (int y = rectangle.Top / 16; y <= rectangle.Bottom / 16; ++y)
+					{
+						yield return new Point(x,y);
+					}
+				}
 			}
 		}
 		public static Tile ToTile(this Vector2 vector)
