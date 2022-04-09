@@ -13,14 +13,29 @@ using Terraria.ModLoader;
 
 namespace XxDefinitions.NPCs.NPCBehaviors
 {
+	/// <summary>
+	/// 在相应时机执行
+	/// </summary>
 	public class DoWhenUpdate:ModNPCBehavior<ModNPC>
 	{
-		public override string BehaviorName => "DoWhenUpdate";
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		public override bool NetUpdate => false;
+#pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
+		/// <summary>
+		/// 执行时
+		/// </summary>
 		public Action UpdateAction;
+		/// <summary>
+		/// 激活时
+		/// </summary>
 		public Action ActivateAction;
+		/// <summary>
+		/// 暂停时
+		/// </summary>
 		public Action PauseAction;
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		public DoWhenUpdate(ModNPC modNPC, Action UpdateAction=null, Action ActivateAction=null, Action PauseAction=null) : base(modNPC) {
+
 			this.UpdateAction = UpdateAction;
 			this.ActivateAction = ActivateAction;
 			this.PauseAction = PauseAction;
@@ -40,5 +55,6 @@ namespace XxDefinitions.NPCs.NPCBehaviors
 			PauseAction?.Invoke();
 			base.OnPause();
 		}
+#pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
 	}
 }

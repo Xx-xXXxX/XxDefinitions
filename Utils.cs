@@ -416,9 +416,8 @@ namespace XxDefinitions
 				}
 				return MaxDistance;
 			}
-
 			/// <summary>
-			/// 计算以origin为起始点，向direction方向移动，直到碰到方块或到达最远距离的距离
+			/// 计算以origin为起始点，向direction方向移动，直到碰到方块或到达最远距离的距离，考虑斜方块和半砖
 			/// </summary>
 			public static float CanHitLineDistancePerfect(Vector2 origin, float direction, float MaxDistance = 2200f, bool fallThroughPlasform = true)
 			{
@@ -519,7 +518,13 @@ namespace XxDefinitions
 				float Distance =(float)( Point2.Length() / Math.Sin(Angle3) * Math.Sin(Angle2));
 				return Distance;
 			}
+			/// <summary>
+			/// 线1 过Point1，方向Direction1 与 线2 过Point2 ，方向Direction2 交点到Point1的距离（反向为负）
+			/// </summary>
 			public static float LineCollitionDistance(Vector2 Point1, float Direction1, Vector2 Point2, float Direction2) => LineCollitionDistance(Direction1,Point2-Point1,Direction2);
+			/// <summary>
+			/// 线1 Point1a，Point1b 与 线2 Point2a ，Point2b 交点到Point1a的距离（反向为负）
+			/// </summary>
 			public static float LineCollitionDistance(Vector2 Point1a, Vector2 Point1b, Vector2 Point2a, Vector2 Point2b)
 			{
 				return LineCollitionDistance((Point1b - Point1a).ToRotation(),Point2a-Point1a,(Point2b-Point2a).ToRotation());
@@ -743,6 +748,96 @@ namespace XxDefinitions
 				}
 			}
 			/// <summary>
+			/// 枚举线上的物块，从上往下返回每层的区间范围
+			/// </summary>
+			/// <returns>(纵坐标，横坐标左端，横坐标右端)</returns>
+			public static IEnumerable<(int, int, int)> EnumTileYLRInLine(Vector2 Start, Vector2 End)
+			{
+				if (Start.Y == End.Y)
+				{
+					int Y = (int)(Start.Y / 16);
+					if (Y < 1 || Y >= Main.maxTilesY) yield break;
+					int L = (int)(Start.X / 16);
+					int R = (int)(End.X / 16);
+					if (L > R) Terraria.Utils.Swap(ref L, ref R);
+					if (L < 1) L = 1;
+					if (L >= Main.maxTilesX) L = Main.maxTilesX - 1;
+					if (R + 1 < 1) R = 0;
+					if (R + 1 >= Main.maxTilesX) R = Main.maxTilesX - 2;
+					yield return (Y, L, R + 1);
+					yield break;
+				}
+				if (End.Y < Start.Y) Terraria.Utils.Swap(ref End, ref Start);
+				//Vector2 Point = Start;
+				Vector2 Offset = End - Start;
+				Vector2 Unit = Vector2.Normalize(Offset);
+				bool GoRight = Unit.X > 0;
+				bool GoDown = Unit.Y > 0;
+				Vector2 UnitY16 = Unit * (16 / Unit.Y);
+				float FromX = Start.X;
+				float FromY = Start.Y;
+				int FromXP = (int)(FromX / 16);
+				int FromYP = (int)(FromY / 16);
+				int NextYP;
+				float NextX;
+				int NextXP;
+				int EndYP = (int)(End.Y / 16f);
+				NextYP = FromYP + 1;
+				NextX = FromX + UnitY16.X * (NextYP * 16 - FromY) / 16;
+				NextXP = (int)(NextX / 16f);
+				while (FromYP < EndYP)
+				{
+					if (GoRight)
+						yield return (FromYP, FromXP, NextXP);
+					else
+						yield return (FromYP, NextXP, FromXP);
+					FromX = NextX;
+					FromXP = (int)(FromX / 16);
+					FromYP = NextYP;
+					NextYP = FromYP + 1;
+					NextX = FromX + UnitY16.X;
+					NextXP = (int)(NextX / 16f);
+				}
+				NextX = End.X;
+				NextXP = (int)(NextX / 16f);
+				if (GoRight)
+					yield return (FromYP, FromXP, NextXP);
+				else
+					yield return (FromYP, NextXP, FromXP);
+			}
+			/// <summary>
+			/// 枚举有宽度的线上的物块，从上往下
+			/// </summary>
+			public static IEnumerable<Point> EnumTilesInWideLine(Vector2 Start, Vector2 End, float Width) {
+				Vector2 v = Vector2.Normalize(End - Start).RotatedBy((float)Math.PI/2) * Width;
+				return EnumTilesInConvexPolygon(Start+v, End+v,End-v,Start-v);
+			}
+			/// <summary>
+			/// 枚举多边形内的物块，从上往下
+			/// </summary>
+			public static IEnumerable<Point> EnumTilesInConvexPolygon(params Vector2[] Points) {
+				int MaxY=(int) (Points[0].Y/16f), MinY = (int)(Points[0].Y / 16f), DistanceY=0;
+				foreach (var i in Points) {
+					MaxY.ToMax((int)(i.Y / 16f));
+					MinY.ToMin((int)(i.Y / 16f));
+				}
+				DistanceY = MaxY - MinY+1;
+				List<(int, int)?> YLRs=new List<(int, int)?>(DistanceY);
+				for (int i = 0; i < DistanceY; ++i) YLRs.Add(null);
+				foreach (var i in EnumPairs(Points)) {
+					foreach (var j in EnumTileYLRInLine(i.Item1, i.Item2)) {
+						int I = j.Item1 - MinY;
+						if (YLRs[I].HasValue)
+							YLRs[I] = (Min(j.Item2, YLRs[I].Value.Item1), Max(j.Item3, YLRs[I].Value.Item2));
+						else
+							YLRs[I] = (j.Item2, j.Item3);
+					}
+				}
+				for (int i = 0; i < DistanceY; ++i) {
+						for (int k = YLRs[i].Value.Item1; k <= YLRs[i].Value.Item2; ++k) yield return new Point( k, i + MinY);
+				}
+			}
+			/// <summary>
 			/// 确定点是否在线的上方（世界上线的下方）
 			/// </summary>
 			public static bool PointAboveLine(Vector2 Point, Vector2 Start, Vector2 End)
@@ -773,11 +868,6 @@ namespace XxDefinitions
 					}
 				}
 			}
-		}
-		public static Tile ToTile(this Vector2 vector)
-		{
-			Point point = (vector / 16).ToPoint();
-			return Main.tile[point.X, point.Y];
 		}
 		/// <summary>
 		/// 生成方法
@@ -965,6 +1055,25 @@ namespace XxDefinitions
 				}
 			}
 			return V2;
+		}
+		public static bool ToMax<T>(this ref T v, params T[] vs)
+			where T :struct, IComparable
+		{
+			bool Changed = false;
+			foreach (var i in vs) {
+				if (i.CompareTo(v) > 0) { v = i;Changed = true; }
+			}
+			return Changed;
+		}
+		public static bool ToMin<T>(this ref T v, params T[] vs)
+			where T : struct, IComparable
+		{
+			bool Changed = false;
+			foreach (var i in vs)
+			{
+				if (i.CompareTo(v) < 0) { v = i; Changed = true; }
+			}
+			return Changed;
 		}
 #pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		/// <summary>

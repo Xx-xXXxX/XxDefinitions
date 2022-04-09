@@ -20,17 +20,26 @@ namespace XxDefinitions.NPCs.NPCBehaviors.Physics
 	/// </summary>
 	public class VerticalGroundHover:PhysicsPartComponent<ModNPC>
 	{
-		public override string BehaviorName => "VerticalGroundHover";
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		public override bool NetUpdateThis => false;
+		/// <summary>
+		/// 相对中心位置
+		/// </summary>
 		public Vector2 Offset;
+		/// <summary>
+		/// 力的大小
+		/// </summary>
 		public float force;
+		/// <summary>
+		/// 高度
+		/// </summary>
 		public float height;
 		public VerticalGroundHover(PhysicsEntity physicsEntity,Vector2 Offset,float force,float height) : base(physicsEntity.modNPC, physicsEntity) {
 			this.Offset = Offset;
 			this.force = force;
 			this.height = height;
 		}
-		public bool ChildrenActivated=false;
+		private bool ChildrenActivated=false;
 		public override void OnActivate()
 		{
 			base.OnActivate();

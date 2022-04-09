@@ -304,7 +304,7 @@ namespace XxDefinitions.Projectiles
 			{
 				if (Collide)
 				{
-					Distance = Utils.CalculateUtils.CanHitLineDistance(projectile.Center, Rotation, MaxDistance,true);
+					Distance = Utils.CalculateUtils.CanHitLineDistancePerfect(projectile.Center, Rotation, MaxDistance,true);
 				}
 				else
 				{

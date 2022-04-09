@@ -15,14 +15,31 @@ using XxDefinitions.Behavior;
 
 namespace XxDefinitions.NPCs.NPCBehaviors.Physics
 {
+	/// <summary>
+	/// 简单的模拟轮子，简单而有效
+	/// </summary>
 	public class EasyWhell : PhysicsPartComponent<ModNPC>
 	{
-		public override string BehaviorName => "VerticalGroundHover";
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		public override bool NetUpdateThis => false;
+#pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
+		/// <summary>
+		/// 相对中心位置
+		/// </summary>
 		public Vector2 Offset;
+		/// <summary>
+		/// 力的大小
+		/// </summary>
 		public float force;
+		/// <summary>
+		/// 高度
+		/// </summary>
 		public float height;
+		/// <summary>
+		/// 触地时的牵引力
+		/// </summary>
 		public IGetValue<float> WhellForce;
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		public EasyWhell(PhysicsEntity physicsEntity, Vector2 Offset, float force, float height,IGetValue<float> WhellForce) : base(physicsEntity.modNPC, physicsEntity)
 		{
 			this.Offset = Offset;
@@ -30,7 +47,7 @@ namespace XxDefinitions.NPCs.NPCBehaviors.Physics
 			this.height = height;
 			this.WhellForce = WhellForce;
 		}
-		public bool ChildrenActivated = false;
+		private bool ChildrenActivated = false;
 		public override void OnActivate()
 		{
 			base.OnActivate();

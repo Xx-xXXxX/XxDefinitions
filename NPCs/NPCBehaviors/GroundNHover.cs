@@ -14,18 +14,48 @@ using Terraria.ModLoader;
 
 namespace XxDefinitions.NPCs.NPCBehaviors
 {
+	/// <summary>
+	/// 选取N个点提供力
+	/// </summary>
+	[Obsolete("使用Physics")]
 	public class GroundNHover:ModNPCBehavior<ModNPC>
 	{
-		public override string BehaviorName => "Ground2Hover";
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		public override bool NetUpdate => false;
+#pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
+		/// <summary>
+		/// 点
+		/// </summary>
 		public Vector2[] HoverPoint;
+		/// <summary>
+		/// 重心
+		/// </summary>
 		public Vector2 BarycenterOffsetCenter;
+		/// <summary>
+		/// 提供力的高度
+		/// </summary>
 		public float HoverHigh;
+		/// <summary>
+		/// 力的大小
+		/// </summary>
 		public float HoverForce;
+		/// <summary>
+		/// 转动惯量
+		/// </summary>
 		public float RotaryInertia;
+		/// <summary>
+		/// 质量
+		/// </summary>
 		public float Mass;
+		/// <summary>
+		/// 角速度
+		/// </summary>
 		public float Palstance=0;
+		/// <summary>
+		/// 最大转角
+		/// </summary>
 		public float MaxRotation=(float)Math.PI/2*0.9f;
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 		public GroundNHover(ModNPC modNPC,Vector2 Barycenter,float Mass,float RotaryInertia, Vector2[] HoverPoint,float HoverHigh,float HoverForce) : base(modNPC) {
 			this.HoverPoint = HoverPoint;
 			this.BarycenterOffsetCenter = Barycenter-npc.Size/2;
