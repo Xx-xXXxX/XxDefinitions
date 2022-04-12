@@ -860,12 +860,43 @@ namespace XxDefinitions
 			/// <summary>
 			/// 枚举被Rect接触的物块Point
 			/// </summary>
-			public static IEnumerable<Point> EnumTilesRectCovered(Rectangle rectangle) {
+			public static IEnumerable<Point> EnumTilesInRect(Rectangle rectangle) {
 				for (int x = rectangle.Left / 16; x <= rectangle.Right / 16; ++x) {
 					for (int y = rectangle.Top / 16; y <= rectangle.Bottom / 16; ++y)
 					{
 						yield return new Point(x,y);
 					}
+				}
+			}
+			/// <summary>
+			/// 枚举圆上的物块
+			/// </summary>
+			public static IEnumerable<Point> EnumTilesInCircle(Vector2 Pos, float R) {
+				Point PosW = (Pos / 16).ToPoint();
+				int r = (int)(R) / 16+1;
+				int i;
+				int wL;
+				int wR;
+				for (i = PosW.Y-r; i < PosW.Y; ++i) {
+					float d = i * 16 + 16;
+					float dl = (float)Math.Sqrt(R*R-d*d);
+					int dL = (int)((dl + 16) / 16);
+					wL = PosW.X-dL;
+					wR = PosW.X + dL;
+					for (int j = wL; j <= wR; ++i) yield return new Point(j,i);
+				}
+				i = PosW.Y;
+				wL = PosW.X - r;
+				wR = PosW.X + r;
+				for (int j = wL; j <= wR; ++i) yield return new Point(j, i);
+				for (i = PosW.Y; i <= PosW.Y+r; ++i)
+				{
+					float d = i * 16;
+					float dl = (float)Math.Sqrt(R * R - d * d);
+					int dL = (int)((dl + 16) / 16);
+					wL = PosW.X - dL;
+					wR = PosW.X + dL;
+					for (int j = wL; j <= wR; ++i) yield return new Point(j, i);
 				}
 			}
 		}
