@@ -366,15 +366,16 @@ namespace XxDefinitions.Projectiles
 		/// <summary>
 		/// 绘图的头（结束的位置）
 		/// </summary>
-		public Texture2DCutted Head = new Texture2DCutted(Main.projectileTexture[Type], new Rectangle(0, 52, 28, 26), new Vector2(28 * .5f, 26 * .5f), -(float)Math.PI * 0.5f);
+		public static Texture2DCutted Head => new Texture2DCutted(Main.projectileTexture[Type], new Rectangle(0, 52, 28, 26), new Vector2(28 * .5f, 26 * .5f), -(float)Math.PI * 0.5f);
 		/// <summary>
 		/// 绘图的尾（开始的位置）
 		/// </summary>
-		public Texture2DCutted Tail = new Texture2DCutted(Main.projectileTexture[Type], new Rectangle(0, 0, 28, 26), new Vector2(28 * .5f, 26 * .5f), -(float)Math.PI * 0.5f);
+		public static Texture2DCutted Tail => new Texture2DCutted(Main.projectileTexture[Type], new Rectangle(0, 0, 28, 26), new Vector2(28 * .5f, 26 * .5f), -(float)Math.PI * 0.5f);
 		/// <summary>
 		/// 绘图的中间
 		/// </summary>
-		public Texture2DCutted Body = new Texture2DCutted(Main.projectileTexture[Type], new Rectangle(0, 26, 28, 26), new Vector2(28 * .5f, 26 * .5f), -(float)Math.PI * 0.5f);
+		public static Texture2DCutted Body => new Texture2DCutted(Main.projectileTexture[Type], new Rectangle(0, 26, 28, 26), new Vector2(28 * .5f, 26 * .5f), -(float)Math.PI * 0.5f);
+
 		/// <summary>
 		/// 位置，如果存在，自动设置，否则保持原来的位置
 		/// </summary>

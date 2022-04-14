@@ -24,7 +24,7 @@ namespace XxDefinitions
 	/// <summary>
 	/// 引用的抽象类
 	/// </summary>
-	public abstract class Ref<T> : IGetValue<T>, ISetValue<T>, IGetSetValue<T> {
+	public abstract class RefValue<T> : IGetValue<T>, ISetValue<T>, IGetSetValue<T> {
 		/// <summary>
 		/// 设置值的函数
 		/// </summary>
@@ -42,7 +42,7 @@ namespace XxDefinitions
 			set => SetFunc(value);
 		}
 	}
-	public abstract class Get<T> : IGetValue<T>
+	public abstract class GetValue<T> : IGetValue<T>
 	{
 		/// <summary>
 		/// 获取值的函数
@@ -55,10 +55,10 @@ namespace XxDefinitions
 		{
 			get => GetFunc();
 		}
-		public static implicit operator Func<T>(Get<T> get) => get.GetFunc;
-		public static implicit operator Get<T>(Func<T> func)=>(GetByDelegate<T>)func;
+		public static implicit operator Func<T>(GetValue<T> get) => get.GetFunc;
+		public static implicit operator GetValue<T>(Func<T> func)=>(GetByDelegate<T>)func;
 	}
-	public abstract class Set<T> :ISetValue<T>
+	public abstract class SetValue<T> :ISetValue<T>
 	{
 		/// <summary>
 		/// 设置值的函数
@@ -71,14 +71,14 @@ namespace XxDefinitions
 		{
 			set => SetFunc(value);
 		}
-		public static implicit operator Action<T>(Set<T> set) => set.SetFunc;
-		public static implicit operator Set<T>(Action<T> action)=>(SetByDelegate<T>)action;
+		public static implicit operator Action<T>(SetValue<T> set) => set.SetFunc;
+		public static implicit operator SetValue<T>(Action<T> action)=>(SetByDelegate<T>)action;
 	}
 	/// <summary>
 	/// 通过委派函数实现引用
 	/// </summary>
 	/// <typeparam name="T">引用的对象的类型</typeparam>
-	public class RefByDelegate<T> : Ref<T>
+	public class RefByDelegate<T> : RefValue<T>
 	{
 		/// <summary>
 		/// 设置值的函数
@@ -101,7 +101,7 @@ namespace XxDefinitions
 		public static explicit operator GetByDelegate<T>(RefByDelegate<T> I) => new GetByDelegate<T>(I.GetF);
 		public static explicit operator SetByDelegate<T>(RefByDelegate<T> I) => new SetByDelegate<T>(I.SetF);
 	}
-	public class GetByDelegate<T> : Get<T>
+	public class GetByDelegate<T> : GetValue<T>
 	{
 		/// <summary>
 		/// 获取值的函数
@@ -121,7 +121,7 @@ namespace XxDefinitions
 			return new GetByDelegate<T>((Func<T>)lambda.Compile());
 		}
 	}
-	public class SetByDelegate<T> : Set<T>
+	public class SetByDelegate<T> : SetValue<T>
 	{
 		/// <summary>
 		/// 设置值的函数

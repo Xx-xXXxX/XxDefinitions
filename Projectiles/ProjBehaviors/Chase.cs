@@ -59,7 +59,7 @@ namespace XxDefinitions.Projectiles.ProjBehaviors
 		}
 		public Chase SetChaseTarget(IGetValue<UnifiedTarget> target, Vector2 Offset, IGetValue<Vector2> NullTarget=null)
 		{
-			this.Target = (Get<Vector2>)delegate {
+			this.Target = (GetValue<Vector2>)delegate {
 				if (target.Value.IsNPC) return target.Value.npc.Center + Offset;
 				else if (target.Value.IsPlayer) return target.Value.player.Center + Offset;
 				else return NullTarget?.Value ??(Main.player[projectile.owner].Center+Offset);

@@ -809,7 +809,7 @@ namespace XxDefinitions
 			/// 枚举有宽度的线上的物块，从上往下
 			/// </summary>
 			public static IEnumerable<Point> EnumTilesInWideLine(Vector2 Start, Vector2 End, float Width) {
-				Vector2 v = Vector2.Normalize(End - Start).RotatedBy((float)Math.PI/2) * Width;
+				Vector2 v = Vector2.Normalize(End - Start).RotatedBy((float)Math.PI/2) * Width/2;
 				return EnumTilesInConvexPolygon(Start+v, End+v,End-v,Start-v);
 			}
 			/// <summary>
@@ -1112,49 +1112,49 @@ namespace XxDefinitions
 		/// </summary>
 		public static IGetValue<Vector2> GetPlayerCenter(int id, Vector2 Offset = default)
 		{
-			return (Get<Vector2>)(() => Main.player[id].Center + Offset);
+			return (GetValue<Vector2>)(() => Main.player[id].Center + Offset);
 		}
 		/// <summary>
 		/// 获取Player的位置的IGetValue
 		/// </summary>
 		public static IGetValue<Vector2> GetPlayerCenter(Player player, Vector2 Offset = default)
 		{
-			return (Get<Vector2>)(() => player.Center + Offset);
+			return (GetValue<Vector2>)(() => player.Center + Offset);
 		}
 		/// <summary>
 		/// 获取NPC的位置的IGetValue
 		/// </summary>
 		public static IGetValue<Vector2> GetNPCCenter(int id, Vector2 Offset = default)
 		{
-			return (Get<Vector2>)(() => Main.npc[id].Center + Offset);
+			return (GetValue<Vector2>)(() => Main.npc[id].Center + Offset);
 		}
 		/// <summary>
 		/// 获取NPC的位置的IGetValue
 		/// </summary>
 		public static IGetValue<Vector2> GetNPCCenter(NPC npc, Vector2 Offset = default)
 		{
-			return (Get<Vector2>)(() => npc.Center + Offset);
+			return (GetValue<Vector2>)(() => npc.Center + Offset);
 		}
 		/// <summary>
 		/// 获取Proj的位置的IGetValue
 		/// </summary>
 		public static IGetValue<Vector2> GetProjCenter(int id, Vector2 Offset = default)
 		{
-			return (Get<Vector2>)(() => Main.projectile[id].Center + Offset);
+			return (GetValue<Vector2>)(() => Main.projectile[id].Center + Offset);
 		}
 		/// <summary>
 		/// 获取Proj的位置的IGetValue
 		/// </summary>
 		public static IGetValue<Vector2> GetProjCenter(Projectile projectile, Vector2 Offset = default)
 		{
-			return (Get<Vector2>)(() => projectile.Center + Offset);
+			return (GetValue<Vector2>)(() => projectile.Center + Offset);
 		}
 		/// <summary>
 		/// 获取NPC的目标位置的IGetValue
 		/// </summary>
 		public static IGetValue<Vector2> GetNPCTargetCenter(int id, IGetValue<Vector2> Default, Vector2 Offset = default)
 		{
-			return (Get<Vector2>)(() =>
+			return (GetValue<Vector2>)(() =>
 			{
 				UnifiedTarget target = new UnifiedTarget() { NPCTarget = Main.npc[id].target };
 				if (target.IsPlayer) return target.player.Center + Offset;
@@ -1167,7 +1167,7 @@ namespace XxDefinitions
 		/// </summary>
 		public static IGetValue<Vector2> GetNPCTargetCenter(NPC npc, IGetValue<Vector2> Default, Vector2 Offset = default)
 		{
-			return (Get<Vector2>)(() =>
+			return (GetValue<Vector2>)(() =>
 			{
 				UnifiedTarget target = new UnifiedTarget() { NPCTarget = npc.target };
 				if (target.IsPlayer) return target.player.Center + Offset;
@@ -1180,7 +1180,7 @@ namespace XxDefinitions
 		/// </summary>
 		public static IGetValue<Vector2> GetEntityCenter(Entity entity, Vector2 Offset = default)
 		{
-			return (Get<Vector2>)(() => entity.Center + Offset);
+			return (GetValue<Vector2>)(() => entity.Center + Offset);
 		}
 		/// <summary>
 		/// 获取目标位置的IGetValue
@@ -1257,5 +1257,43 @@ namespace XxDefinitions
 			for (int i = 0; i < l.Count - 1; ++i) yield return (l[i],l[i+1]);
 			yield return (l[l.Count - 1], l[0]);
 		}
+		/// <summary>
+		/// 画激光
+		/// </summary>
+		public static void DrawLaser(SpriteBatch spriteBatch, Vector2 Start, Vector2 End, float WidthScale, Texture2DCutted Body, Texture2DCutted Head, Texture2DCutted Tail,Func<Vector2,float,Vector2,bool > DrawBody = null, Func<Vector2, float, Vector2, bool> DrawHead = null, Func<Vector2, float, Vector2, bool> DrawTail=null) {
+			Vector2 Scale = new Vector2(1f, WidthScale);
+			float HeadLength = Head.RealSize().X * 0.9f;
+			float BodyLength = Body.RealSize().X * 0.9f;
+			float TailLength = Tail.RealSize().X * 0.9f;
+			Vector2 O;
+			Vector2 Offset = End - Start;
+			float Distance = Offset.Length();
+			float Rotation = Offset.ToRotation();
+			Color color = Color.White;
+			for (float i = HeadLength / 2f; i < Distance - TailLength / 2f; i += BodyLength)
+			{
+				O = Start + new Vector2(i, 0).RotatedBy(Rotation);
+				if (DrawBody == null || DrawBody(O, Rotation, Scale))
+					Body.Draw(spriteBatch, O - Main.screenPosition, color, Rotation, Scale, SpriteEffects.None);
+			}
+			O = Start + new Vector2(Distance - TailLength / 2f, 0).RotatedBy(Rotation);
+			if (DrawBody == null || DrawBody(O, Rotation, Scale))
+				Body.Draw(spriteBatch, O - Main.screenPosition, color, Rotation, Scale, SpriteEffects.None);
+			if (DrawTail == null || DrawTail(Start, Rotation, Scale))
+				Tail.Draw(spriteBatch, Start - Main.screenPosition, color, Rotation, Scale, SpriteEffects.None);
+			if (DrawHead == null || DrawHead(End, Rotation, Scale))
+				Head.Draw(spriteBatch, End - Main.screenPosition, color, Rotation, Scale, SpriteEffects.None);
+		}
+		/// <summary>
+		/// 玩家是否在使用对物品的右键
+		/// </summary>
+#pragma warning disable IDE1006 // 命名样式
+		public static bool controlUseItemRight2(this Player player) => player.selectedItem != 58&& player.controlUseTile && !player.tileInteractionHappened && player.releaseUseItem && !player.controlUseItem && !player.mouseInterface && !Terraria.Graphics.Capture.CaptureManager.Instance.Active && !Main.HoveringOverAnNPC && !Main.SmartInteractShowingGenuine;
+		/// <summary>
+		/// 玩家是否在使用对物品的右键
+		/// </summary>
+		 public static bool controlUseItemRight(this Player player) => player.selectedItem != 58&& player.controlUseTile && !player.tileInteractionHappened && !player.mouseInterface && !Terraria.Graphics.Capture.CaptureManager.Instance.Active && !Main.HoveringOverAnNPC && !Main.SmartInteractShowingGenuine;
+#pragma warning restore IDE1006 // 命名样式
+
 	}
 }

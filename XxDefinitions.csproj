@@ -8,7 +8,7 @@
     <LangVersion>7.3</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>obj\XxDefinitions.xml</DocumentationFile>
+    <DocumentationFile>XxDefinitions.xml</DocumentationFile>
     <OutputPath>obj\</OutputPath>
   </PropertyGroup>
   <Target Name="BuildMod" AfterTargets="Build">
