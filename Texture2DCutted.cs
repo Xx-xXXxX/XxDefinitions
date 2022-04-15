@@ -42,6 +42,7 @@ namespace XxDefinitions
 		/// 颜色
 		/// </summary>
 		public Color color;
+		public SpriteEffects spriteEffect;
 		/// <summary>
 		/// 截取Texture2D
 		/// </summary>
@@ -51,7 +52,7 @@ namespace XxDefinitions
 		/// <param name="Rotation">旋转，建议直角</param>
 		/// <param name="Scale">放缩</param>
 		/// <param name="color"></param>
-		public Texture2DCutted(Texture2D texture, Rectangle rectangle, Vector2 origin,float Rotation=0,Vector2 Scale=default,Color? color=null) {
+		public Texture2DCutted(Texture2D texture, Rectangle rectangle, Vector2 origin,float Rotation=0,Vector2 Scale=default,Color? color=null,SpriteEffects spriteEffect=SpriteEffects.None) {
 			this.texture = texture;
 			this.rectangle = rectangle;
 			this.origin = origin;
@@ -62,6 +63,7 @@ namespace XxDefinitions
 				this.color = Color.White;
 			else
 				this.color = color.Value;
+			this.spriteEffect = spriteEffect;
 		}
 		/// <summary>
 		/// 克隆
@@ -73,6 +75,7 @@ namespace XxDefinitions
 			this.Rotation = obj.Rotation;
 			this.Scale = obj.Scale;
 			this.color = obj.color;
+			this.spriteEffect = obj.spriteEffect;
 		}
 		/// <summary>
 		/// 复制
@@ -84,8 +87,9 @@ namespace XxDefinitions
 		/// <summary>
 		/// 替代SpriteBatch中的对应参数绘图
 		/// </summary>
-		public void Draw(SpriteBatch sb,Vector2 position,Color color,float rotation,float scale,SpriteEffects spriteEffects, float layerDepth = 0f) 
-		{
+		public void Draw(SpriteBatch sb,Vector2 position,Color color,float rotation,float scale,SpriteEffects spriteEffects, float layerDepth = 0f)
+		{//ChooseSpriteEffect
+			(spriteEffects, rotation) = ChooseSpriteEffect(spriteEffects, rotation);
 			sb.Draw(texture,position,rectangle,color.MultiplyRGBA(this.color),rotation+this.Rotation,origin, this.Scale*scale, spriteEffects, layerDepth);
 		}
 		/// <summary>
@@ -93,7 +97,7 @@ namespace XxDefinitions
 		/// </summary>
 		public void Draw(SpriteBatch sb, Vector2 position, Color color, float rotation, Vector2 scale, SpriteEffects spriteEffects, float layerDepth = 0f)
 		{
-			Vector2 RScale = RealScale(scale)*Scale;
+			Vector2 RScale = RealScale(scale)*Scale; (spriteEffects, rotation) = ChooseSpriteEffect(spriteEffects, rotation);
 			sb.Draw(texture, position, rectangle, color.MultiplyRGBA(this.color), rotation+this.Rotation, origin, RScale, spriteEffects, layerDepth);
 
 		}
@@ -101,6 +105,7 @@ namespace XxDefinitions
 		/// 替代SpriteBatch中的对应参数绘图
 		/// </summary>
 		public void Draw(SpriteBatch sb, Rectangle destinationRectangle, Color color, float rotation, SpriteEffects effects, float layerDepth=0f) {
+			(spriteEffect, rotation) = ChooseSpriteEffect(spriteEffect, rotation);
 			sb.Draw(texture,destinationRectangle,rectangle,color,rotation+this.Rotation, origin,effects,layerDepth);
 		}
 		/// <summary>
@@ -155,6 +160,16 @@ namespace XxDefinitions
 			if (Scale != null) this.Scale = Scale.Value;
 			if (color != null) this.color = color.Value;
 			return this;
+		}
+		private
+		(SpriteEffects, float) ChooseSpriteEffect(SpriteEffects spriteEffect,float rotation) {
+			if (this.spriteEffect == spriteEffect) return (SpriteEffects.None, rotation);
+			else
+			if (this.spriteEffect == SpriteEffects.None) return (spriteEffect, rotation);
+			else
+			if (spriteEffect == SpriteEffects.None) return (this.spriteEffect, rotation);
+			else
+				return (SpriteEffects.None, rotation+(float)Math.PI);
 		}
 	}
 }

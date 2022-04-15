@@ -2814,6 +2814,136 @@
             高度
             </summary>
         </member>
+        <member name="T:XxDefinitions.PlayerControlHelper">
+            <summary>
+            用于处理玩家操作
+            </summary>
+        </member>
+        <member name="T:XxDefinitions.PlayerControlHelper.ControlFlag">
+            <summary>
+            玩家操作的标识，用|合并
+            </summary>
+        </member>
+        <member name="F:XxDefinitions.PlayerControlHelper.ControlFlag.MouseRight">
+            <summary>
+            对物品的右键，与左键无关
+            </summary>
+        </member>
+        <member name="F:XxDefinitions.PlayerControlHelper.ControlFlag.UpDownLeftRight">
+            <summary>
+            左右键上下键组合
+            </summary>
+        </member>
+        <member name="F:XxDefinitions.PlayerControlHelper.ControlFlag.LeftRight">
+            <summary>
+            左右键组合
+            </summary>
+        </member>
+        <member name="F:XxDefinitions.PlayerControlHelper.player">
+            <summary>
+            玩家
+            </summary>
+        </member>
+        <member name="P:XxDefinitions.PlayerControlHelper.MouseRight">
+            <summary>
+            对物品的右键，与左键无关
+            </summary>
+        </member>
+        <member name="F:XxDefinitions.PlayerControlHelper.ControlNow">
+            <summary>
+            现在玩家的控制的状态
+            </summary>
+        </member>
+        <member name="F:XxDefinitions.PlayerControlHelper.ControlWorking">
+            <summary>
+            正在使用的玩家的控制的状态，开始时决定
+            </summary>
+        </member>
+        <member name="F:XxDefinitions.PlayerControlHelper.ControlWorkingOld">
+            <summary>
+            上一次使用的玩家的控制的状态，开始时决定
+            </summary>
+        </member>
+        <member name="F:XxDefinitions.PlayerControlHelper.ControlConsidered">
+            <summary>
+            被考虑的操作
+            </summary>
+        </member>
+        <member name="F:XxDefinitions.PlayerControlHelper.ControlConsideredMain">
+            <summary>
+            被考虑的主要操作，当主要操作被按下时计时，计时结束决定ControlNow
+            </summary>
+        </member>
+        <member name="F:XxDefinitions.PlayerControlHelper.ControlDelay">
+            <summary>
+            按下/松开 到现在的时间
+            </summary>
+        </member>
+        <member name="F:XxDefinitions.PlayerControlHelper.ActionsStart">
+            <summary>
+            在对应操作激活时，传入ControlTimes，返回false阻止激活
+            </summary>
+        </member>
+        <member name="F:XxDefinitions.PlayerControlHelper.ActionsUpdate">
+            <summary>
+            在对应操作运行时，传入ControlDelay，返回true结束操作
+            </summary>
+        </member>
+        <member name="F:XxDefinitions.PlayerControlHelper.ActionsEnd">
+            <summary>
+            在对应操作结束时，传入ControlTimes，返回false阻止结束操作
+            </summary>
+        </member>
+        <member name="F:XxDefinitions.PlayerControlHelper.GlobalActionStart">
+            <summary>
+            先于ActionsStart，传入ControlNow，ControlTimes，返回false阻止ActionsStart和激活
+            </summary>
+        </member>
+        <member name="F:XxDefinitions.PlayerControlHelper.GlobalActionUpdate">
+            <summary>
+            先于ActionsUpdate，传入ControlWorking，ControlDelay，返回true阻止ActionsUpdate和结束操作
+            </summary>
+        </member>
+        <member name="F:XxDefinitions.PlayerControlHelper.GlobalActionEnd">
+            <summary>
+            先于ActionsEnd，传入ControlWorking，ControlTimes，返回false阻止ActionsEnd，和结束操作
+            </summary>
+        </member>
+        <member name="F:XxDefinitions.PlayerControlHelper.NoControlUpdate">
+            <summary>
+            没有操作时
+            </summary>
+        </member>
+        <member name="M:XxDefinitions.PlayerControlHelper.AddActionStart(System.Int32,System.Func{Terraria.Player,System.Int32,System.Boolean})">
+            <summary>
+            在对应操作激活时，传入ControlTimes，返回false阻止激活
+            </summary>
+        </member>
+        <member name="M:XxDefinitions.PlayerControlHelper.AddActionUpdate(System.Int32,System.Func{Terraria.Player,System.Int32,System.Boolean})">
+            <summary>
+            在对应操作运行时，传入ControlDelay，返回true结束操作
+            </summary>
+        </member>
+        <member name="M:XxDefinitions.PlayerControlHelper.AddActionEnd(System.Int32,System.Func{Terraria.Player,System.Int32,System.Boolean})">
+            <summary>
+            在对应操作结束时，传入ControlTimes，返回false阻止结束操作
+            </summary>
+        </member>
+        <member name="M:XxDefinitions.PlayerControlHelper.Update">
+            <summary>
+            每帧进行
+            </summary>
+        </member>
+        <member name="M:XxDefinitions.PlayerControlHelper.Reset(Terraria.Player)">
+            <summary>
+            重置，不会去除Actions，会执行ActionEnd
+            </summary>
+        </member>
+        <member name="M:XxDefinitions.PlayerControlHelper.TryReset(Terraria.Player)">
+            <summary>
+            尝试重置，如果相同则不重置
+            </summary>
+        </member>
         <member name="T:XxDefinitions.Projectiles.ProjBehaviors.Chase">
             <summary>
             跟踪目标
@@ -3601,7 +3731,7 @@
             颜色
             </summary>
         </member>
-        <member name="M:XxDefinitions.Texture2DCutted.#ctor(Microsoft.Xna.Framework.Graphics.Texture2D,Microsoft.Xna.Framework.Rectangle,Microsoft.Xna.Framework.Vector2,System.Single,Microsoft.Xna.Framework.Vector2,System.Nullable{Microsoft.Xna.Framework.Color})">
+        <member name="M:XxDefinitions.Texture2DCutted.#ctor(Microsoft.Xna.Framework.Graphics.Texture2D,Microsoft.Xna.Framework.Rectangle,Microsoft.Xna.Framework.Vector2,System.Single,Microsoft.Xna.Framework.Vector2,System.Nullable{Microsoft.Xna.Framework.Color},Microsoft.Xna.Framework.Graphics.SpriteEffects)">
             <summary>
             截取Texture2D
             </summary>

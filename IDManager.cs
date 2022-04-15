@@ -87,8 +87,8 @@ namespace XxDefinitions
 
 		/// <summary>
 		/// 返回对该id的下一个可用ID(如果id在原范围内)复杂度O(n)
+		/// 但凡SortedList开放FindNode再写一个NextNode都可以有O(log n)的复杂度
 		/// </summary>
-		[Obsolete("但凡SortedList开放FindNode再写一个NextNode都可以有O(log n)的复杂度",true)]
 		public int NextID(int id)
 		{
 			//IDSection.ElementAt(id);
